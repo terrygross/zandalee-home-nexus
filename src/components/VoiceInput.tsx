@@ -2,8 +2,7 @@
 import { useState } from "react";
 import { Mic, MicOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useZandaleeAPI } from "@/hooks/useZandaleeAPI";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface VoiceInputProps {
   onTranscript: (text: string) => void;
@@ -13,8 +12,9 @@ interface VoiceInputProps {
 const VoiceInput = ({ onTranscript, disabled }: VoiceInputProps) => {
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const { executeCommand } = useZandaleeAPI();
-  const { toast } = useToast();
+  const { toast } = useToash();
+
+  const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:8759';
 
   const handleVoiceInput = async () => {
     if (isListening || isProcessing || disabled) return;
@@ -23,8 +23,8 @@ const VoiceInput = ({ onTranscript, disabled }: VoiceInputProps) => {
     setIsProcessing(true);
 
     try {
-      // Call the backend's voice/listen endpoint
-      const response = await fetch('http://localhost:3001/voice/listen', {
+      // Call the daemon's voice/listen endpoint
+      const response = await fetch(`${API_BASE}/voice/listen`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });

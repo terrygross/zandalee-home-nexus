@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import ZandaleeHeader from "@/components/ZandaleeHeader";
 import ChatInterface from "@/components/ChatInterface";
@@ -7,6 +6,11 @@ import MicSettings from "@/components/MicSettings";
 import ProjectSidebar from "@/components/ProjectSidebar";
 import CommandPalette from "@/components/CommandPalette";
 import StatusBar from "@/components/StatusBar";
+import MemoryManager from "@/components/MemoryManager";
+import SelfTestRunner from "@/components/SelfTestRunner";
+import SettingsDrawer from "@/components/SettingsDrawer";
+import { Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
@@ -47,21 +51,23 @@ const Index = () => {
         
         <div className="grid grid-cols-12 gap-6 flex-1 mt-6">
           {/* Left Sidebar - Projects & Memory */}
-          <div className="col-span-3">
+          <div className="col-span-3 space-y-6">
             <ProjectSidebar />
+            <MemoryManager />
           </div>
           
           {/* Main Content Area */}
           <div className="col-span-6 flex flex-col space-y-4">
             {/* Avatar Area - Square design for full avatar */}
             <div className="aspect-square max-h-64 glass-panel flex items-center justify-center flex-shrink-0 rounded-2xl overflow-hidden">
-              <div className="text-center space-y-4 p-8">
-                <div className="w-32 h-32 mx-auto rounded-2xl bg-gradient-to-br from-energy-cyan/30 to-energy-blue/30 border-2 border-energy-cyan/40 flex items-center justify-center shadow-lg shadow-energy-blue/20">
+              <div className="text-center space-y-4 p-8 w-full">
+                <div className="w-full aspect-square max-w-32 mx-auto rounded-2xl bg-gradient-to-br from-energy-cyan/30 to-energy-blue/30 border-2 border-energy-cyan/40 flex items-center justify-center shadow-lg shadow-energy-blue/20">
                   <div className="text-energy-cyan text-6xl font-bold tracking-wider">Z</div>
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-lg font-semibold text-text-primary">Zandalee</h3>
-                  <p className="text-sm text-text-muted">Avatar Integration Coming Soon</p>
+                  <p className="text-sm text-text-muted">Avatar System Reserved</p>
+                  <p className="text-xs text-text-secondary">Sandboxed & disabled by default</p>
                 </div>
               </div>
             </div>
@@ -72,12 +78,11 @@ const Index = () => {
             </div>
           </div>
           
-          {/* Right Sidebar - Voice Metrics & Mic Settings */}
+          {/* Right Sidebar - Voice Metrics & Controls */}
           <div className="col-span-3 space-y-6">
             <VoiceMetrics />
-            
-            {/* Mic Settings Panel */}
             <MicSettings />
+            <SelfTestRunner />
             
             {/* Quick Actions */}
             <div className="glass-panel p-4">
@@ -95,9 +100,12 @@ const Index = () => {
                 <button className="p-2 bg-energy-pulse/10 hover:bg-energy-pulse/20 rounded-lg text-xs text-energy-pulse border border-energy-pulse/30 transition-all duration-200">
                   New Project
                 </button>
-                <button className="p-2 bg-status-warning/10 hover:bg-status-warning/20 rounded-lg text-xs text-status-warning border border-status-warning/30 transition-all duration-200">
-                  Memory
-                </button>
+                <SettingsDrawer>
+                  <Button className="w-full p-2 bg-status-warning/10 hover:bg-status-warning/20 text-xs text-status-warning border border-status-warning/30 h-auto">
+                    <Settings className="w-4 h-4 mr-1" />
+                    Settings
+                  </Button>
+                </SettingsDrawer>
               </div>
             </div>
           </div>
