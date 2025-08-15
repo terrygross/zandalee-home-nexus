@@ -1,8 +1,10 @@
 
 import { useState, useRef, useEffect } from "react";
-import { Send, User, Bot, Terminal } from "lucide-react";
+import { Send, User, Bot, Terminal, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useZandaleeAPI } from "@/hooks/useZandaleeAPI";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Message {
   id: string;
@@ -28,7 +30,16 @@ const ChatInterface = () => {
   ]);
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+
+  const { 
+    isConnected, 
+    sendMessage, 
+    executeCommand, 
+    speak 
+  } = useZandaleeAPI();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -37,6 +48,16 @@ const ChatInterface = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Show connection status
+  useEffect(() => {
+    if (isConnected) {
+      toast({
+        title: "Connected",
+        description: "Connected to Zandalee backend successfully",
+      });
+    }
+  }, [isConnected, toast]);
 
   const handleSend = async () => {
     if (!input.trim() || isProcessing) return;
@@ -49,42 +70,57 @@ const ChatInterface = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input;
     setInput('');
     setIsProcessing(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: generateResponse(input),
+    try {
+      if (currentInput.startsWith(':')) {
+        // Handle command
+        const result = await executeCommand(currentInput);
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: result.success ? result.message || 'Command executed successfully' : `Error: ${result.message}`,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+      } else {
+        // Handle regular chat
+        const response = await sendMessage(currentInput);
+        const assistantMessage: Message = {
+          id: response.id,
+          role: 'assistant',
+          content: response.content,
+          timestamp: new Date(response.timestamp)
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+      }
+    } catch (error) {
+      const errorMessage: Message = {
+        id: (Date.now() + 2).toString(),
+        role: 'system',
+        content: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages(prev => [...prev, errorMessage]);
+      
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Unknown error occurred',
+        variant: "destructive"
+      });
+    } finally {
       setIsProcessing(false);
-    }, 1000 + Math.random() * 2000);
+    }
   };
 
-  const generateResponse = (input: string): string => {
-    const lowerInput = input.toLowerCase();
-    
-    if (lowerInput.includes('project')) {
-      return 'I can help you manage projects! Use ":project.new ProjectName" to create a new project, or ":project.list" to see existing ones. When we start a project, I\'ll automatically tag related memories and organize files.';
-    }
-    
-    if (lowerInput.includes('memory') || lowerInput.includes('remember')) {
-      return 'Memory management is one of my core functions. I can learn new information with ":mem.learn", search memories with ":mem.search", and create snapshots with ":mem.snapshot". All memories are stored locally and organized by importance and relevance.';
-    }
-    
-    if (lowerInput.includes('screenshot')) {
-      return 'I can capture screenshots and save them to your active project. The images are automatically organized and can be referenced in our conversations. Screen capture is subject to security policy approval.';
-    }
-    
-    if (lowerInput.startsWith(':')) {
-      return `Command "${input}" recognized. Processing... (This is a demo - full command integration coming soon!)`;
-    }
-    
-    return `I understand you said: "${input}". As your AI assistant, I'm here to help with projects, memory management, automation, and more. Try using commands starting with ":" or ask me about specific tasks!`;
+  const handleVoiceToggle = async () => {
+    setVoiceEnabled(!voiceEnabled);
+    toast({
+      title: voiceEnabled ? "Voice Disabled" : "Voice Enabled",
+      description: voiceEnabled ? "Voice output disabled" : "Voice output enabled",
+    });
   };
 
   const MessageBubble = ({ message }: { message: Message }) => {
@@ -122,8 +158,18 @@ const ChatInterface = () => {
   return (
     <div className="glass-panel h-full flex flex-col">
       <div className="p-4 border-b border-border/30">
-        <h3 className="text-lg font-semibold text-text-primary">Chat Interface</h3>
-        <p className="text-xs text-text-secondary">Communicate with Zandalee via text or voice</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-text-primary">Chat Interface</h3>
+            <p className="text-xs text-text-secondary">Communicate with Zandalee via text or voice</p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-status-success' : 'bg-status-error'} animate-pulse`} />
+            <span className="text-xs text-text-muted">
+              {isConnected ? 'Connected' : 'Disconnected'}
+            </span>
+          </div>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -159,11 +205,19 @@ const ChatInterface = () => {
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Type a message or command (e.g., :help)..."
             className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted"
-            disabled={isProcessing}
+            disabled={isProcessing || !isConnected}
           />
           <Button
+            onClick={handleVoiceToggle}
+            variant="ghost"
+            size="sm"
+            className={`${voiceEnabled ? 'text-energy-cyan bg-energy-cyan/20' : 'text-text-muted bg-space-mid/50'}`}
+          >
+            <Mic className="w-4 h-4" />
+          </Button>
+          <Button
             onClick={handleSend}
-            disabled={!input.trim() || isProcessing}
+            disabled={!input.trim() || isProcessing || !isConnected}
             className="bg-energy-cyan/20 hover:bg-energy-cyan/30 text-energy-cyan border border-energy-cyan/30 neon-border"
           >
             <Send className="w-4 h-4" />
@@ -171,7 +225,7 @@ const ChatInterface = () => {
         </div>
         
         <div className="flex justify-between items-center mt-2 text-xs text-text-muted">
-          <span>Commands start with ":" • Voice input available</span>
+          <span>Commands start with ":" • Voice {voiceEnabled ? 'enabled' : 'disabled'}</span>
           <span>Press Enter to send</span>
         </div>
       </div>
