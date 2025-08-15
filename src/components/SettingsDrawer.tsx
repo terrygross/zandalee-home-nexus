@@ -249,7 +249,7 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
 
   const providerOptions: { value: ProviderType; label: string; needsBaseUrl?: boolean }[] = [
     { value: 'openai', label: 'OpenAI' },
-    { value: 'meta', label: 'Meta Llama', needsBaseUrl: true },
+    { value: 'meta', label: 'Together AI (Meta Llama)', needsBaseUrl: true },
     { value: 'gemini', label: 'Google Gemini' },
     { value: 'deepseek', label: 'DeepSeek', needsBaseUrl: true },
     { value: 'ollama', label: 'Ollama (Local)', needsBaseUrl: true },
@@ -338,7 +338,12 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
                             id={`${value}_model`}
                             value={providers[value]?.model || ''}
                             onChange={(e) => handleProviderUpdate(value, 'model', e.target.value)}
-                            placeholder={value === 'openai' ? 'gpt-3.5-turbo' : value === 'gemini' ? 'gemini-pro' : 'model-name'}
+                            placeholder={
+                              value === 'openai' ? 'gpt-3.5-turbo' : 
+                              value === 'gemini' ? 'gemini-pro' : 
+                              value === 'meta' ? 'meta-llama/Llama-2-7b-chat-hf' :
+                              'model-name'
+                            }
                             className="text-xs"
                           />
                         </div>
@@ -350,7 +355,11 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
                               id={`${value}_url`}
                               value={providers[value]?.baseUrl || ''}
                               onChange={(e) => handleProviderUpdate(value, 'baseUrl', e.target.value)}
-                              placeholder={value === 'ollama' ? 'http://localhost:11434' : 'https://api.example.com'}
+                              placeholder={
+                                value === 'ollama' ? 'http://localhost:11434' : 
+                                value === 'meta' ? 'https://api.together.xyz' :
+                                'https://api.example.com'
+                              }
                               className="text-xs"
                             />
                           </div>

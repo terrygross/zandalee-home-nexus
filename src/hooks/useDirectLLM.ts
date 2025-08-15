@@ -15,6 +15,12 @@ export const useDirectLLM = () => {
       throw new Error(`No API key configured for ${activeProvider}`);
     }
 
+    console.log(`Sending message with provider: ${activeProvider}`, { 
+      hasApiKey: !!config.apiKey, 
+      model: config.model,
+      baseUrl: config.baseUrl 
+    });
+
     // Add core laws as system message if available
     const systemMessage = getSystemMessage();
     const messagesWithSystem = systemMessage 
@@ -31,7 +37,7 @@ export const useDirectLLM = () => {
       case 'gemini':
         return await callGemini(config, messagesWithSystem);
       case 'meta':
-        return await callMeta(config, messagesWithSystem);
+        return await callTogether(config, messagesWithSystem);
       case 'ollama':
         return await callOllama(config, messagesWithSystem);
       default:
@@ -70,6 +76,8 @@ export const useDirectLLM = () => {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('OpenAI API error:', response.status, errorText);
       throw new Error(`OpenAI API error: ${response.statusText}`);
     }
 
@@ -93,10 +101,41 @@ export const useDirectLLM = () => {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('DeepSeek API error:', response.status, errorText);
       throw new Error(`DeepSeek API error: ${response.statusText}`);
     }
 
     const data = await response.json();
+    return data.choices[0]?.message?.content || 'No response';
+  };
+
+  const callTogether = async (config: LLMProvider, messages: ChatMessage[]): Promise<string> => {
+    const baseUrl = config.baseUrl || 'https://api.together.xyz';
+    console.log('Calling Together AI with:', { baseUrl, model: config.model, hasApiKey: !!config.apiKey });
+    
+    const response = await fetch(`${baseUrl}/v1/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${config.apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: config.model || 'meta-llama/Llama-2-7b-chat-hf',
+        messages,
+        temperature: 0.7,
+        max_tokens: 1000
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Together AI API error:', response.status, errorText);
+      throw new Error(`Together AI API error: ${response.statusText} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log('Together AI response:', data);
     return data.choices[0]?.message?.content || 'No response';
   };
 
@@ -119,6 +158,8 @@ export const useDirectLLM = () => {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Custom API error:', response.status, errorText);
       throw new Error(`Custom API error: ${response.statusText}`);
     }
 
@@ -143,17 +184,13 @@ export const useDirectLLM = () => {
     );
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Gemini API error:', response.status, errorText);
       throw new Error(`Gemini API error: ${response.statusText}`);
     }
 
     const data = await response.json();
     return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
-  };
-
-  const callMeta = async (config: LLMProvider, messages: ChatMessage[]): Promise<string> => {
-    // Assuming Meta Llama is available through an OpenAI-compatible endpoint
-    const baseUrl = config.baseUrl || 'https://api.together.xyz';
-    return await callCustomOpenAI({ ...config, baseUrl }, messages);
   };
 
   const callOllama = async (config: LLMProvider, messages: ChatMessage[]): Promise<string> => {
@@ -169,6 +206,8 @@ export const useDirectLLM = () => {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Ollama API error:', response.status, errorText);
       throw new Error(`Ollama API error: ${response.statusText}`);
     }
 
