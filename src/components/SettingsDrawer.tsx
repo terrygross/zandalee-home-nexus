@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Settings, Save, RotateCcw, Key, Brain, Upload, AlertTriangle } from "lucide-react";
+import { Settings, Save, RotateCcw, Key, Brain, Upload, AlertTriangle, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useZandaleeAPI } from "@/hooks/useZandaleeAPI";
 import { useLLMProviders, type ProviderType } from "@/hooks/useLLMProviders";
@@ -22,6 +22,7 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
   const [config, setConfig] = useState<any>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [securityGuardrails, setSecurityGuardrails] = useState('');
   const { toast } = useToast();
   const { getConfig, updateConfig } = useZandaleeAPI();
   
@@ -34,6 +35,31 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
     updateCoreLaws,
     validateCoreLaws
   } = useLLMProviders();
+
+  // Load security guardrails from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('zandalee_security_guardrails.json');
+    if (stored) {
+      setSecurityGuardrails(stored);
+    }
+  }, []);
+
+  // Save security guardrails to localStorage
+  const updateSecurityGuardrails = (content: string) => {
+    setSecurityGuardrails(content);
+    localStorage.setItem('zandalee_security_guardrails.json', content);
+  };
+
+  // Validate JSON format
+  const validateGuardrails = (content: string): boolean => {
+    if (!content.trim()) return true;
+    try {
+      JSON.parse(content);
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
   const loadConfig = async () => {
     setIsLoading(true);
@@ -197,6 +223,30 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
     }
   };
 
+  const handleGuardrailsUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        if (validateGuardrails(content)) {
+          updateSecurityGuardrails(content);
+          toast({
+            title: "Security Guardrails Loaded",
+            description: "JSON file loaded successfully",
+          });
+        } else {
+          toast({
+            title: "Invalid JSON",
+            description: "The uploaded file contains invalid JSON",
+            variant: "destructive"
+          });
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
   const providerOptions: { value: ProviderType; label: string; needsBaseUrl?: boolean }[] = [
     { value: 'openai', label: 'OpenAI' },
     { value: 'meta', label: 'Meta Llama', needsBaseUrl: true },
@@ -211,30 +261,31 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
       <SheetTrigger asChild>
         {children}
       </SheetTrigger>
-      <SheetContent className="w-[600px] sm:max-w-[600px] bg-space-deep/95 backdrop-blur-xl border-l border-energy-cyan/30">
-        <SheetHeader>
+      <SheetContent className="w-[600px] sm:max-w-[600px] bg-space-deep/95 backdrop-blur-xl border-l border-energy-cyan/30 flex flex-col">
+        <SheetHeader className="flex-shrink-0">
           <SheetTitle className="flex items-center space-x-2 text-text-primary">
             <Settings className="w-5 h-5 text-energy-cyan" />
             <span>Zandalee Settings</span>
           </SheetTitle>
           <SheetDescription className="text-text-secondary">
-            Configure LLM providers, core laws, audio, and system settings
+            Configure LLM providers, core laws, security guardrails, audio, and system settings
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex flex-col h-[calc(100vh-120px)] mt-6">
-          <Tabs defaultValue="providers" className="flex-1">
-            <TabsList className="grid w-full grid-cols-6">
+        <div className="flex-1 flex flex-col min-h-0 mt-6">
+          <Tabs defaultValue="providers" className="flex-1 flex flex-col min-h-0">
+            <TabsList className="grid w-full grid-cols-7 flex-shrink-0">
               <TabsTrigger value="providers">Providers</TabsTrigger>
               <TabsTrigger value="laws">Core Laws</TabsTrigger>
+              <TabsTrigger value="security">Security</TabsTrigger>
               <TabsTrigger value="audio">Audio</TabsTrigger>
               <TabsTrigger value="ui">UI</TabsTrigger>
               <TabsTrigger value="avatar">Avatar</TabsTrigger>
               <TabsTrigger value="camera">Camera</TabsTrigger>
             </TabsList>
 
-            <div className="flex-1 overflow-y-auto mt-4 space-y-4">
-              <TabsContent value="providers" className="space-y-4">
+            <div className="flex-1 overflow-y-auto mt-4 space-y-4 min-h-0">
+              <TabsContent value="providers" className="space-y-4 mt-0">
                 <Card className="glass-panel">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm flex items-center space-x-2">
@@ -310,7 +361,7 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="laws" className="space-y-4">
+              <TabsContent value="laws" className="space-y-4 mt-0">
                 <Card className="glass-panel">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm flex items-center space-x-2">
@@ -387,7 +438,87 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="audio" className="space-y-4">
+              <TabsContent value="security" className="space-y-4 mt-0">
+                <Card className="glass-panel">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center space-x-2">
+                      <Shield className="w-4 h-4 text-status-warning" />
+                      <span>Security Guardrails</span>
+                    </CardTitle>
+                    <CardDescription className="text-xs">Define security policies and content filtering rules</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="security_guardrails" className="text-xs">Security Guardrails JSON</Label>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="file"
+                            accept=".json"
+                            onChange={handleGuardrailsUpload}
+                            className="hidden"
+                            id="upload_guardrails"
+                          />
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => document.getElementById('upload_guardrails')?.click()}
+                            className="text-xs"
+                          >
+                            <Upload className="w-3 h-3 mr-1" />
+                            Upload
+                          </Button>
+                        </div>
+                      </div>
+                      <Textarea
+                        id="security_guardrails"
+                        value={securityGuardrails}
+                        onChange={(e) => updateSecurityGuardrails(e.target.value)}
+                        placeholder='{"content_filters": ["no_harmful_content"], "access_controls": ["require_confirmation_for_system_commands"]}'
+                        className="min-h-[200px] font-mono text-xs"
+                      />
+                      <div className="flex items-center justify-between">
+                        <span className={`text-xs ${validateGuardrails(securityGuardrails) ? 'text-status-success' : 'text-status-error'}`}>
+                          {validateGuardrails(securityGuardrails) ? '✓ Valid JSON' : '✗ Invalid JSON'}
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateSecurityGuardrails(JSON.stringify(JSON.parse(securityGuardrails), null, 2))}
+                          disabled={!validateGuardrails(securityGuardrails)}
+                          className="text-xs"
+                        >
+                          Format
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-space-surface/30 rounded-lg">
+                      <h4 className="text-xs font-medium text-text-primary mb-2">Example Security Guardrails:</h4>
+                      <pre className="text-xs text-text-muted overflow-x-auto">
+{`{
+  "content_filters": [
+    "no_harmful_content",
+    "no_personal_info_sharing",
+    "no_system_exploitation"
+  ],
+  "access_controls": [
+    "require_confirmation_for_file_operations",
+    "require_confirmation_for_system_commands",
+    "log_all_sensitive_operations"
+  ],
+  "restrictions": [
+    "no_direct_system_access_without_permission",
+    "no_network_requests_without_disclosure"
+  ]
+}`}
+                      </pre>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="audio" className="space-y-4 mt-0">
                 <Card className="glass-panel">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm">Audio Configuration</CardTitle>
@@ -481,7 +612,7 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="ui" className="space-y-4">
+              <TabsContent value="ui" className="space-y-4 mt-0">
                 <Card className="glass-panel">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm">UI Configuration</CardTitle>
@@ -563,7 +694,7 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="avatar" className="space-y-4">
+              <TabsContent value="avatar" className="space-y-4 mt-0">
                 <Card className="glass-panel">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm">Avatar Configuration</CardTitle>
@@ -625,7 +756,7 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="camera" className="space-y-4">
+              <TabsContent value="camera" className="space-y-4 mt-0">
                 <Card className="glass-panel">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm">Camera Configuration</CardTitle>
@@ -729,7 +860,7 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
           </Tabs>
 
           {/* Action Buttons */}
-          <div className="flex justify-between items-center pt-4 border-t border-border/30 mt-4">
+          <div className="flex justify-between items-center pt-4 border-t border-border/30 mt-4 flex-shrink-0">
             <Button 
               variant="outline" 
               onClick={resetConfig}
