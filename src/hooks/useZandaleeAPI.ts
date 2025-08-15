@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 
 interface Message {
@@ -88,6 +87,16 @@ export const useZandaleeAPI = () => {
     return await response.json();
   };
 
+  const listen = async () => {
+    const response = await fetch(`${API_BASE}/voice/listen`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    if (!response.ok) throw new Error('Failed to listen');
+    return await response.json();
+  };
+
   const getProjects = async (): Promise<Project[]> => {
     const response = await fetch(`${API_BASE}/projects`);
     if (!response.ok) throw new Error('Failed to get projects');
@@ -134,6 +143,7 @@ export const useZandaleeAPI = () => {
     sendMessage,
     executeCommand,
     speak,
+    listen,
     getProjects,
     createProject,
     searchMemories,

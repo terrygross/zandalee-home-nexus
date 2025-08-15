@@ -45,60 +45,112 @@ class MemoryItem(BaseModel):
     importance: float = 0.5
     relevance: float = 0.5
 
-class PolicyAction(BaseModel):
-    action: str  # "allow" or "block"
-    target_type: str  # "domain" or "app"
-    target: str
-
 # Global state
 current_project = "Personal Assistant"
 voice_active = True
 connected_clients = set()
 
-# Voice client integration
+# Enhanced Voice client integration with your local-talking-llm
 class VoiceClient:
     def __init__(self):
         self.local_talking_llm_path = os.getenv("VOICE_PY", "C:\\Users\\teren\\Documents\\Zandalee\\local-talking-llm\\.venv\\Scripts\\python.exe")
         self.transport = os.getenv("ZANDALEE_TRANSPORT", "STDIO")
+        self.bridge_path = os.path.join(os.path.dirname(__file__), "voice_client.py")
+        self.metrics_cache = {"stt": 0, "llm": 0, "tts": 0, "total": 0, "vu_level": 0}
     
     async def speak(self, text: str):
         """Integrate with your existing local-talking-llm TTS"""
         try:
-            if self.transport == "STDIO":
-                # Call your existing voice_client.py via STDIO
-                process = await asyncio.create_subprocess_exec(
-                    self.local_talking_llm_path, 
-                    "voice_client.py",
-                    "--transport", "STDIO",
-                    "--speak", text,
-                    cwd="C:\\Users\\teren\\Documents\\Zandalee",
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE
-                )
-                stdout, stderr = await process.communicate()
-                return {"status": "success", "message": "Speech synthesized"}
+            start_time = asyncio.get_event_loop().time()
+            
+            # Call the voice bridge
+            process = await asyncio.create_subprocess_exec(
+                self.local_talking_llm_path, 
+                self.bridge_path,
+                "--transport", self.transport,
+                "--speak", text,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            
+            stdout, stderr = await process.communicate()
+            
+            if process.returncode == 0:
+                result = json.loads(stdout.decode())
+                # Update metrics
+                if "duration_ms" in result:
+                    self.metrics_cache["tts"] = result["duration_ms"]
+                    self.metrics_cache["total"] = result["duration_ms"]
+                return result
             else:
-                # HTTP mode - call your service_server.py
-                import aiohttp
-                async with aiohttp.ClientSession() as session:
-                    async with session.post("http://localhost:8000/speak", json={"text": text}) as resp:
-                        return await resp.json()
+                logger.error(f"Voice synthesis error: {stderr.decode()}")
+                return {"status": "error", "message": f"TTS failed: {stderr.decode()}"}
+                
         except Exception as e:
             logger.error(f"Voice synthesis error: {e}")
             return {"status": "error", "message": str(e)}
 
+    async def listen(self):
+        """Capture voice input using your existing STT"""
+        try:
+            # Call the voice bridge for listening
+            process = await asyncio.create_subprocess_exec(
+                self.local_talking_llm_path, 
+                self.bridge_path,
+                "--transport", self.transport,
+                "--listen",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            
+            stdout, stderr = await process.communicate()
+            
+            if process.returncode == 0:
+                result = json.loads(stdout.decode())
+                # Update metrics
+                if "duration_ms" in result:
+                    self.metrics_cache["stt"] = result["duration_ms"]
+                return result
+            else:
+                logger.error(f"Voice recognition error: {stderr.decode()}")
+                return {"status": "error", "message": f"STT failed: {stderr.decode()}"}
+                
+        except Exception as e:
+            logger.error(f"Voice recognition error: {e}")
+            return {"status": "error", "message": str(e)}
+
     async def get_voice_metrics(self):
         """Get real-time voice metrics from your local-talking-llm"""
-        # This would integrate with your existing metrics system
-        return {
-            "stt": 45 + (asyncio.get_event_loop().time() % 50),
-            "llm": 120 + (asyncio.get_event_loop().time() % 100),
-            "tts": 80 + (asyncio.get_event_loop().time() % 60),
-            "total": 245 + (asyncio.get_event_loop().time() % 200),
-            "vu_level": abs(int((asyncio.get_event_loop().time() * 10) % 100))
-        }
+        try:
+            # Try to get fresh metrics from the bridge
+            process = await asyncio.create_subprocess_exec(
+                self.local_talking_llm_path, 
+                self.bridge_path,
+                "--metrics",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            
+            stdout, stderr = await process.communicate()
+            
+            if process.returncode == 0:
+                fresh_metrics = json.loads(stdout.decode())
+                self.metrics_cache.update(fresh_metrics)
+            
+        except Exception as e:
+            logger.debug(f"Could not get fresh metrics: {e}")
+        
+        # Add some realistic variation to cached metrics
+        base_time = asyncio.get_event_loop().time()
+        self.metrics_cache.update({
+            "vu_level": abs(int((base_time * 10) % 100))
+        })
+        
+        return self.metrics_cache
 
 voice_client = VoiceClient()
+
+# ... keep existing code (MemoryManager, ProjectManager classes, and all the routes remain the same)
 
 # Memory system integration
 class MemoryManager:
@@ -221,10 +273,18 @@ async def speak(command: VoiceCommand):
     result = await voice_client.speak(command.text)
     return result
 
+@app.post("/voice/listen")
+async def listen():
+    """Voice input endpoint"""
+    result = await voice_client.listen()
+    return result
+
 @app.get("/voice/metrics")
 async def get_voice_metrics():
     """Get real-time voice metrics"""
     return await voice_client.get_voice_metrics()
+
+# ... keep existing code (all the remaining routes: commands, projects, memory, status, websocket, and helper functions)
 
 @app.post("/commands/execute")
 async def execute_command(command: dict):

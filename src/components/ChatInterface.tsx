@@ -1,10 +1,10 @@
-
 import { useState, useRef, useEffect } from "react";
-import { Send, User, Bot, Terminal, Mic } from "lucide-react";
+import { Send, User, Bot, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useZandaleeAPI } from "@/hooks/useZandaleeAPI";
 import { useToast } from "@/components/ui/use-toast";
+import VoiceInput from "./VoiceInput";
 
 interface Message {
   id: string;
@@ -123,6 +123,12 @@ const ChatInterface = () => {
     });
   };
 
+  const handleVoiceTranscript = (transcript: string) => {
+    setInput(transcript);
+    // Optionally auto-send the transcribed message
+    // handleSend(); // Uncomment this if you want voice input to auto-send
+  };
+
   const MessageBubble = ({ message }: { message: Message }) => {
     const isUser = message.role === 'user';
     const isSystem = message.role === 'system';
@@ -207,14 +213,10 @@ const ChatInterface = () => {
             className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted"
             disabled={isProcessing || !isConnected}
           />
-          <Button
-            onClick={handleVoiceToggle}
-            variant="ghost"
-            size="sm"
-            className={`${voiceEnabled ? 'text-energy-cyan bg-energy-cyan/20' : 'text-text-muted bg-space-mid/50'}`}
-          >
-            <Mic className="w-4 h-4" />
-          </Button>
+          <VoiceInput
+            onTranscript={handleVoiceTranscript}
+            disabled={isProcessing || !isConnected}
+          />
           <Button
             onClick={handleSend}
             disabled={!input.trim() || isProcessing || !isConnected}
@@ -225,7 +227,7 @@ const ChatInterface = () => {
         </div>
         
         <div className="flex justify-between items-center mt-2 text-xs text-text-muted">
-          <span>Commands start with ":" • Voice {voiceEnabled ? 'enabled' : 'disabled'}</span>
+          <span>Commands start with ":" • Click mic to use voice input</span>
           <span>Press Enter to send</span>
         </div>
       </div>
