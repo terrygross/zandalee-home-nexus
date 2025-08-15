@@ -1,5 +1,7 @@
 
-import { Brain, Cpu, Activity } from "lucide-react";
+import { Brain, Cpu, Activity, Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import SettingsDrawer from "./SettingsDrawer";
 
 const ZandaleeHeader = () => {
   return (
@@ -33,6 +35,17 @@ const ZandaleeHeader = () => {
           <div className="text-text-muted text-sm">
             v1.0.0
           </div>
+
+          <SettingsDrawer>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 hover:bg-energy-cyan/20 hover:text-energy-cyan border border-transparent hover:border-energy-cyan/30 transition-all duration-200"
+              title="Open Settings"
+            >
+              <Settings className="w-4 h-4" />
+            </Button>
+          </SettingsDrawer>
         </div>
       </div>
     </div>

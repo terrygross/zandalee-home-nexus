@@ -7,9 +7,11 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings, Save, RotateCcw } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Settings, Save, RotateCcw, Key, Brain, Upload, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useZandaleeAPI } from "@/hooks/useZandaleeAPI";
+import { useLLMProviders, type ProviderType } from "@/hooks/useLLMProviders";
 
 interface SettingsDrawerProps {
   children: React.ReactNode;
@@ -22,6 +24,16 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   const { getConfig, updateConfig } = useZandaleeAPI();
+  
+  const {
+    providers,
+    activeProvider,
+    coreLaws,
+    updateProvider,
+    setActive,
+    updateCoreLaws,
+    validateCoreLaws
+  } = useLLMProviders();
 
   const loadConfig = async () => {
     setIsLoading(true);
@@ -29,11 +41,9 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
       const currentConfig = await getConfig();
       setConfig(currentConfig);
     } catch (error) {
-      toast({
-        title: "Config Load Error",
-        description: error instanceof Error ? error.message : 'Failed to load configuration',
-        variant: "destructive"
-      });
+      // Gracefully fallback to localStorage mode if backend config fails
+      console.log('Backend config not available, using localStorage mode');
+      setConfig({});
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +69,6 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
   };
 
   const resetConfig = () => {
-    // Reset to default configuration
     const defaultConfig = {
       audio: {
         machine: "PC-NAME",
@@ -159,6 +168,44 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
     return current;
   };
 
+  const handleProviderUpdate = (type: ProviderType, field: string, value: string) => {
+    const currentProvider = providers[type] || { apiKey: '', model: '', baseUrl: '' };
+    updateProvider(type, { ...currentProvider, [field]: value });
+  };
+
+  const handleCoreLawsUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        if (validateCoreLaws(content)) {
+          updateCoreLaws(content);
+          toast({
+            title: "Core Laws Loaded",
+            description: "JSON file loaded successfully",
+          });
+        } else {
+          toast({
+            title: "Invalid JSON",
+            description: "The uploaded file contains invalid JSON",
+            variant: "destructive"
+          });
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const providerOptions: { value: ProviderType; label: string; needsBaseUrl?: boolean }[] = [
+    { value: 'openai', label: 'OpenAI' },
+    { value: 'meta', label: 'Meta Llama', needsBaseUrl: true },
+    { value: 'gemini', label: 'Google Gemini' },
+    { value: 'deepseek', label: 'DeepSeek', needsBaseUrl: true },
+    { value: 'ollama', label: 'Ollama (Local)', needsBaseUrl: true },
+    { value: 'custom', label: 'Custom OpenAI-Compatible', needsBaseUrl: true }
+  ];
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
@@ -171,21 +218,175 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
             <span>Zandalee Settings</span>
           </SheetTitle>
           <SheetDescription className="text-text-secondary">
-            Configure audio, LLM, UI, and avatar settings
+            Configure LLM providers, core laws, audio, and system settings
           </SheetDescription>
         </SheetHeader>
 
         <div className="flex flex-col h-[calc(100vh-120px)] mt-6">
-          <Tabs defaultValue="audio" className="flex-1">
-            <TabsList className="grid w-full grid-cols-5">
+          <Tabs defaultValue="providers" className="flex-1">
+            <TabsList className="grid w-full grid-cols-6">
+              <TabsTrigger value="providers">Providers</TabsTrigger>
+              <TabsTrigger value="laws">Core Laws</TabsTrigger>
               <TabsTrigger value="audio">Audio</TabsTrigger>
-              <TabsTrigger value="llm">LLM</TabsTrigger>
               <TabsTrigger value="ui">UI</TabsTrigger>
               <TabsTrigger value="avatar">Avatar</TabsTrigger>
               <TabsTrigger value="camera">Camera</TabsTrigger>
             </TabsList>
 
             <div className="flex-1 overflow-y-auto mt-4 space-y-4">
+              <TabsContent value="providers" className="space-y-4">
+                <Card className="glass-panel">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center space-x-2">
+                      <Key className="w-4 h-4 text-energy-cyan" />
+                      <span>LLM Providers</span>
+                    </CardTitle>
+                    <CardDescription className="text-xs">Configure API keys and models for different LLM providers</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center space-x-2 p-2 bg-status-warning/10 border border-status-warning/20 rounded-lg">
+                      <AlertTriangle className="w-4 h-4 text-status-warning" />
+                      <span className="text-xs text-status-warning">Keys stored locally. Not secure for production use.</span>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="active_provider" className="text-xs">Active Provider</Label>
+                      <Select value={activeProvider} onValueChange={(value) => setActive(value as ProviderType)}>
+                        <SelectTrigger className="text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {providerOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {providerOptions.map(({ value, label, needsBaseUrl }) => (
+                      <div key={value} className={`space-y-3 p-3 rounded-lg ${activeProvider === value ? 'bg-energy-cyan/5 border border-energy-cyan/20' : 'bg-space-surface/20'}`}>
+                        <h4 className="text-xs font-medium text-text-primary">{label}</h4>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor={`${value}_key`} className="text-xs">API Key</Label>
+                          <Input
+                            id={`${value}_key`}
+                            type="password"
+                            value={providers[value]?.apiKey || ''}
+                            onChange={(e) => handleProviderUpdate(value, 'apiKey', e.target.value)}
+                            placeholder="Enter API key..."
+                            className="text-xs"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor={`${value}_model`} className="text-xs">Model</Label>
+                          <Input
+                            id={`${value}_model`}
+                            value={providers[value]?.model || ''}
+                            onChange={(e) => handleProviderUpdate(value, 'model', e.target.value)}
+                            placeholder={value === 'openai' ? 'gpt-3.5-turbo' : value === 'gemini' ? 'gemini-pro' : 'model-name'}
+                            className="text-xs"
+                          />
+                        </div>
+
+                        {needsBaseUrl && (
+                          <div className="space-y-2">
+                            <Label htmlFor={`${value}_url`} className="text-xs">Base URL</Label>
+                            <Input
+                              id={`${value}_url`}
+                              value={providers[value]?.baseUrl || ''}
+                              onChange={(e) => handleProviderUpdate(value, 'baseUrl', e.target.value)}
+                              placeholder={value === 'ollama' ? 'http://localhost:11434' : 'https://api.example.com'}
+                              className="text-xs"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="laws" className="space-y-4">
+                <Card className="glass-panel">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center space-x-2">
+                      <Brain className="w-4 h-4 text-energy-blue" />
+                      <span>Core Laws</span>
+                    </CardTitle>
+                    <CardDescription className="text-xs">Define Zandalee's core principles and behavior rules</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="core_laws" className="text-xs">Core Laws JSON</Label>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="file"
+                            accept=".json"
+                            onChange={handleCoreLawsUpload}
+                            className="hidden"
+                            id="upload_laws"
+                          />
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => document.getElementById('upload_laws')?.click()}
+                            className="text-xs"
+                          >
+                            <Upload className="w-3 h-3 mr-1" />
+                            Upload
+                          </Button>
+                        </div>
+                      </div>
+                      <Textarea
+                        id="core_laws"
+                        value={coreLaws}
+                        onChange={(e) => updateCoreLaws(e.target.value)}
+                        placeholder='{"principles": ["Be helpful", "Be honest"], "restrictions": ["No harmful content"]}'
+                        className="min-h-[200px] font-mono text-xs"
+                      />
+                      <div className="flex items-center justify-between">
+                        <span className={`text-xs ${validateCoreLaws(coreLaws) ? 'text-status-success' : 'text-status-error'}`}>
+                          {validateCoreLaws(coreLaws) ? '✓ Valid JSON' : '✗ Invalid JSON'}
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateCoreLaws(JSON.stringify(JSON.parse(coreLaws), null, 2))}
+                          disabled={!validateCoreLaws(coreLaws)}
+                          className="text-xs"
+                        >
+                          Format
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-space-surface/30 rounded-lg">
+                      <h4 className="text-xs font-medium text-text-primary mb-2">Example Core Laws:</h4>
+                      <pre className="text-xs text-text-muted overflow-x-auto">
+{`{
+  "identity": "Family desktop AI assistant",
+  "principles": [
+    "Always be helpful and respectful",
+    "Protect user privacy and data",
+    "Provide accurate information"
+  ],
+  "capabilities": [
+    "Help with coding projects",
+    "Manage memories and knowledge",
+    "Assist with daily tasks"
+  ]
+}`}
+                      </pre>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
               <TabsContent value="audio" className="space-y-4">
                 <Card className="glass-panel">
                   <CardHeader className="pb-3">
@@ -275,80 +476,6 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
                         onCheckedChange={(checked) => updateConfigValue('audio.half_duplex', checked)}
                       />
                       <Label htmlFor="half_duplex" className="text-xs">Half-duplex mode</Label>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="llm" className="space-y-4">
-                <Card className="glass-panel">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">LLM Configuration</CardTitle>
-                    <CardDescription className="text-xs">Language model backend settings</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="backend" className="text-xs">Backend</Label>
-                      <Select value={getConfigValue('llm.backend')} onValueChange={(value) => updateConfigValue('llm.backend', value)}>
-                        <SelectTrigger className="text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ollama">Ollama</SelectItem>
-                          <SelectItem value="meta">Meta</SelectItem>
-                          <SelectItem value="deepseek">DeepSeek</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {getConfigValue('llm.backend') === 'ollama' && (
-                      <div className="space-y-4 p-4 bg-space-surface/30 rounded-lg">
-                        <div className="space-y-2">
-                          <Label htmlFor="ollama_url" className="text-xs">Ollama URL</Label>
-                          <Input
-                            id="ollama_url"
-                            value={getConfigValue('llm.ollama.url')}
-                            onChange={(e) => updateConfigValue('llm.ollama.url', e.target.value)}
-                            className="text-xs"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="ollama_model" className="text-xs">Model</Label>
-                          <Input
-                            id="ollama_model"
-                            value={getConfigValue('llm.ollama.model')}
-                            onChange={(e) => updateConfigValue('llm.ollama.model', e.target.value)}
-                            className="text-xs"
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="space-y-4 p-4 bg-space-surface/30 rounded-lg">
-                      <h4 className="text-xs font-medium text-text-primary">Generation Settings</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="max_tokens" className="text-xs">Max Tokens</Label>
-                          <Input
-                            id="max_tokens"
-                            type="number"
-                            value={getConfigValue('llm.generation.max_tokens')}
-                            onChange={(e) => updateConfigValue('llm.generation.max_tokens', parseInt(e.target.value))}
-                            className="text-xs"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="temperature" className="text-xs">Temperature</Label>
-                          <Input
-                            id="temperature"
-                            type="number"
-                            step="0.1"
-                            value={getConfigValue('llm.generation.temperature')}
-                            onChange={(e) => updateConfigValue('llm.generation.temperature', parseFloat(e.target.value))}
-                            className="text-xs"
-                          />
-                        </div>
-                      </div>
                     </div>
                   </CardContent>
                 </Card>

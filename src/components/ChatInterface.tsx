@@ -1,9 +1,12 @@
 
 import { useState, useRef, useEffect } from "react";
-import { Send, User, Bot, Terminal, Star } from "lucide-react";
+import { Send, User, Bot, Terminal, Star, Zap, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { useZandaleeAPI } from "@/hooks/useZandaleeAPI";
+import { useDirectLLM } from "@/hooks/useDirectLLM";
 import { useToast } from "@/hooks/use-toast";
 import VoiceInput from "./VoiceInput";
 
@@ -32,16 +35,19 @@ const ChatInterface = () => {
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [speakBackEnabled, setSpeakBackEnabled] = useState(true);
+  const [directLLMMode, setDirectLLMMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   const { 
     isConnected, 
     isSpeaking,
-    sendMessage, 
+    sendMessage: sendBackendMessage, 
     speak,
     learnMemory
   } = useZandaleeAPI();
+
+  const { sendMessage: sendDirectMessage, activeProvider, isConfigured } = useDirectLLM();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -53,13 +59,13 @@ const ChatInterface = () => {
 
   // Show connection status
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && !directLLMMode) {
       toast({
         title: "Connected",
         description: "Connected to Zandalee daemon successfully",
       });
     }
-  }, [isConnected, toast]);
+  }, [isConnected, directLLMMode, toast]);
 
   const handleSend = async () => {
     if (!input.trim() || isProcessing) return;
@@ -77,19 +83,45 @@ const ChatInterface = () => {
     setIsProcessing(true);
 
     try {
-      // Send message to daemon
-      const response = await sendMessage(currentInput);
+      let responseContent: string;
+
+      if (directLLMMode) {
+        if (!isConfigured()) {
+          throw new Error(`No API key configured for ${activeProvider}. Please configure in settings.`);
+        }
+
+        // Convert messages to chat format for direct LLM
+        const chatMessages = messages
+          .filter(msg => msg.role !== 'system')
+          .map(msg => ({
+            role: msg.role as 'user' | 'assistant',
+            content: msg.content
+          }));
+        
+        // Add current user message
+        chatMessages.push({ role: 'user', content: currentInput });
+
+        responseContent = await sendDirectMessage(chatMessages);
+      } else {
+        if (!isConnected) {
+          throw new Error('Not connected to Zandalee daemon. Please check connection or use Direct LLM mode.');
+        }
+
+        const response = await sendBackendMessage(currentInput);
+        responseContent = response.content;
+      }
+
       const assistantMessage: Message = {
-        id: response.id,
+        id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response.content,
-        timestamp: new Date(response.timestamp)
+        content: responseContent,
+        timestamp: new Date()
       };
       setMessages(prev => [...prev, assistantMessage]);
       
-      // Trigger TTS if speak back is enabled
-      if (speakBackEnabled) {
-        await speak(response.content);
+      // Trigger TTS if speak back is enabled and not in direct mode
+      if (speakBackEnabled && !directLLMMode) {
+        await speak(responseContent);
       }
     } catch (error) {
       const errorMessage: Message = {
@@ -115,6 +147,15 @@ const ChatInterface = () => {
   };
 
   const handleSaveAsMemory = async (messageContent: string) => {
+    if (directLLMMode) {
+      toast({
+        title: "Memory Save Unavailable",
+        description: "Memory saving is only available in Backend mode",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       await learnMemory(
         messageContent,
@@ -167,8 +208,8 @@ const ChatInterface = () => {
                 {message.timestamp.toLocaleTimeString()}
               </span>
               
-              {/* Save to Memory button for assistant messages */}
-              {isAssistant && (
+              {/* Save to Memory button for assistant messages in backend mode */}
+              {isAssistant && !directLLMMode && (
                 <Button
                   size="sm"
                   variant="ghost"
@@ -197,20 +238,40 @@ const ChatInterface = () => {
           </div>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <label className="text-xs text-text-secondary">Speak Back</label>
-              <input
-                type="checkbox"
-                checked={speakBackEnabled}
-                onChange={(e) => setSpeakBackEnabled(e.target.checked)}
-                className="rounded"
+              <Switch
+                id="direct-llm"
+                checked={directLLMMode}
+                onCheckedChange={setDirectLLMMode}
               />
+              <Label htmlFor="direct-llm" className="text-xs flex items-center space-x-1">
+                <Zap className="w-3 h-3" />
+                <span>Direct LLM</span>
+              </Label>
             </div>
+            
             <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-status-success' : 'bg-status-error'} animate-pulse`} />
+              <Switch
+                id="speak-back"
+                checked={speakBackEnabled}
+                onCheckedChange={setSpeakBackEnabled}
+                disabled={directLLMMode}
+              />
+              <Label htmlFor="speak-back" className="text-xs">Speak Back</Label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full animate-pulse ${
+                directLLMMode 
+                  ? (isConfigured() ? 'bg-energy-cyan' : 'bg-status-warning')
+                  : (isConnected ? 'bg-status-success' : 'bg-status-error')
+              }`} />
               <span className="text-xs text-text-muted">
-                {isConnected ? 'Connected' : 'Disconnected'}
+                {directLLMMode 
+                  ? (isConfigured() ? `${activeProvider.toUpperCase()} Ready` : 'Not Configured')
+                  : (isConnected ? 'Backend Connected' : 'Backend Disconnected')
+                }
               </span>
-              {isSpeaking && (
+              {isSpeaking && !directLLMMode && (
                 <div className="flex items-center space-x-1 text-energy-glow">
                   <Bot className="w-3 h-3 animate-pulse" />
                   <span className="text-xs">Speaking</span>
@@ -230,8 +291,10 @@ const ChatInterface = () => {
         {isProcessing && (
           <div className="flex justify-start">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-energy-blue/20 text-energy-blue flex items-center justify-center">
-                <Bot className="w-4 h-4" />
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                directLLMMode ? 'bg-energy-cyan/20 text-energy-cyan' : 'bg-energy-blue/20 text-energy-blue'
+              }`}>
+                {directLLMMode ? <Zap className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
               </div>
               <div className="glass-panel p-3 bg-card">
                 <div className="flex space-x-1">
@@ -256,15 +319,15 @@ const ChatInterface = () => {
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Type a message or command..."
             className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted"
-            disabled={isProcessing || !isConnected}
+            disabled={isProcessing || (!isConnected && !directLLMMode) || (directLLMMode && !isConfigured())}
           />
           <VoiceInput
             onTranscript={handleVoiceTranscript}
-            disabled={isProcessing || !isConnected}
+            disabled={isProcessing || (!isConnected && !directLLMMode) || (directLLMMode && !isConfigured())}
           />
           <Button
             onClick={handleSend}
-            disabled={!input.trim() || isProcessing || !isConnected}
+            disabled={!input.trim() || isProcessing || (!isConnected && !directLLMMode) || (directLLMMode && !isConfigured())}
             className="bg-energy-cyan/20 hover:bg-energy-cyan/30 text-energy-cyan border border-energy-cyan/30 neon-border"
           >
             <Send className="w-4 h-4" />
@@ -272,7 +335,12 @@ const ChatInterface = () => {
         </div>
         
         <div className="flex justify-between items-center mt-2 text-xs text-text-muted">
-          <span>Click ⭐ Save to save responses as memories • Click mic for voice input</span>
+          <span>
+            {directLLMMode 
+              ? `Direct mode: ${activeProvider.toUpperCase()} • Configure API key in settings ⚙️`
+              : `Backend mode • Click ⭐ Save to save responses as memories • Click mic for voice input`
+            }
+          </span>
           <span>Press Enter to send</span>
         </div>
       </div>

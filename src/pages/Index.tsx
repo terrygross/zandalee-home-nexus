@@ -10,6 +10,7 @@ import MicSettings from "@/components/MicSettings";
 import VoiceMetrics from "@/components/VoiceMetrics";
 import StatusBar from "@/components/StatusBar";
 import AudioControls from "@/components/AudioControls";
+import ScreenSharePanel from "@/components/ScreenSharePanel";
 
 const Index = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -70,6 +71,11 @@ const Index = () => {
           {/* Mic Settings */}
           <div className="flex-shrink-0 p-2 pt-0">
             <MicSettings />
+          </div>
+          
+          {/* Screen Share Panel */}
+          <div className="flex-shrink-0 p-2 pt-0" style={{ height: '160px' }}>
+            <ScreenSharePanel />
           </div>
           
           {/* Voice Metrics */}
