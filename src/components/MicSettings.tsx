@@ -63,63 +63,63 @@ const MicSettings = () => {
   return (
     <>
       <Card className="glass-panel">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2 text-text-primary">
-            <Mic className="w-5 h-5 text-energy-cyan" />
-            <span>Microphone Settings</span>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center space-x-2 text-text-primary text-sm">
+            <Mic className="w-4 h-4 text-energy-cyan flex-shrink-0" />
+            <span className="truncate">Mic Settings</span>
           </CardTitle>
-          <CardDescription className="text-text-secondary">
-            Configure and calibrate your audio input device for optimal voice recognition.
+          <CardDescription className="text-text-secondary text-xs">
+            Configure audio input device
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className="space-y-3">
+          <div className="space-y-2">
             <Button
               onClick={() => setWizardOpen(true)}
-              className="h-auto p-4 bg-energy-cyan/20 hover:bg-energy-cyan/30 border border-energy-cyan/30 flex flex-col items-center space-y-2"
+              className="w-full h-auto p-3 bg-energy-cyan/20 hover:bg-energy-cyan/30 border border-energy-cyan/30 flex items-center space-x-2 text-xs"
               variant="outline"
             >
-              <Settings className="w-6 h-6 text-energy-cyan" />
-              <div className="text-center">
-                <div className="font-semibold text-text-primary">Run Mic Setup</div>
-                <div className="text-xs text-text-secondary">Full calibration wizard</div>
+              <Settings className="w-4 h-4 text-energy-cyan flex-shrink-0" />
+              <div className="text-left min-w-0 flex-1">
+                <div className="font-medium text-text-primary truncate">Setup Wizard</div>
+                <div className="text-text-secondary truncate">Full calibration</div>
               </div>
             </Button>
 
             <Button
               onClick={testVoice}
               disabled={isTestingVoice}
-              className="h-auto p-4 bg-energy-pulse/20 hover:bg-energy-pulse/30 border border-energy-pulse/30 flex flex-col items-center space-y-2"
+              className="w-full h-auto p-3 bg-energy-pulse/20 hover:bg-energy-pulse/30 border border-energy-pulse/30 flex items-center space-x-2 text-xs"
               variant="outline"
             >
-              <Volume2 className="w-6 h-6 text-energy-pulse" />
-              <div className="text-center">
-                <div className="font-semibold text-text-primary">Test Voice</div>
-                <div className="text-xs text-text-secondary">
-                  {isTestingVoice ? 'Playing...' : 'TTS smoke test'}
+              <Volume2 className="w-4 h-4 text-energy-pulse flex-shrink-0" />
+              <div className="text-left min-w-0 flex-1">
+                <div className="font-medium text-text-primary truncate">Test Voice</div>
+                <div className="text-text-secondary truncate">
+                  {isTestingVoice ? 'Playing...' : 'TTS test'}
                 </div>
               </div>
             </Button>
 
             <Button
               onClick={listDevices}
-              className="h-auto p-4 bg-energy-glow/20 hover:bg-energy-glow/30 border border-energy-glow/30 flex flex-col items-center space-y-2"
+              className="w-full h-auto p-3 bg-energy-glow/20 hover:bg-energy-glow/30 border border-energy-glow/30 flex items-center space-x-2 text-xs"
               variant="outline"
             >
-              <TestTube className="w-6 h-6 text-energy-glow" />
-              <div className="text-center">
-                <div className="font-semibold text-text-primary">List Devices</div>
-                <div className="text-xs text-text-secondary">Show available mics</div>
+              <TestTube className="w-4 h-4 text-energy-glow flex-shrink-0" />
+              <div className="text-left min-w-0 flex-1">
+                <div className="font-medium text-text-primary truncate">List Devices</div>
+                <div className="text-text-secondary truncate">Show available</div>
               </div>
             </Button>
+          </div>
 
-            <div className="p-4 bg-space-surface/30 rounded-lg border border-border/30">
-              <div className="text-sm font-medium text-text-primary mb-2">Quick Commands</div>
-              <div className="space-y-1 text-xs text-text-secondary">
-                <code className="block bg-space-mid/50 px-2 py-1 rounded">:mic.list</code>
-                <code className="block bg-space-mid/50 px-2 py-1 rounded">:mic.setup</code>
-                <code className="block bg-space-mid/50 px-2 py-1 rounded">:mic.use &lt;id&gt;</code>
-              </div>
+          <div className="p-3 bg-space-surface/30 rounded-lg border border-border/30">
+            <div className="text-xs font-medium text-text-primary mb-2">Quick Commands</div>
+            <div className="space-y-1 text-xs">
+              <code className="block bg-space-mid/50 px-2 py-1 rounded text-text-secondary truncate">:mic.list</code>
+              <code className="block bg-space-mid/50 px-2 py-1 rounded text-text-secondary truncate">:mic.setup</code>
+              <code className="block bg-space-mid/50 px-2 py-1 rounded text-text-secondary truncate">:mic.use &lt;id&gt;</code>
             </div>
           </div>
         </CardContent>
