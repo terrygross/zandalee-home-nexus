@@ -47,15 +47,15 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col overflow-hidden">
-      <div className="container mx-auto p-4 flex flex-col flex-1 min-h-0">
-        <div className="flex-shrink-0 mb-4">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
+      <div className="container mx-auto p-3 flex flex-col flex-1 min-h-0 max-w-full">
+        <div className="flex-shrink-0 mb-3">
           <ZandaleeHeader />
         </div>
         
-        <div className="grid grid-cols-12 gap-4 flex-1 min-h-0">
+        <div className="grid grid-cols-12 gap-3 flex-1 min-h-0">
           {/* Left Sidebar - Projects & Memory */}
-          <div className="col-span-3 flex flex-col space-y-4 min-h-0 overflow-y-auto">
+          <div className="col-span-3 flex flex-col space-y-3 min-h-0">
             <div className="flex-shrink-0">
               <ProjectSidebar />
             </div>
@@ -65,15 +65,15 @@ const Index = () => {
           </div>
           
           {/* Main Content Area */}
-          <div className="col-span-6 flex flex-col space-y-4 min-h-0">
-            {/* Avatar Area - Square design for full avatar */}
-            <div className="aspect-square max-h-48 glass-panel flex items-center justify-center flex-shrink-0 rounded-2xl overflow-hidden">
-              <div className="text-center space-y-3 p-6 w-full h-full flex flex-col justify-center">
-                <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-energy-cyan/30 to-energy-blue/30 border-2 border-energy-cyan/40 flex items-center justify-center shadow-lg shadow-energy-blue/20">
-                  <div className="text-energy-cyan text-4xl font-bold tracking-wider">Z</div>
+          <div className="col-span-6 flex flex-col space-y-3 min-h-0">
+            {/* Avatar Area - Compact design */}
+            <div className="h-32 glass-panel flex items-center justify-center flex-shrink-0 rounded-xl overflow-hidden">
+              <div className="text-center space-y-2 p-4 w-full h-full flex flex-col justify-center">
+                <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-energy-cyan/30 to-energy-blue/30 border-2 border-energy-cyan/40 flex items-center justify-center shadow-lg shadow-energy-blue/20">
+                  <div className="text-energy-cyan text-2xl font-bold tracking-wider">Z</div>
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-base font-semibold text-text-primary">Zandalee</h3>
+                <div className="space-y-0.5">
+                  <h3 className="text-sm font-semibold text-text-primary">Zandalee</h3>
                   <p className="text-xs text-text-muted">Avatar System Reserved</p>
                   <p className="text-xs text-text-secondary">Sandboxed & disabled by default</p>
                 </div>
@@ -87,7 +87,7 @@ const Index = () => {
           </div>
           
           {/* Right Sidebar - Voice Metrics & Controls */}
-          <div className="col-span-3 flex flex-col space-y-4 min-h-0 overflow-y-auto">
+          <div className="col-span-3 flex flex-col space-y-3 min-h-0">
             <div className="flex-shrink-0">
               <VoiceMetrics />
             </div>
@@ -102,23 +102,23 @@ const Index = () => {
             </div>
             
             {/* Quick Actions */}
-            <div className="glass-panel p-3 flex-shrink-0">
+            <div className="glass-panel p-2 flex-shrink-0">
               <h4 className="text-xs font-semibold text-text-primary mb-2">Quick Actions</h4>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-1">
                 <button
                   onClick={() => setCommandPaletteOpen(true)}
-                  className="p-2 bg-energy-cyan/10 hover:bg-energy-cyan/20 rounded-lg text-xs text-energy-cyan border border-energy-cyan/30 transition-all duration-200"
+                  className="p-1.5 bg-energy-cyan/10 hover:bg-energy-cyan/20 rounded text-xs text-energy-cyan border border-energy-cyan/30 transition-all duration-200"
                 >
                   Commands
                 </button>
-                <button className="p-2 bg-energy-blue/10 hover:bg-energy-blue/20 rounded-lg text-xs text-energy-blue border border-energy-blue/30 transition-all duration-200">
+                <button className="p-1.5 bg-energy-blue/10 hover:bg-energy-blue/20 rounded text-xs text-energy-blue border border-energy-blue/30 transition-all duration-200">
                   Screenshot
                 </button>
-                <button className="p-2 bg-energy-pulse/10 hover:bg-energy-pulse/20 rounded-lg text-xs text-energy-pulse border border-energy-pulse/30 transition-all duration-200">
+                <button className="p-1.5 bg-energy-pulse/10 hover:bg-energy-pulse/20 rounded text-xs text-energy-pulse border border-energy-pulse/30 transition-all duration-200">
                   New Project
                 </button>
                 <SettingsDrawer>
-                  <Button className="w-full p-2 bg-status-warning/10 hover:bg-status-warning/20 text-xs text-status-warning border border-status-warning/30 h-auto">
+                  <Button className="w-full p-1.5 bg-status-warning/10 hover:bg-status-warning/20 text-xs text-status-warning border border-status-warning/30 h-auto">
                     <Settings className="w-3 h-3 mr-1" />
                     Settings
                   </Button>

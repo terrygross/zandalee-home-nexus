@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -218,49 +217,49 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] bg-space-deep/95 backdrop-blur-xl border border-energy-cyan/30">
-        <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2 text-text-primary">
+      <DialogContent className="max-w-7xl h-[85vh] bg-space-deep/95 backdrop-blur-xl border border-energy-cyan/30 flex flex-col">
+        <DialogHeader className="flex-shrink-0 pb-2">
+          <DialogTitle className="flex items-center space-x-2 text-text-primary text-lg">
             <Settings className="w-5 h-5 text-energy-cyan" />
             <span>Microphone Calibration Wizard</span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-3 gap-6 h-[600px]">
-          {/* Left Panel - Status */}
-          <Card className="glass-panel">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Wizard Status</CardTitle>
+        <div className="grid grid-cols-4 gap-4 flex-1 min-h-0">
+          {/* Left Panel - Compact Status */}
+          <Card className="glass-panel flex flex-col">
+            <CardHeader className="pb-2 flex-shrink-0">
+              <CardTitle className="text-sm">Status</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="flex-1 flex flex-col justify-center space-y-3 p-3">
               {step === 'preflight' && (
-                <div className="text-center space-y-4">
-                  <Volume2 className="w-12 h-12 text-energy-pulse mx-auto animate-pulse" />
+                <div className="text-center space-y-2">
+                  <Volume2 className="w-8 h-8 text-energy-pulse mx-auto animate-pulse" />
                   <div>
-                    <h3 className="text-lg font-semibold text-text-primary">Preflight</h3>
-                    <p className="text-text-secondary text-sm">Preparing audio system...</p>
+                    <h3 className="text-sm font-semibold text-text-primary">Preflight</h3>
+                    <p className="text-text-secondary text-xs">Preparing...</p>
                   </div>
                 </div>
               )}
 
               {step === 'enumerate' && (
-                <div className="text-center space-y-4">
-                  <Mic className="w-12 h-12 text-energy-cyan mx-auto animate-pulse" />
+                <div className="text-center space-y-2">
+                  <Mic className="w-8 h-8 text-energy-cyan mx-auto animate-pulse" />
                   <div>
-                    <h3 className="text-lg font-semibold text-text-primary">Enumerate</h3>
-                    <p className="text-text-secondary text-sm">Found {devices.length} input devices</p>
+                    <h3 className="text-sm font-semibold text-text-primary">Enumerate</h3>
+                    <p className="text-text-secondary text-xs">Found {devices.length} devices</p>
                   </div>
                 </div>
               )}
 
               {step === 'testing' && (
-                <div className="space-y-6">
+                <div className="space-y-3">
                   <div className="text-center">
-                    <Mic className="w-12 h-12 text-energy-glow mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-text-primary">
-                      Testing Device {currentDeviceIndex + 1} of {devices.length}
+                    <Mic className="w-8 h-8 text-energy-glow mx-auto mb-2" />
+                    <h3 className="text-sm font-semibold text-text-primary">
+                      Testing {currentDeviceIndex + 1}/{devices.length}
                     </h3>
-                    <p className="text-text-secondary text-sm">
+                    <p className="text-text-secondary text-xs truncate">
                       {devices[currentDeviceIndex]?.name}
                     </p>
                   </div>
@@ -268,16 +267,16 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
                   <Progress value={progress} className="w-full" />
 
                   <div className="text-center">
-                    <div className="inline-flex items-center space-x-2 px-4 py-2 bg-space-surface/50 rounded-lg">
+                    <div className="inline-flex items-center space-x-1 px-2 py-1 bg-space-surface/50 rounded text-xs">
                       {testingPhase === 'noise' ? (
                         <>
-                          <div className="w-2 h-2 bg-energy-pulse rounded-full animate-pulse" />
-                          <span className="text-text-primary text-sm">Recording noise floor...</span>
+                          <div className="w-1.5 h-1.5 bg-energy-pulse rounded-full animate-pulse" />
+                          <span className="text-text-primary">Noise floor</span>
                         </>
                       ) : (
                         <>
-                          <div className="w-2 h-2 bg-energy-cyan rounded-full animate-pulse" />
-                          <span className="text-text-primary text-sm">Say: "testing one two three"</span>
+                          <div className="w-1.5 h-1.5 bg-energy-cyan rounded-full animate-pulse" />
+                          <span className="text-text-primary">Say: "testing"</span>
                         </>
                       )}
                     </div>
@@ -286,12 +285,12 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
               )}
 
               {step === 'results' && (
-                <div className="text-center space-y-4">
-                  <Check className="w-12 h-12 text-status-success mx-auto" />
+                <div className="text-center space-y-2">
+                  <Check className="w-8 h-8 text-status-success mx-auto" />
                   <div>
-                    <h3 className="text-lg font-semibold text-text-primary">Results</h3>
-                    <p className="text-text-secondary text-sm">
-                      Tested {metrics.length} devices
+                    <h3 className="text-sm font-semibold text-text-primary">Complete</h3>
+                    <p className="text-text-secondary text-xs">
+                      {metrics.length} devices tested
                     </p>
                   </div>
                 </div>
@@ -299,53 +298,55 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
             </CardContent>
           </Card>
 
-          {/* Middle Panel - Results Table or Log */}
-          <Card className="glass-panel col-span-2">
-            <CardHeader className="pb-3">
+          {/* Main Panel - Results or Log */}
+          <Card className="glass-panel col-span-3 flex flex-col">
+            <CardHeader className="pb-2 flex-shrink-0">
               <CardTitle className="text-sm">
-                {step === 'results' ? 'Device Test Results' : 'Wizard Log'}
+                {step === 'results' ? 'Test Results' : 'Progress Log'}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 min-h-0 p-3">
               {step === 'results' ? (
-                <div className="space-y-4">
-                  <div className="max-h-80 overflow-y-auto">
+                <div className="space-y-3 h-full flex flex-col">
+                  <div className="flex-1 min-h-0 overflow-y-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-8"></TableHead>
-                          <TableHead>Device</TableHead>
-                          <TableHead>SNR (dB)</TableHead>
-                          <TableHead>Voiced %</TableHead>
-                          <TableHead>Delay (ms)</TableHead>
-                          <TableHead>Clipping %</TableHead>
-                          <TableHead>Score %</TableHead>
+                          <TableHead className="w-6"></TableHead>
+                          <TableHead className="min-w-[200px]">Device</TableHead>
+                          <TableHead className="w-16">SNR</TableHead>
+                          <TableHead className="w-16">Voice%</TableHead>
+                          <TableHead className="w-16">Delay</TableHead>
+                          <TableHead className="w-16">Clip%</TableHead>
+                          <TableHead className="w-16">Score</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {metrics.map((metric) => (
                           <TableRow 
                             key={metric.id}
-                            className={`cursor-pointer transition-colors ${
+                            className={`cursor-pointer transition-colors text-xs ${
                               selectedDevice?.id === metric.id 
                                 ? 'bg-energy-cyan/20 border-energy-cyan' 
                                 : 'hover:bg-space-surface/50'
                             }`}
                             onClick={() => setSelectedDevice(metric)}
                           >
-                            <TableCell className="p-2">
+                            <TableCell className="p-1">
                               {selectedDevice?.id === metric.id && (
-                                <Check className="w-4 h-4 text-status-success" />
+                                <Check className="w-3 h-3 text-status-success" />
                               )}
                             </TableCell>
-                            <TableCell className="font-medium">
-                              <span className="truncate max-w-48 block">{metric.name}</span>
+                            <TableCell className="font-medium p-1">
+                              <span className="truncate block max-w-[180px]" title={metric.name}>
+                                {metric.name}
+                              </span>
                             </TableCell>
-                            <TableCell>{metric.snr_db.toFixed(1)}</TableCell>
-                            <TableCell>{(metric.voiced_ratio * 100).toFixed(1)}</TableCell>
-                            <TableCell>{metric.start_delay_ms.toFixed(0)}</TableCell>
-                            <TableCell>{metric.clipping_percent.toFixed(1)}</TableCell>
-                            <TableCell className="font-semibold text-energy-cyan">
+                            <TableCell className="p-1">{metric.snr_db.toFixed(1)}</TableCell>
+                            <TableCell className="p-1">{(metric.voiced_ratio * 100).toFixed(1)}</TableCell>
+                            <TableCell className="p-1">{metric.start_delay_ms.toFixed(0)}</TableCell>
+                            <TableCell className="p-1">{metric.clipping_percent.toFixed(1)}</TableCell>
+                            <TableCell className="font-semibold text-energy-cyan p-1">
                               {formatScore(metric.score)}
                             </TableCell>
                           </TableRow>
@@ -354,38 +355,40 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
                     </Table>
                   </div>
 
-                  <div className="flex justify-between items-center pt-4 border-t border-border/30">
+                  <div className="flex justify-between items-center pt-2 border-t border-border/30 flex-shrink-0">
                     <Button 
                       variant="outline" 
                       onClick={retestDevices}
                       disabled={isProcessing}
+                      size="sm"
                     >
-                      <Play className="w-4 h-4 mr-2" />
-                      Retest Devices
+                      <Play className="w-3 h-3 mr-1" />
+                      Retest
                     </Button>
                     <Button 
                       onClick={confirmDevice}
                       disabled={!selectedDevice || isProcessing}
                       className="bg-energy-cyan hover:bg-energy-cyan/80"
+                      size="sm"
                     >
                       {isProcessing ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
                       ) : (
-                        <Check className="w-4 h-4 mr-2" />
+                        <Check className="w-3 h-3 mr-1" />
                       )}
-                      Use Selected Device
+                      Use Device
                     </Button>
                   </div>
                 </div>
               ) : (
-                <div className="h-80 overflow-y-auto bg-space-mid/30 rounded-lg p-4 font-mono text-xs">
+                <div className="h-full overflow-y-auto bg-space-mid/30 rounded p-2 font-mono text-xs">
                   {wizardLog.map((line, index) => (
-                    <div key={index} className="text-text-secondary mb-1">
+                    <div key={index} className="text-text-secondary mb-0.5 leading-tight">
                       {line}
                     </div>
                   ))}
                   {wizardLog.length === 0 && (
-                    <div className="text-text-muted">Wizard log will appear here...</div>
+                    <div className="text-text-muted">Log output will appear here...</div>
                   )}
                 </div>
               )}
