@@ -42,7 +42,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="container mx-auto p-6 flex-1 flex flex-col">
+      <div className="container mx-auto p-6 flex flex-col flex-1">
         <ZandaleeHeader />
         
         <div className="grid grid-cols-12 gap-6 flex-1 mt-6">
@@ -53,17 +53,20 @@ const Index = () => {
           
           {/* Main Content Area */}
           <div className="col-span-6 flex flex-col space-y-4">
-            {/* Avatar Area - Reserved for Zandalee */}
-            <div className="h-48 glass-panel flex items-center justify-center flex-shrink-0">
-              <div className="text-center space-y-2">
-                <div className="w-20 h-20 mx-auto rounded-full bg-energy-cyan/20 border-2 border-energy-cyan/40 flex items-center justify-center">
-                  <div className="text-energy-cyan text-2xl font-bold">Z</div>
+            {/* Avatar Area - Square design for full avatar */}
+            <div className="aspect-square max-h-64 glass-panel flex items-center justify-center flex-shrink-0 rounded-2xl overflow-hidden">
+              <div className="text-center space-y-4 p-8">
+                <div className="w-32 h-32 mx-auto rounded-2xl bg-gradient-to-br from-energy-cyan/30 to-energy-blue/30 border-2 border-energy-cyan/40 flex items-center justify-center shadow-lg shadow-energy-blue/20">
+                  <div className="text-energy-cyan text-6xl font-bold tracking-wider">Z</div>
                 </div>
-                <p className="text-sm text-text-muted">Zandalee Avatar (Coming Soon)</p>
+                <div className="space-y-1">
+                  <h3 className="text-lg font-semibold text-text-primary">Zandalee</h3>
+                  <p className="text-sm text-text-muted">Avatar Integration Coming Soon</p>
+                </div>
               </div>
             </div>
             
-            {/* Chat Interface - Now takes remaining space */}
+            {/* Chat Interface - Takes remaining space */}
             <div className="flex-1 min-h-0">
               <ChatInterface />
             </div>

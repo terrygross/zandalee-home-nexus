@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Send, User, Bot, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,7 @@ const ChatInterface = () => {
   ]);
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -85,6 +86,16 @@ const ChatInterface = () => {
           timestamp: new Date()
         };
         setMessages(prev => [...prev, assistantMessage]);
+        
+        // If it's an assistant response, trigger TTS and show speaking indicator
+        if (result.success && result.message) {
+          setIsSpeaking(true);
+          try {
+            await speak(result.message);
+          } finally {
+            setIsSpeaking(false);
+          }
+        }
       } else {
         // Handle regular chat
         const response = await sendMessage(currentInput);
@@ -95,6 +106,14 @@ const ChatInterface = () => {
           timestamp: new Date(response.timestamp)
         };
         setMessages(prev => [...prev, assistantMessage]);
+        
+        // Trigger TTS and show speaking indicator for assistant responses
+        setIsSpeaking(true);
+        try {
+          await speak(response.content);
+        } finally {
+          setIsSpeaking(false);
+        }
       }
     } catch (error) {
       const errorMessage: Message = {
@@ -115,23 +134,14 @@ const ChatInterface = () => {
     }
   };
 
-  const handleVoiceToggle = async () => {
-    setVoiceEnabled(!voiceEnabled);
-    toast({
-      title: voiceEnabled ? "Voice Disabled" : "Voice Enabled",
-      description: voiceEnabled ? "Voice output disabled" : "Voice output enabled",
-    });
-  };
-
   const handleVoiceTranscript = (transcript: string) => {
     setInput(transcript);
-    // Optionally auto-send the transcribed message
-    // handleSend(); // Uncomment this if you want voice input to auto-send
   };
 
   const MessageBubble = ({ message }: { message: Message }) => {
     const isUser = message.role === 'user';
     const isSystem = message.role === 'system';
+    const isAssistant = message.role === 'assistant';
     
     return (
       <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
@@ -139,11 +149,11 @@ const ChatInterface = () => {
           <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
             isUser ? 'bg-energy-cyan/20 text-energy-cyan' :
             isSystem ? 'bg-status-info/20 text-status-info' :
-            'bg-energy-blue/20 text-energy-blue'
+            `bg-energy-blue/20 text-energy-blue ${isSpeaking && isAssistant ? 'animate-voice-pulse shadow-lg shadow-energy-blue/30' : ''}`
           }`}>
             {isUser ? <User className="w-4 h-4" /> :
              isSystem ? <Terminal className="w-4 h-4" /> :
-             <Bot className="w-4 h-4" />}
+             <Bot className={`w-4 h-4 ${isSpeaking && isAssistant ? 'text-energy-glow' : ''}`} />}
           </div>
           
           <div className={`glass-panel p-3 ${
@@ -174,6 +184,12 @@ const ChatInterface = () => {
             <span className="text-xs text-text-muted">
               {isConnected ? 'Connected' : 'Disconnected'}
             </span>
+            {isSpeaking && (
+              <div className="flex items-center space-x-1 text-energy-glow">
+                <Bot className="w-3 h-3 animate-pulse" />
+                <span className="text-xs">Speaking</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
