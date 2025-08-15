@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { 
   Terminal, 
   Mic, 
@@ -63,7 +63,6 @@ const CommandPalette = ({ open, onOpenChange }: CommandPaletteProps) => {
 
   const executeCommand = (command: string) => {
     console.log(`Executing command: ${command}`);
-    // Here you would integrate with the actual command system
     onOpenChange(false);
   };
 
@@ -85,7 +84,7 @@ const CommandPalette = ({ open, onOpenChange }: CommandPaletteProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="p-0 max-w-2xl bg-space-deep/95 backdrop-blur-xl border border-energy-cyan/30">
-        <Command className="bg-transparent">
+        <div className="flex flex-col max-h-96">
           <div className="px-4 py-3 border-b border-border/30">
             <div className="flex items-center space-x-2">
               <Terminal className="w-5 h-5 text-energy-cyan" />
@@ -93,45 +92,52 @@ const CommandPalette = ({ open, onOpenChange }: CommandPaletteProps) => {
             </div>
           </div>
           
-          <CommandInput
-            placeholder="Type a command or search..."
-            value={searchValue}
-            onValueChange={setSearchValue}
-            className="border-0 bg-transparent text-text-primary placeholder-text-muted"
-          />
+          <div className="p-4">
+            <Input
+              placeholder="Type a command or search..."
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              className="border-0 bg-space-surface/50 text-text-primary placeholder-text-muted"
+            />
+          </div>
           
-          <CommandList className="max-h-96 overflow-y-auto">
-            <CommandEmpty className="text-text-muted py-6 text-center">
-              No commands found. Try typing ":" followed by a command.
-            </CommandEmpty>
-            
-            {Object.entries(groupedCommands).map(([group, groupCommands]) => (
-              <CommandGroup key={group} heading={group} className="text-text-secondary">
-                {groupCommands.map((command) => (
-                  <CommandItem
-                    key={command.id}
-                    onSelect={() => executeCommand(command.command)}
-                    className="flex items-center space-x-3 p-3 hover:bg-energy-cyan/20 cursor-pointer"
-                  >
-                    <command.icon className="w-4 h-4 text-energy-cyan" />
-                    <div className="flex-1">
-                      <div className="text-text-primary font-medium">{command.label}</div>
-                      <div className="text-text-muted text-sm">{command.description}</div>
-                    </div>
-                    <code className="text-xs bg-space-mid/50 px-2 py-1 rounded text-energy-pulse">
-                      {command.command}
-                    </code>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            ))}
-          </CommandList>
+          <div className="flex-1 overflow-y-auto px-4 pb-4">
+            {Object.keys(groupedCommands).length === 0 ? (
+              <div className="text-text-muted py-6 text-center">
+                No commands found. Try typing ":" followed by a command.
+              </div>
+            ) : (
+              Object.entries(groupedCommands).map(([group, groupCommands]) => (
+                <div key={group} className="mb-4">
+                  <h4 className="text-text-secondary text-sm font-medium mb-2">{group}</h4>
+                  <div className="space-y-1">
+                    {groupCommands.map((command) => (
+                      <div
+                        key={command.id}
+                        onClick={() => executeCommand(command.command)}
+                        className="flex items-center space-x-3 p-3 hover:bg-energy-cyan/20 cursor-pointer rounded-lg transition-colors"
+                      >
+                        <command.icon className="w-4 h-4 text-energy-cyan" />
+                        <div className="flex-1">
+                          <div className="text-text-primary font-medium">{command.label}</div>
+                          <div className="text-text-muted text-sm">{command.description}</div>
+                        </div>
+                        <code className="text-xs bg-space-mid/50 px-2 py-1 rounded text-energy-pulse">
+                          {command.command}
+                        </code>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
           
           <div className="px-4 py-2 border-t border-border/30 text-xs text-text-muted">
             Press <kbd className="bg-space-mid/50 px-1 rounded">Enter</kbd> to execute • 
             Press <kbd className="bg-space-mid/50 px-1 rounded">Esc</kbd> to close
           </div>
-        </Command>
+        </div>
       </DialogContent>
     </Dialog>
   );
