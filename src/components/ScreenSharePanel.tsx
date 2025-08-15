@@ -13,7 +13,7 @@ const ScreenSharePanel = () => {
   const startScreenShare = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getDisplayMedia({
-        video: { mediaSource: 'screen' },
+        video: true,
         audio: false
       });
 
