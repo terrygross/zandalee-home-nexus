@@ -48,77 +48,101 @@ const Index = () => {
 
   return (
     <div className="h-screen bg-background flex flex-col overflow-hidden">
-      <div className="container mx-auto p-3 flex flex-col flex-1 min-h-0 max-w-full">
-        <div className="flex-shrink-0 mb-3">
-          <ZandaleeHeader />
+      <div className="flex flex-col flex-1 min-h-0 max-w-full p-1 gap-1">
+        {/* Compact Header */}
+        <div className="flex-shrink-0">
+          <div className="glass-panel p-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="w-6 h-6 bg-gradient-to-br from-energy-cyan to-energy-blue rounded-lg flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">Z</span>
+                </div>
+                <div>
+                  <h1 className="text-sm font-bold text-text-primary">Zandalee</h1>
+                  <p className="text-xs text-text-secondary">Family Desktop AI</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2 text-xs">
+                <span className="text-energy-cyan">Voice Active</span>
+                <span className="text-energy-blue">Processing</span>
+                <span className="text-text-muted">v1.0.0</span>
+              </div>
+            </div>
+          </div>
         </div>
         
-        <div className="grid grid-cols-12 gap-3 flex-1 min-h-0">
-          {/* Left Sidebar - Projects & Memory */}
-          <div className="col-span-3 flex flex-col space-y-3 min-h-0">
-            <div className="flex-shrink-0">
-              <ProjectSidebar />
+        {/* Main Content Grid - More responsive */}
+        <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-1">
+          {/* Left Sidebar - Hidden on small screens, collapsible on medium */}
+          <div className="hidden lg:flex lg:col-span-2 flex-col gap-1">
+            <div className="glass-panel p-2 text-xs">
+              <h4 className="font-semibold text-text-primary mb-1">Projects</h4>
+              <div className="space-y-1">
+                <div className="p-1 bg-energy-cyan/10 rounded text-energy-cyan">Personal Assistant</div>
+                <div className="p-1 hover:bg-space-surface rounded text-text-secondary cursor-pointer">+ New Project</div>
+              </div>
             </div>
-            <div className="flex-1 min-h-0">
-              <MemoryManager />
+            <div className="flex-1 min-h-0 glass-panel p-2">
+              <h4 className="text-xs font-semibold text-text-primary mb-1">Memory</h4>
+              <div className="text-xs text-text-muted">42 memories loaded</div>
             </div>
           </div>
           
-          {/* Main Content Area */}
-          <div className="col-span-6 flex flex-col space-y-3 min-h-0">
-            {/* Avatar Area - Compact design */}
-            <div className="h-32 glass-panel flex items-center justify-center flex-shrink-0 rounded-xl overflow-hidden">
-              <div className="text-center space-y-2 p-4 w-full h-full flex flex-col justify-center">
-                <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-energy-cyan/30 to-energy-blue/30 border-2 border-energy-cyan/40 flex items-center justify-center shadow-lg shadow-energy-blue/20">
-                  <div className="text-energy-cyan text-2xl font-bold tracking-wider">Z</div>
+          {/* Main Chat Area */}
+          <div className="col-span-1 lg:col-span-8 flex flex-col min-h-0">
+            <ChatInterface />
+          </div>
+          
+          {/* Right Sidebar - Collapsible on smaller screens */}
+          <div className="hidden md:flex md:col-span-1 lg:col-span-2 flex-col gap-1">
+            {/* Voice Metrics - Compact */}
+            <div className="glass-panel p-2">
+              <h4 className="text-xs font-semibold text-text-primary mb-1">Voice</h4>
+              <div className="grid grid-cols-2 gap-1 text-xs">
+                <div className="text-center">
+                  <div className="text-energy-cyan font-mono">85%</div>
+                  <div className="text-text-muted">Quality</div>
                 </div>
-                <div className="space-y-0.5">
-                  <h3 className="text-sm font-semibold text-text-primary">Zandalee</h3>
-                  <p className="text-xs text-text-muted">Avatar System Reserved</p>
-                  <p className="text-xs text-text-secondary">Sandboxed & disabled by default</p>
+                <div className="text-center">
+                  <div className="text-energy-blue font-mono">-12dB</div>
+                  <div className="text-text-muted">Level</div>
                 </div>
               </div>
             </div>
             
-            {/* Chat Interface - Takes remaining space */}
-            <div className="flex-1 min-h-0 overflow-hidden">
-              <ChatInterface />
-            </div>
-          </div>
-          
-          {/* Right Sidebar - Voice Metrics & Controls */}
-          <div className="col-span-3 flex flex-col space-y-3 min-h-0">
-            <div className="flex-shrink-0">
-              <VoiceMetrics />
-            </div>
-            <div className="flex-shrink-0">
-              <MicSettings />
-            </div>
-            <div className="flex-shrink-0">
-              <CameraSettings />
-            </div>
-            <div className="flex-shrink-0">
-              <SelfTestRunner />
+            {/* Mic Settings - Ultra Compact */}
+            <div className="glass-panel p-2">
+              <h4 className="text-xs font-semibold text-text-primary mb-1">Audio</h4>
+              <div className="space-y-1">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-text-secondary">Mic</span>
+                  <div className="w-2 h-2 bg-status-success rounded-full"></div>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-text-secondary">Speaker</span>
+                  <div className="w-2 h-2 bg-status-success rounded-full"></div>
+                </div>
+              </div>
             </div>
             
-            {/* Quick Actions */}
-            <div className="glass-panel p-2 flex-shrink-0">
-              <h4 className="text-xs font-semibold text-text-primary mb-2">Quick Actions</h4>
-              <div className="grid grid-cols-2 gap-1">
+            {/* Camera - Ultra Compact */}
+            <div className="glass-panel p-2">
+              <h4 className="text-xs font-semibold text-text-primary mb-1">Camera</h4>
+              <div className="text-xs text-text-muted">Disabled</div>
+            </div>
+            
+            {/* Quick Actions - Minimal */}
+            <div className="glass-panel p-2">
+              <h4 className="text-xs font-semibold text-text-primary mb-1">Actions</h4>
+              <div className="grid grid-cols-1 gap-1">
                 <button
                   onClick={() => setCommandPaletteOpen(true)}
-                  className="p-1.5 bg-energy-cyan/10 hover:bg-energy-cyan/20 rounded text-xs text-energy-cyan border border-energy-cyan/30 transition-all duration-200"
+                  className="p-1 bg-energy-cyan/10 hover:bg-energy-cyan/20 rounded text-xs text-energy-cyan border border-energy-cyan/30 transition-all duration-200"
                 >
                   Commands
                 </button>
-                <button className="p-1.5 bg-energy-blue/10 hover:bg-energy-blue/20 rounded text-xs text-energy-blue border border-energy-blue/30 transition-all duration-200">
-                  Screenshot
-                </button>
-                <button className="p-1.5 bg-energy-pulse/10 hover:bg-energy-pulse/20 rounded text-xs text-energy-pulse border border-energy-pulse/30 transition-all duration-200">
-                  New Project
-                </button>
                 <SettingsDrawer>
-                  <Button className="w-full p-1.5 bg-status-warning/10 hover:bg-status-warning/20 text-xs text-status-warning border border-status-warning/30 h-auto">
+                  <Button className="w-full p-1 bg-status-warning/10 hover:bg-status-warning/20 text-xs text-status-warning border border-status-warning/30 h-auto">
                     <Settings className="w-3 h-3 mr-1" />
                     Settings
                   </Button>
@@ -129,9 +153,21 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Status Bar - Fixed at bottom */}
-      <div className="flex-shrink-0">
-        <StatusBar />
+      {/* Minimal Status Bar */}
+      <div className="flex-shrink-0 glass-panel p-1">
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 text-energy-cyan">
+              <div className="w-1 h-1 bg-energy-cyan rounded-full"></div>
+              <span>STDIO</span>
+            </div>
+            <div className="flex items-center space-x-1 text-status-success">
+              <div className="w-1 h-1 bg-status-success rounded-full"></div>
+              <span>Connected</span>
+            </div>
+          </div>
+          <div className="text-text-muted">Personal Assistant • Laws Active</div>
+        </div>
       </div>
 
       <CommandPalette 
@@ -139,13 +175,10 @@ const Index = () => {
         onOpenChange={setCommandPaletteOpen} 
       />
       
-      {/* Ambient background effects */}
-      <div className="fixed inset-0 pointer-events-none -z-10">
-        <div className="absolute top-0 left-0 w-full h-full opacity-30">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-energy-cyan/5 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-energy-blue/5 rounded-full blur-3xl animate-pulse delay-300" />
-          <div className="absolute top-3/4 left-3/4 w-48 h-48 bg-energy-pulse/5 rounded-full blur-3xl animate-pulse delay-700" />
-        </div>
+      {/* Subtle background effects */}
+      <div className="fixed inset-0 pointer-events-none -z-10 opacity-20">
+        <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-energy-cyan/5 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-energy-blue/5 rounded-full blur-3xl animate-pulse delay-500" />
       </div>
     </div>
   );
