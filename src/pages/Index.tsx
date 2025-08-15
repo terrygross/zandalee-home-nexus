@@ -23,27 +23,27 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-space-deep text-text-primary flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-space-deep text-text-primary flex flex-col">
       {/* Header */}
       <ZandaleeHeader />
       
-      {/* Main Content Area - constrained to viewport */}
-      <div className="flex-1 flex overflow-hidden min-h-0">
+      {/* Main Content Area - constrained to remaining viewport height */}
+      <div className="flex-1 flex overflow-hidden" style={{ height: 'calc(100vh - 80px)' }}>
         {/* Left Sidebar - Split 50/50 between Avatar and Memory */}
-        <div className="w-80 bg-space-surface/20 border-r border-energy-cyan/30 flex flex-col overflow-hidden">
+        <div className="w-80 bg-space-surface/20 border-r border-energy-cyan/30 flex flex-col">
           {/* Avatar Panel - Top half */}
-          <div className="flex-1 min-h-0 p-2">
+          <div className="h-1/2 p-2">
             <AvatarPanel />
           </div>
           
           {/* Memory Manager - Bottom half */}
-          <div className="flex-1 min-h-0 p-2 pt-0">
+          <div className="h-1/2 p-2 pt-0">
             <MemoryManager />
           </div>
         </div>
 
         {/* Center Content */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <div className="flex-1 flex flex-col min-w-0">
           {/* Chat Interface */}
           <div className="flex-1 min-h-0">
             <ChatInterface />

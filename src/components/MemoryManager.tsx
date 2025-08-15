@@ -1,15 +1,16 @@
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Brain, BookOpen, Star, Search, Plus, Save, Trash2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Search, Plus, Brain, BookOpen, Trash2 } from "lucide-react";
 import { useZandaleeAPI } from "@/hooks/useZandaleeAPI";
+import { useToast } from "@/hooks/use-toast";
 
 interface MemoryItem {
   id: string;
@@ -25,35 +26,34 @@ interface MemoryItem {
 
 const MemoryManager = () => {
   const [memories, setMemories] = useState<MemoryItem[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [newMemory, setNewMemory] = useState({
-    text: '',
-    kind: 'semantic',
-    tags: '',
+    text: "",
+    kind: "semantic",
+    tags: "",
     importance: 0.5,
     relevance: 0.5
   });
-  const [diaryText, setDiaryText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  const { searchMemories, learnMemory } = useZandaleeAPI();
   const { toast } = useToast();
 
-  const { 
-    learnMemory, 
-    searchMemories, 
-    updateMemory, 
-    appendDiary, 
-    rollupDiary 
-  } = useZandaleeAPI();
+  // Load initial memories
+  useEffect(() => {
+    loadMemories();
+  }, []);
 
-  const loadMemories = async (query: string = '') => {
-    setIsLoading(true);
+  const loadMemories = async () => {
     try {
-      const results = await searchMemories(query, [], 50);
+      setIsLoading(true);
+      const results = await searchMemories("", [], 20);
       setMemories(results);
     } catch (error) {
+      console.error('Failed to load memories:', error);
       toast({
-        title: "Memory Load Error",
-        description: error instanceof Error ? error.message : 'Failed to load memories',
+        title: "Error",
+        description: "Failed to load memories",
         variant: "destructive"
       });
     } finally {
@@ -61,26 +61,42 @@ const MemoryManager = () => {
     }
   };
 
-  useEffect(() => {
-    loadMemories();
-  }, []);
-
   const handleSearch = async () => {
-    await loadMemories(searchQuery);
+    if (!searchQuery.trim()) {
+      loadMemories();
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const results = await searchMemories(searchQuery, [], 20);
+      setMemories(results);
+    } catch (error) {
+      console.error('Search failed:', error);
+      toast({
+        title: "Search Failed",
+        description: "Could not search memories",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSaveMemory = async () => {
+  const handleAddMemory = async () => {
     if (!newMemory.text.trim()) {
       toast({
-        title: "Validation Error",
-        description: "Memory text is required",
+        title: "Invalid Memory",
+        description: "Memory text cannot be empty",
         variant: "destructive"
       });
       return;
     }
 
     try {
-      const tags = newMemory.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+      setIsLoading(true);
+      const tags = newMemory.tags.split(',').map(tag => tag.trim()).filter(Boolean);
+      
       await learnMemory(
         newMemory.text,
         newMemory.kind,
@@ -88,342 +104,198 @@ const MemoryManager = () => {
         newMemory.importance,
         newMemory.relevance
       );
-      
+
+      // Reset form
       setNewMemory({
-        text: '',
-        kind: 'semantic',
-        tags: '',
+        text: "",
+        kind: "semantic",
+        tags: "",
         importance: 0.5,
         relevance: 0.5
       });
 
-      toast({
-        title: "Memory Saved",
-        description: "New memory has been learned successfully",
-      });
+      // Reload memories
+      await loadMemories();
 
-      await loadMemories(searchQuery);
-    } catch (error) {
       toast({
-        title: "Save Error",
-        description: error instanceof Error ? error.message : 'Failed to save memory',
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleSaveDiary = async () => {
-    if (!diaryText.trim()) {
-      toast({
-        title: "Validation Error",
-        description: "Diary text is required",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      await appendDiary(diaryText);
-      setDiaryText('');
-      
-      toast({
-        title: "Diary Updated",
-        description: "Entry has been added to your diary",
+        title: "Memory Added",
+        description: "New memory has been stored",
       });
     } catch (error) {
+      console.error('Failed to add memory:', error);
       toast({
-        title: "Diary Error",
-        description: error instanceof Error ? error.message : 'Failed to save diary entry',
+        title: "Error",
+        description: "Failed to add memory",
         variant: "destructive"
       });
-    }
-  };
-
-  const handleRollupDiary = async (period: 'daily' | 'weekly' | 'monthly') => {
-    try {
-      const result = await rollupDiary(period);
-      toast({
-        title: "Diary Rollup Complete",
-        description: `${period} summary created at: ${result.path}`,
-      });
-    } catch (error) {
-      toast({
-        title: "Rollup Error",
-        description: error instanceof Error ? error.message : 'Failed to create diary rollup',
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleUpdateMemoryImportance = async (id: string, importance: number) => {
-    try {
-      await updateMemory(id, { importance });
-      await loadMemories(searchQuery);
-      toast({
-        title: "Memory Updated",
-        description: "Memory importance has been updated",
-      });
-    } catch (error) {
-      toast({
-        title: "Update Error",
-        description: error instanceof Error ? error.message : 'Failed to update memory',
-        variant: "destructive"
-      });
-    }
-  };
-
-  const getTrustColor = (trust: string) => {
-    switch (trust) {
-      case 'observed': return 'bg-status-success/20 text-status-success';
-      case 'told': return 'bg-status-warning/20 text-status-warning';
-      case 'inferred': return 'bg-status-info/20 text-status-info';
-      default: return 'bg-text-muted/20 text-text-muted';
-    }
-  };
-
-  const getSourceColor = (source: string) => {
-    switch (source) {
-      case 'wizard': return 'bg-energy-cyan/20 text-energy-cyan';
-      case 'diary': return 'bg-energy-blue/20 text-energy-blue';
-      case 'chat': return 'bg-energy-pulse/20 text-energy-pulse';
-      default: return 'bg-text-muted/20 text-text-muted';
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <Card className="glass-panel h-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center space-x-2 text-text-primary text-sm">
-          <Brain className="w-4 h-4 text-energy-cyan" />
-          <span>Memory & Diary</span>
+    <Card className="glass-panel h-full flex flex-col">
+      <CardHeader className="pb-1 px-3 pt-2 flex-shrink-0">
+        <CardTitle className="flex items-center justify-between text-text-primary text-xs">
+          <div className="flex items-center gap-2">
+            <Brain className="w-4 h-4 text-energy-cyan" />
+            <span>Memory & Diary</span>
+          </div>
+          <span className="text-[10px] text-text-muted">{memories.length} memories</span>
         </CardTitle>
-        <CardDescription className="text-text-secondary text-xs">
-          Manage memories and diary entries
-        </CardDescription>
       </CardHeader>
-      <CardContent className="h-full">
-        <Tabs defaultValue="memories" className="h-full">
-          <TabsList className="grid w-full grid-cols-2">
+      
+      <CardContent className="flex-1 flex flex-col p-3 pt-1 min-h-0 overflow-hidden">
+        <Tabs defaultValue="memories" className="flex-1 flex flex-col min-h-0">
+          <TabsList className="grid w-full grid-cols-2 h-8 mb-2 flex-shrink-0">
             <TabsTrigger value="memories" className="text-xs">Memories</TabsTrigger>
             <TabsTrigger value="diary" className="text-xs">Diary</TabsTrigger>
           </TabsList>
-
-          <TabsContent value="memories" className="space-y-4 h-full">
+          
+          <TabsContent value="memories" className="flex-1 flex flex-col min-h-0 mt-0">
             {/* Search */}
-            <div className="flex space-x-2">
+            <div className="flex gap-1 mb-2 flex-shrink-0">
               <Input
                 placeholder="Search memories..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                className="text-xs"
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                className="h-8 text-xs bg-space-surface/60 border-energy-cyan/30"
               />
-              <Button onClick={handleSearch} size="sm" className="text-xs">
-                <Search className="w-4 h-4" />
+              <Button
+                onClick={handleSearch}
+                size="sm"
+                className="h-8 w-8 p-0 bg-energy-cyan/20 hover:bg-energy-cyan/30"
+                disabled={isLoading}
+              >
+                <Search className="w-3 h-3" />
               </Button>
             </div>
 
-            {/* Add Memory */}
-            <Card className="glass-panel">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs">Add Memory</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Textarea
-                  placeholder="What should I remember?"
-                  value={newMemory.text}
-                  onChange={(e) => setNewMemory(prev => ({ ...prev, text: e.target.value }))}
-                  className="text-xs min-h-[60px]"
-                />
-                
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs text-text-secondary">Kind</label>
-                    <Select 
-                      value={newMemory.kind} 
-                      onValueChange={(value) => setNewMemory(prev => ({ ...prev, kind: value }))}
-                    >
-                      <SelectTrigger className="text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="semantic">Semantic</SelectItem>
-                        <SelectItem value="episodic">Episodic</SelectItem>
-                        <SelectItem value="procedural">Procedural</SelectItem>
-                        <SelectItem value="preference">Preference</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs text-text-secondary">Tags</label>
-                    <Input
-                      placeholder="tag1, tag2, tag3"
-                      value={newMemory.tags}
-                      onChange={(e) => setNewMemory(prev => ({ ...prev, tags: e.target.value }))}
-                      className="text-xs"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs text-text-secondary">Importance: {newMemory.importance.toFixed(1)}</label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="1"
-                      step="0.1"
-                      value={newMemory.importance}
-                      onChange={(e) => setNewMemory(prev => ({ ...prev, importance: parseFloat(e.target.value) }))}
-                      className="w-full"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs text-text-secondary">Relevance: {newMemory.relevance.toFixed(1)}</label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="1"
-                      step="0.1"
-                      value={newMemory.relevance}
-                      onChange={(e) => setNewMemory(prev => ({ ...prev, relevance: parseFloat(e.target.value) }))}
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-
-                <Button onClick={handleSaveMemory} className="w-full text-xs">
-                  <Save className="w-4 h-4 mr-2" />
-                  Save Memory
-                </Button>
-              </CardContent>
-            </Card>
-
             {/* Memory List */}
-            <div className="space-y-2 max-h-64 overflow-y-auto">
-              {isLoading ? (
-                <div className="text-center text-text-muted text-xs py-4">Loading memories...</div>
-              ) : memories.length === 0 ? (
-                <div className="text-center text-text-muted text-xs py-4">No memories found</div>
+            <div className="flex-1 min-h-0 overflow-y-auto space-y-2 mb-2">
+              {memories.length === 0 ? (
+                <div className="text-center text-text-muted text-xs py-4">
+                  {isLoading ? "Loading..." : "No memories found"}
+                </div>
               ) : (
                 memories.map((memory) => (
-                  <Card key={memory.id} className="glass-panel">
-                    <CardContent className="p-3">
-                      <div className="space-y-2">
-                        <p className="text-xs text-text-primary">{memory.text}</p>
-                        
-                        <div className="flex flex-wrap gap-1">
-                          <Badge variant="outline" className={`text-xs ${getTrustColor(memory.trust)}`}>
-                            {memory.trust}
+                  <div
+                    key={memory.id}
+                    className="bg-space-surface/40 border border-energy-cyan/20 rounded-md p-2"
+                  >
+                    <div className="text-xs text-text-primary mb-1 line-clamp-2">
+                      {memory.text}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-1">
+                        {memory.tags.slice(0, 2).map((tag) => (
+                          <Badge
+                            key={tag}
+                            variant="outline"
+                            className="text-[10px] h-4 px-1 border-energy-blue/30"
+                          >
+                            {tag}
                           </Badge>
-                          <Badge variant="outline" className={`text-xs ${getSourceColor(memory.source)}`}>
-                            {memory.source}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {memory.kind}
-                          </Badge>
-                          {memory.tags.map(tag => (
-                            <Badge key={tag} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <Star className="w-3 h-3 text-status-warning" />
-                            <span className="text-xs text-text-secondary">
-                              {memory.importance.toFixed(1)}
-                            </span>
-                          </div>
-                          <div className="flex space-x-1">
-                            {[0.1, 0.5, 0.9].map(importance => (
-                              <Button
-                                key={importance}
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleUpdateMemoryImportance(memory.id, importance)}
-                                className={`text-xs p-1 h-auto ${
-                                  Math.abs(memory.importance - importance) < 0.1 
-                                    ? 'bg-energy-cyan/20 text-energy-cyan' 
-                                    : ''
-                                }`}
-                              >
-                                {importance}
-                              </Button>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="text-xs text-text-muted">
-                          {new Date(memory.created_at).toLocaleString()}
-                        </div>
+                        ))}
                       </div>
-                    </CardContent>
-                  </Card>
+                      <div className="text-[10px] text-text-muted">
+                        {memory.kind}
+                      </div>
+                    </div>
+                  </div>
                 ))
               )}
             </div>
-          </TabsContent>
 
-          <TabsContent value="diary" className="space-y-4">
-            <Card className="glass-panel">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center space-x-2 text-xs">
-                  <BookOpen className="w-4 h-4 text-energy-blue" />
-                  <span>Diary Entry</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Textarea
-                  placeholder="What happened today? What did you learn? Any insights or observations..."
-                  value={diaryText}
-                  onChange={(e) => setDiaryText(e.target.value)}
-                  className="text-xs min-h-[120px]"
-                />
-                
-                <Button onClick={handleSaveDiary} className="w-full text-xs">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add to Diary
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="glass-panel">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs">Diary Rollups</CardTitle>
-                <CardDescription className="text-xs">
-                  Create summaries from your diary entries
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="grid grid-cols-3 gap-2">
-                  <Button 
-                    onClick={() => handleRollupDiary('daily')}
-                    variant="outline"
-                    className="text-xs"
+            {/* Add Memory Form */}
+            <div className="bg-space-surface/20 border border-energy-cyan/30 rounded-md p-2 flex-shrink-0">
+              <div className="text-xs text-energy-cyan mb-2 font-medium">Add Memory</div>
+              
+              <Textarea
+                placeholder="What should I remember?"
+                value={newMemory.text}
+                onChange={(e) => setNewMemory({ ...newMemory, text: e.target.value })}
+                className="h-16 text-xs mb-2 bg-space-surface/60 border-energy-cyan/30 resize-none"
+              />
+              
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <div>
+                  <div className="text-[10px] text-text-muted mb-1">Kind</div>
+                  <Select
+                    value={newMemory.kind}
+                    onValueChange={(value) => setNewMemory({ ...newMemory, kind: value })}
                   >
-                    Daily
-                  </Button>
-                  <Button 
-                    onClick={() => handleRollupDiary('weekly')}
-                    variant="outline"
-                    className="text-xs"
-                  >
-                    Weekly
-                  </Button>
-                  <Button 
-                    onClick={() => handleRollupDiary('monthly')}
-                    variant="outline"
-                    className="text-xs"
-                  >
-                    Monthly
-                  </Button>
+                    <SelectTrigger className="h-6 text-xs bg-space-surface/60">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="semantic">Semantic</SelectItem>
+                      <SelectItem value="episodic">Episodic</SelectItem>
+                      <SelectItem value="procedural">Procedural</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              </CardContent>
-            </Card>
+                
+                <div>
+                  <div className="text-[10px] text-text-muted mb-1">Tags</div>
+                  <Input
+                    placeholder="tag1, tag2"
+                    value={newMemory.tags}
+                    onChange={(e) => setNewMemory({ ...newMemory, tags: e.target.value })}
+                    className="h-6 text-xs bg-space-surface/60 border-energy-cyan/30"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <div>
+                  <div className="text-[10px] text-text-muted mb-1">
+                    Importance: {newMemory.importance.toFixed(1)}
+                  </div>
+                  <Slider
+                    value={[newMemory.importance]}
+                    onValueChange={([value]) => setNewMemory({ ...newMemory, importance: value })}
+                    max={1}
+                    min={0}
+                    step={0.1}
+                    className="h-4"
+                  />
+                </div>
+                
+                <div>
+                  <div className="text-[10px] text-text-muted mb-1">
+                    Relevance: {newMemory.relevance.toFixed(1)}
+                  </div>
+                  <Slider
+                    value={[newMemory.relevance]}
+                    onValueChange={([value]) => setNewMemory({ ...newMemory, relevance: value })}
+                    max={1}
+                    min={0}
+                    step={0.1}
+                    className="h-4"
+                  />
+                </div>
+              </div>
+              
+              <Button
+                onClick={handleAddMemory}
+                className="w-full h-6 text-xs bg-energy-blue/20 hover:bg-energy-blue/30"
+                disabled={isLoading}
+              >
+                <Plus className="w-3 h-3 mr-1" />
+                Save Memory
+              </Button>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="diary" className="flex-1 flex flex-col min-h-0 mt-0">
+            <div className="flex-1 flex items-center justify-center text-text-muted text-xs">
+              <div className="text-center">
+                <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <div>Diary functionality coming soon</div>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </CardContent>
