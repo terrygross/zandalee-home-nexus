@@ -40,11 +40,11 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6 space-y-6">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="container mx-auto p-6 flex-1 flex flex-col">
         <ZandaleeHeader />
         
-        <div className="grid grid-cols-12 gap-6 h-[calc(100vh-200px)]">
+        <div className="grid grid-cols-12 gap-6 flex-1 mt-6">
           {/* Left Sidebar - Projects & Memory */}
           <div className="col-span-3">
             <ProjectSidebar />
@@ -53,7 +53,7 @@ const Index = () => {
           {/* Main Content Area */}
           <div className="col-span-6 flex flex-col space-y-4">
             {/* Avatar Area - Reserved for Zandalee */}
-            <div className="h-48 glass-panel flex items-center justify-center">
+            <div className="h-48 glass-panel flex items-center justify-center flex-shrink-0">
               <div className="text-center space-y-2">
                 <div className="w-20 h-20 mx-auto rounded-full bg-energy-cyan/20 border-2 border-energy-cyan/40 flex items-center justify-center">
                   <div className="text-energy-cyan text-2xl font-bold">Z</div>
@@ -63,7 +63,7 @@ const Index = () => {
             </div>
             
             {/* Chat Interface - Now takes remaining space */}
-            <div className="flex-1">
+            <div className="flex-1 min-h-0">
               <ChatInterface />
             </div>
           </div>
@@ -95,9 +95,10 @@ const Index = () => {
             </div>
           </div>
         </div>
-        
-        <StatusBar />
       </div>
+      
+      {/* Status Bar - Fixed at bottom */}
+      <StatusBar />
 
       <CommandPalette 
         open={commandPaletteOpen} 
