@@ -81,6 +81,55 @@ class LocalTalkingLLMBridge:
         except Exception as e:
             return {"status": "error", "message": f"Voice recognition error: {str(e)}"}
     
+    async def list_devices(self) -> Dict[str, Any]:
+        """List available audio input devices"""
+        try:
+            # Call your existing device enumeration
+            process = await asyncio.create_subprocess_exec(
+                self.python_path,
+                "main.py",  # Adjust this to your actual script
+                "--list-devices",
+                cwd=self.local_llm_path,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            
+            stdout, stderr = await process.communicate()
+            
+            if process.returncode == 0:
+                devices = json.loads(stdout.decode())
+                return devices
+            else:
+                return {"error": f"Device enumeration failed: {stderr.decode()}"}
+                
+        except Exception as e:
+            return {"error": f"Device enumeration error: {str(e)}"}
+    
+    async def test_device(self, device_id: int) -> Dict[str, Any]:
+        """Run the full two-phase mic test on a specific device"""
+        try:
+            # Call your existing device testing with the wizard procedure
+            process = await asyncio.create_subprocess_exec(
+                self.python_path,
+                "main.py",  # Adjust this to your actual script
+                "--test-device", str(device_id),
+                "--wizard-mode",  # Use the exact procedure you described
+                cwd=self.local_llm_path,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            
+            stdout, stderr = await process.communicate()
+            
+            if process.returncode == 0:
+                result = json.loads(stdout.decode())
+                return result
+            else:
+                return {"error": f"Device test failed: {stderr.decode()}"}
+                
+        except Exception as e:
+            return {"error": f"Device test error: {str(e)}"}
+    
     async def get_voice_metrics(self) -> Dict[str, float]:
         """Get real-time voice metrics"""
         # For now, return the stored metrics
@@ -96,6 +145,8 @@ async def main():
     parser.add_argument("--transport", choices=["STDIO", "HTTP"], default="STDIO")
     parser.add_argument("--speak", type=str, help="Text to speak")
     parser.add_argument("--listen", action="store_true", help="Listen for voice input")
+    parser.add_argument("--list-devices", action="store_true", help="List audio devices")
+    parser.add_argument("--test-device", type=int, help="Test specific device ID")
     parser.add_argument("--metrics", action="store_true", help="Get voice metrics")
     
     args = parser.parse_args()
@@ -108,13 +159,19 @@ async def main():
     elif args.listen:
         result = await bridge.listen()
         print(json.dumps(result))
+    elif args.list_devices:
+        result = await bridge.list_devices()
+        print(json.dumps(result))
+    elif args.test_device is not None:
+        result = await bridge.test_device(args.test_device)
+        print(json.dumps(result))
     elif args.metrics:
         result = await bridge.get_voice_metrics()
         print(json.dumps(result))
     else:
         # Interactive mode for testing
         print("Zandalee Voice Client Bridge - Interactive Mode")
-        print("Commands: speak <text>, listen, metrics, quit")
+        print("Commands: speak <text>, listen, list-devices, test-device <id>, metrics, quit")
         
         while True:
             try:
@@ -126,13 +183,23 @@ async def main():
                 elif command[0] == "listen":
                     result = await bridge.listen()
                     print(json.dumps(result, indent=2))
+                elif command[0] == "list-devices":
+                    result = await bridge.list_devices()
+                    print(json.dumps(result, indent=2))
+                elif command[0] == "test-device" and len(command) > 1:
+                    try:
+                        device_id = int(command[1])
+                        result = await bridge.test_device(device_id)
+                        print(json.dumps(result, indent=2))
+                    except ValueError:
+                        print("Error: device ID must be a number")
                 elif command[0] == "metrics":
                     result = await bridge.get_voice_metrics()
                     print(json.dumps(result, indent=2))
                 elif command[0] == "quit":
                     break
                 else:
-                    print("Unknown command. Use: speak <text>, listen, metrics, quit")
+                    print("Unknown command. Use: speak <text>, listen, list-devices, test-device <id>, metrics, quit")
             except KeyboardInterrupt:
                 break
             except Exception as e:
