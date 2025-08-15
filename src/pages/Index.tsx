@@ -23,27 +23,27 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-space-deep text-text-primary flex flex-col">
+    <div className="min-h-screen bg-space-deep text-text-primary flex flex-col overflow-hidden">
       {/* Header */}
       <ZandaleeHeader />
       
-      {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar */}
+      {/* Main Content Area - constrained to viewport */}
+      <div className="flex-1 flex overflow-hidden min-h-0">
+        {/* Left Sidebar - Split 50/50 between Avatar and Memory */}
         <div className="w-80 bg-space-surface/20 border-r border-energy-cyan/30 flex flex-col overflow-hidden">
-          {/* Avatar Panel - Takes up top half */}
-          <div className="flex-1 min-h-0 p-3">
+          {/* Avatar Panel - Top half */}
+          <div className="flex-1 min-h-0 p-2">
             <AvatarPanel />
           </div>
           
-          {/* Memory Manager - Takes up bottom half */}
-          <div className="flex-1 min-h-0">
+          {/* Memory Manager - Bottom half */}
+          <div className="flex-1 min-h-0 p-2 pt-0">
             <MemoryManager />
           </div>
         </div>
 
         {/* Center Content */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Chat Interface */}
           <div className="flex-1 min-h-0">
             <ChatInterface />
@@ -55,7 +55,7 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Right Sidebar - More compact */}
+        {/* Right Sidebar - Compact */}
         <div className="w-72 bg-space-surface/20 border-l border-energy-cyan/30 flex flex-col overflow-hidden">
           {/* Audio Controls */}
           <div className="flex-shrink-0 p-2">
@@ -63,17 +63,17 @@ const Index = () => {
           </div>
           
           {/* Camera Settings */}
-          <div className="flex-shrink-0 p-2">
+          <div className="flex-shrink-0 p-2 pt-0">
             <CameraSettings />
           </div>
           
           {/* Mic Settings */}
-          <div className="flex-shrink-0 p-2">
+          <div className="flex-shrink-0 p-2 pt-0">
             <MicSettings />
           </div>
           
           {/* Voice Metrics */}
-          <div className="flex-1 min-h-0 p-2">
+          <div className="flex-1 min-h-0 p-2 pt-0">
             <VoiceMetrics />
           </div>
         </div>
