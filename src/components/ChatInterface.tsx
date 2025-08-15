@@ -119,14 +119,14 @@ const ChatInterface = () => {
       await learnMemory(
         messageContent,
         'semantic',
-        ['chat', 'important'],
-        0.7,
-        0.8
+        ['chat', 'important', 'saved'],
+        0.8,
+        0.9
       );
       
       toast({
         title: "Memory Saved",
-        description: "Message has been saved to memory",
+        description: "Message has been saved to your memory bank",
       });
     } catch (error) {
       toast({
@@ -145,24 +145,24 @@ const ChatInterface = () => {
     return (
       <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
         <div className={`flex items-start space-x-3 max-w-[80%] ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`}>
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
             isUser ? 'bg-energy-cyan/20 text-energy-cyan' :
             isSystem ? 'bg-status-info/20 text-status-info' :
-            `bg-energy-blue/20 text-energy-blue ${isSpeaking && isAssistant ? 'animate-voice-pulse shadow-lg shadow-energy-blue/30' : ''}`
+            `bg-energy-blue/20 text-energy-blue ${isSpeaking && isAssistant ? 'animate-pulse shadow-lg shadow-energy-blue/30' : ''}`
           }`}>
             {isUser ? <User className="w-4 h-4" /> :
              isSystem ? <Terminal className="w-4 h-4" /> :
-             <Bot className={`w-4 h-4 ${isSpeaking && isAssistant ? 'text-energy-glow' : ''}`} />}
+             <Bot className={`w-4 h-4 ${isSpeaking && isAssistant ? 'text-energy-glow animate-pulse' : ''}`} />}
           </div>
           
-          <div className={`glass-panel p-3 ${
-            isUser ? 'bg-energy-cyan/10' :
-            isSystem ? 'bg-status-info/10' :
-            'bg-card'
+          <div className={`glass-panel p-3 rounded-lg ${
+            isUser ? 'bg-energy-cyan/10 border-energy-cyan/20' :
+            isSystem ? 'bg-status-info/10 border-status-info/20' :
+            'bg-card border-border/30'
           }`}>
-            <p className="text-sm text-text-primary leading-relaxed">{message.content}</p>
+            <p className="text-sm text-text-primary leading-relaxed whitespace-pre-wrap">{message.content}</p>
             
-            <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/20">
               <span className="text-xs text-text-muted">
                 {message.timestamp.toLocaleTimeString()}
               </span>
@@ -173,10 +173,11 @@ const ChatInterface = () => {
                   size="sm"
                   variant="ghost"
                   onClick={() => handleSaveAsMemory(message.content)}
-                  className="h-auto p-1 text-xs hover:bg-energy-cyan/20 hover:text-energy-cyan"
-                  title="Save as Memory"
+                  className="h-6 px-2 text-xs hover:bg-energy-cyan/20 hover:text-energy-cyan border border-transparent hover:border-energy-cyan/30 transition-all duration-200"
+                  title="Save this response as a memory"
                 >
-                  <Star className="w-3 h-3" />
+                  <Star className="w-3 h-3 mr-1" />
+                  Save
                 </Button>
               )}
             </div>
@@ -271,7 +272,7 @@ const ChatInterface = () => {
         </div>
         
         <div className="flex justify-between items-center mt-2 text-xs text-text-muted">
-          <span>Click ⭐ to save responses as memories • Click mic for voice input</span>
+          <span>Click ⭐ Save to save responses as memories • Click mic for voice input</span>
           <span>Press Enter to send</span>
         </div>
       </div>
