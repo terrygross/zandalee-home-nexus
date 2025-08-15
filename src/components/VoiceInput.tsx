@@ -12,7 +12,7 @@ interface VoiceInputProps {
 const VoiceInput = ({ onTranscript, disabled }: VoiceInputProps) => {
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const { toast } = useToash();
+  const { toast } = useToast();
 
   const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:8759';
 
