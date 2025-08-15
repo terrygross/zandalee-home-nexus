@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -19,6 +20,35 @@ export default {
 		},
 		extend: {
 			colors: {
+				// Zandalee space theme
+				'space-void': 'hsl(var(--space-void))',
+				'space-deep': 'hsl(var(--space-deep))',
+				'space-mid': 'hsl(var(--space-mid))',
+				'space-surface': 'hsl(var(--space-surface))',
+				
+				// Energy colors
+				'energy-cyan': 'hsl(var(--energy-cyan))',
+				'energy-blue': 'hsl(var(--energy-blue))',
+				'energy-pulse': 'hsl(var(--energy-pulse))',
+				'energy-glow': 'hsl(var(--energy-glow))',
+				
+				// Text colors
+				'text-primary': 'hsl(var(--text-primary))',
+				'text-secondary': 'hsl(var(--text-secondary))',
+				'text-muted': 'hsl(var(--text-muted))',
+				'text-accent': 'hsl(var(--text-accent))',
+				
+				// Status colors
+				'status-success': 'hsl(var(--status-success))',
+				'status-warning': 'hsl(var(--status-warning))',
+				'status-error': 'hsl(var(--status-error))',
+				'status-info': 'hsl(var(--status-info))',
+				
+				// Glass morphism
+				'glass-bg': 'hsl(var(--glass-bg))',
+				'glass-border': 'hsl(var(--glass-border))',
+				
+				// Standard shadcn colors
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
@@ -51,16 +81,6 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
-				},
-				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
 				}
 			},
 			borderRadius: {
@@ -84,11 +104,30 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'energy-pulse': {
+					'0%': { opacity: '0.3', transform: 'scale(1)' },
+					'100%': { opacity: '0.8', transform: 'scale(1.05)' }
+				},
+				'voice-pulse': {
+					'0%, 100%': { boxShadow: '0 0 10px hsl(var(--energy-cyan) / 0.3)' },
+					'50%': { boxShadow: '0 0 20px hsl(var(--energy-cyan) / 0.6), 0 0 30px hsl(var(--energy-pulse) / 0.4)' }
+				},
+				'data-flow': {
+					'0%': { transform: 'translateX(-100%)', opacity: '0' },
+					'50%': { opacity: '1' },
+					'100%': { transform: 'translateX(100%)', opacity: '0' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'energy-pulse': 'energy-pulse 2s ease-in-out infinite alternate',
+				'voice-pulse': 'voice-pulse 1s ease-in-out infinite',
+				'data-flow': 'data-flow 3s ease-in-out infinite'
+			},
+			fontFamily: {
+				'mono': ['JetBrains Mono', 'Consolas', 'Monaco', 'monospace'],
 			}
 		}
 	},

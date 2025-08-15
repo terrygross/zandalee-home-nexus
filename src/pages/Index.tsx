@@ -1,11 +1,103 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState, useEffect } from "react";
+import ZandaleeHeader from "@/components/ZandaleeHeader";
+import ChatInterface from "@/components/ChatInterface";
+import VoiceMetrics from "@/components/VoiceMetrics";
+import ProjectSidebar from "@/components/ProjectSidebar";
+import CommandPalette from "@/components/CommandPalette";
+import StatusBar from "@/components/StatusBar";
 
 const Index = () => {
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Open command palette with Ctrl+Shift+P or Cmd+Shift+P
+      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'P') {
+        event.preventDefault();
+        setCommandPaletteOpen(true);
+      }
+      
+      // Open command palette with colon key
+      if (event.key === ':' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        const target = event.target as HTMLElement;
+        // Only trigger if not in an input field
+        if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
+          event.preventDefault();
+          setCommandPaletteOpen(true);
+        }
+      }
+      
+      // Close command palette with Escape
+      if (event.key === 'Escape') {
+        setCommandPaletteOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto p-6 space-y-6">
+        <ZandaleeHeader />
+        
+        <div className="grid grid-cols-12 gap-6 h-[calc(100vh-200px)]">
+          {/* Left Sidebar - Projects & Memory */}
+          <div className="col-span-3">
+            <ProjectSidebar />
+          </div>
+          
+          {/* Main Chat Interface */}
+          <div className="col-span-6">
+            <ChatInterface />
+          </div>
+          
+          {/* Right Sidebar - Voice Metrics */}
+          <div className="col-span-3 space-y-6">
+            <VoiceMetrics />
+            
+            {/* Quick Actions */}
+            <div className="glass-panel p-4">
+              <h4 className="text-sm font-semibold text-text-primary mb-3">Quick Actions</h4>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setCommandPaletteOpen(true)}
+                  className="p-2 bg-energy-cyan/10 hover:bg-energy-cyan/20 rounded-lg text-xs text-energy-cyan border border-energy-cyan/30 transition-all duration-200"
+                >
+                  Commands
+                </button>
+                <button className="p-2 bg-energy-blue/10 hover:bg-energy-blue/20 rounded-lg text-xs text-energy-blue border border-energy-blue/30 transition-all duration-200">
+                  Screenshot
+                </button>
+                <button className="p-2 bg-energy-pulse/10 hover:bg-energy-pulse/20 rounded-lg text-xs text-energy-pulse border border-energy-pulse/30 transition-all duration-200">
+                  New Project
+                </button>
+                <button className="p-2 bg-status-warning/10 hover:bg-status-warning/20 rounded-lg text-xs text-status-warning border border-status-warning/30 transition-all duration-200">
+                  Memory
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <StatusBar />
+      </div>
+
+      <CommandPalette 
+        open={commandPaletteOpen} 
+        onOpenChange={setCommandPaletteOpen} 
+      />
+      
+      {/* Ambient background effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full opacity-30">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-energy-cyan/5 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-energy-blue/5 rounded-full blur-3xl animate-pulse delay-300" />
+          <div className="absolute top-3/4 left-3/4 w-48 h-48 bg-energy-pulse/5 rounded-full blur-3xl animate-pulse delay-700" />
+        </div>
       </div>
     </div>
   );
