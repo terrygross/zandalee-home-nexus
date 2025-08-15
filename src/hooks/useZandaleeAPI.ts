@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 interface Message {
@@ -327,6 +326,53 @@ export const useZandaleeAPI = () => {
     return results;
   };
 
+  // Camera API methods for future visual processing
+  const listCameraDevices = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/camera/list`);
+      if (!response.ok) {
+        throw new Error(`Camera list failed: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('List camera devices error:', error);
+      throw error;
+    }
+  };
+
+  const testCamera = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/camera/test`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) {
+        throw new Error(`Camera test failed: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Camera test error:', error);
+      throw error;
+    }
+  };
+
+  const setCameraEnabled = async (enabled: boolean) => {
+    try {
+      const response = await fetch(`${API_BASE}/camera/enable`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled })
+      });
+      if (!response.ok) {
+        throw new Error(`Camera enable/disable failed: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Camera enable/disable error:', error);
+      throw error;
+    }
+  };
+
   return {
     isConnected,
     isSpeaking,
@@ -365,6 +411,9 @@ export const useZandaleeAPI = () => {
     stopEngine,
     
     // Utilities
-    runSelfTest
+    runSelfTest,
+    listCameraDevices,
+    testCamera,
+    setCameraEnabled,
   };
 };

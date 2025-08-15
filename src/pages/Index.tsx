@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import ZandaleeHeader from "@/components/ZandaleeHeader";
 import ChatInterface from "@/components/ChatInterface";
@@ -9,6 +10,7 @@ import StatusBar from "@/components/StatusBar";
 import MemoryManager from "@/components/MemoryManager";
 import SelfTestRunner from "@/components/SelfTestRunner";
 import SettingsDrawer from "@/components/SettingsDrawer";
+import CameraSettings from "@/components/CameraSettings";
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -45,48 +47,63 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <div className="container mx-auto p-6 flex flex-col flex-1">
-        <ZandaleeHeader />
+    <div className="min-h-screen bg-background flex flex-col overflow-hidden">
+      <div className="container mx-auto p-4 flex flex-col flex-1 min-h-0">
+        <div className="flex-shrink-0 mb-4">
+          <ZandaleeHeader />
+        </div>
         
-        <div className="grid grid-cols-12 gap-6 flex-1 mt-6">
+        <div className="grid grid-cols-12 gap-4 flex-1 min-h-0">
           {/* Left Sidebar - Projects & Memory */}
-          <div className="col-span-3 space-y-6">
-            <ProjectSidebar />
-            <MemoryManager />
+          <div className="col-span-3 flex flex-col space-y-4 min-h-0 overflow-y-auto">
+            <div className="flex-shrink-0">
+              <ProjectSidebar />
+            </div>
+            <div className="flex-1 min-h-0">
+              <MemoryManager />
+            </div>
           </div>
           
           {/* Main Content Area */}
-          <div className="col-span-6 flex flex-col space-y-4">
+          <div className="col-span-6 flex flex-col space-y-4 min-h-0">
             {/* Avatar Area - Square design for full avatar */}
-            <div className="aspect-square max-h-64 glass-panel flex items-center justify-center flex-shrink-0 rounded-2xl overflow-hidden">
-              <div className="text-center space-y-4 p-8 w-full">
-                <div className="w-full aspect-square max-w-32 mx-auto rounded-2xl bg-gradient-to-br from-energy-cyan/30 to-energy-blue/30 border-2 border-energy-cyan/40 flex items-center justify-center shadow-lg shadow-energy-blue/20">
-                  <div className="text-energy-cyan text-6xl font-bold tracking-wider">Z</div>
+            <div className="aspect-square max-h-48 glass-panel flex items-center justify-center flex-shrink-0 rounded-2xl overflow-hidden">
+              <div className="text-center space-y-3 p-6 w-full h-full flex flex-col justify-center">
+                <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-energy-cyan/30 to-energy-blue/30 border-2 border-energy-cyan/40 flex items-center justify-center shadow-lg shadow-energy-blue/20">
+                  <div className="text-energy-cyan text-4xl font-bold tracking-wider">Z</div>
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-lg font-semibold text-text-primary">Zandalee</h3>
-                  <p className="text-sm text-text-muted">Avatar System Reserved</p>
+                  <h3 className="text-base font-semibold text-text-primary">Zandalee</h3>
+                  <p className="text-xs text-text-muted">Avatar System Reserved</p>
                   <p className="text-xs text-text-secondary">Sandboxed & disabled by default</p>
                 </div>
               </div>
             </div>
             
             {/* Chat Interface - Takes remaining space */}
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 overflow-hidden">
               <ChatInterface />
             </div>
           </div>
           
           {/* Right Sidebar - Voice Metrics & Controls */}
-          <div className="col-span-3 space-y-6">
-            <VoiceMetrics />
-            <MicSettings />
-            <SelfTestRunner />
+          <div className="col-span-3 flex flex-col space-y-4 min-h-0 overflow-y-auto">
+            <div className="flex-shrink-0">
+              <VoiceMetrics />
+            </div>
+            <div className="flex-shrink-0">
+              <MicSettings />
+            </div>
+            <div className="flex-shrink-0">
+              <CameraSettings />
+            </div>
+            <div className="flex-shrink-0">
+              <SelfTestRunner />
+            </div>
             
             {/* Quick Actions */}
-            <div className="glass-panel p-4">
-              <h4 className="text-sm font-semibold text-text-primary mb-3">Quick Actions</h4>
+            <div className="glass-panel p-3 flex-shrink-0">
+              <h4 className="text-xs font-semibold text-text-primary mb-2">Quick Actions</h4>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setCommandPaletteOpen(true)}
@@ -102,7 +119,7 @@ const Index = () => {
                 </button>
                 <SettingsDrawer>
                   <Button className="w-full p-2 bg-status-warning/10 hover:bg-status-warning/20 text-xs text-status-warning border border-status-warning/30 h-auto">
-                    <Settings className="w-4 h-4 mr-1" />
+                    <Settings className="w-3 h-3 mr-1" />
                     Settings
                   </Button>
                 </SettingsDrawer>
@@ -113,7 +130,9 @@ const Index = () => {
       </div>
       
       {/* Status Bar - Fixed at bottom */}
-      <StatusBar />
+      <div className="flex-shrink-0">
+        <StatusBar />
+      </div>
 
       <CommandPalette 
         open={commandPaletteOpen} 
@@ -121,7 +140,7 @@ const Index = () => {
       />
       
       {/* Ambient background effects */}
-      <div className="fixed inset-0 pointer-events-none">
+      <div className="fixed inset-0 pointer-events-none -z-10">
         <div className="absolute top-0 left-0 w-full h-full opacity-30">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-energy-cyan/5 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-energy-blue/5 rounded-full blur-3xl animate-pulse delay-300" />

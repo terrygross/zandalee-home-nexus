@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -95,7 +94,8 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
           meters: true,
           memory: true,
           actions: true,
-          avatar: false
+          avatar: false,
+          camera: false
         },
         self_test_on_start: true,
         latency_meters: true,
@@ -107,6 +107,18 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
         lipsync: { mode: "basic" },
         perf: { fps_cap: 30 },
         sandbox: { separate_process: true }
+      },
+      camera: {
+        enabled: false,
+        device_id: 0,
+        device_name: "Default Camera",
+        resolution: "720p",
+        fps: 30,
+        features: {
+          gesture_recognition: false,
+          face_tracking: false,
+          lip_sync_input: false
+        }
       }
     };
     setConfig(defaultConfig);
@@ -165,11 +177,12 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
 
         <div className="flex flex-col h-[calc(100vh-120px)] mt-6">
           <Tabs defaultValue="audio" className="flex-1">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="audio">Audio</TabsTrigger>
               <TabsTrigger value="llm">LLM</TabsTrigger>
               <TabsTrigger value="ui">UI</TabsTrigger>
               <TabsTrigger value="avatar">Avatar</TabsTrigger>
+              <TabsTrigger value="camera">Camera</TabsTrigger>
             </TabsList>
 
             <div className="flex-1 overflow-y-auto mt-4 space-y-4">
@@ -479,6 +492,107 @@ const SettingsDrawer = ({ children }: SettingsDrawerProps) => {
                           disabled={!getConfigValue('avatar.enabled')}
                         />
                         <Label htmlFor="separate_process" className="text-xs">Separate process (sandbox)</Label>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="camera" className="space-y-4">
+                <Card className="glass-panel">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm">Camera Configuration</CardTitle>
+                    <CardDescription className="text-xs">Visual input and processing settings</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="camera_enabled"
+                        checked={getConfigValue('camera.enabled')}
+                        onCheckedChange={(checked) => updateConfigValue('camera.enabled', checked)}
+                      />
+                      <Label htmlFor="camera_enabled" className="text-xs">Enable Camera</Label>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="camera_device_name" className="text-xs">Device Name</Label>
+                      <Input
+                        id="camera_device_name"
+                        value={getConfigValue('camera.device_name')}
+                        onChange={(e) => updateConfigValue('camera.device_name', e.target.value)}
+                        disabled={!getConfigValue('camera.enabled')}
+                        className="text-xs"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="resolution" className="text-xs">Resolution</Label>
+                        <Select 
+                          value={getConfigValue('camera.resolution')} 
+                          onValueChange={(value) => updateConfigValue('camera.resolution', value)}
+                          disabled={!getConfigValue('camera.enabled')}
+                        >
+                          <SelectTrigger className="text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="480p">480p</SelectItem>
+                            <SelectItem value="720p">720p</SelectItem>
+                            <SelectItem value="1080p">1080p</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="camera_fps" className="text-xs">FPS</Label>
+                        <Input
+                          id="camera_fps"
+                          type="number"
+                          value={getConfigValue('camera.fps')}
+                          onChange={(e) => updateConfigValue('camera.fps', parseInt(e.target.value))}
+                          disabled={!getConfigValue('camera.enabled')}
+                          className="text-xs"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-4 p-4 bg-space-surface/30 rounded-lg">
+                      <h4 className="text-xs font-medium text-text-primary">Future Features</h4>
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="gesture_recognition"
+                            checked={getConfigValue('camera.features.gesture_recognition')}
+                            onCheckedChange={(checked) => updateConfigValue('camera.features.gesture_recognition', checked)}
+                            disabled={!getConfigValue('camera.enabled')}
+                          />
+                          <Label htmlFor="gesture_recognition" className="text-xs">Gesture Recognition</Label>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="face_tracking"
+                            checked={getConfigValue('camera.features.face_tracking')}
+                            onCheckedChange={(checked) => updateConfigValue('camera.features.face_tracking', checked)}
+                            disabled={!getConfigValue('camera.enabled')}
+                          />
+                          <Label htmlFor="face_tracking" className="text-xs">Face Tracking</Label>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="lip_sync_input"
+                            checked={getConfigValue('camera.features.lip_sync_input')}
+                            onCheckedChange={(checked) => updateConfigValue('camera.features.lip_sync_input', checked)}
+                            disabled={!getConfigValue('camera.enabled')}
+                          />
+                          <Label htmlFor="lip_sync_input" className="text-xs">Lip Sync Input for Avatar</Label>
+                        </div>
+                      </div>
+
+                      <div className="text-xs text-text-muted italic">
+                        Note: These features will be available in future updates
                       </div>
                     </div>
                   </CardContent>
