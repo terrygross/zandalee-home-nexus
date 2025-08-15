@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import ZandaleeHeader from "@/components/ZandaleeHeader";
 import ChatInterface from "@/components/ChatInterface";
 import VoiceMetrics from "@/components/VoiceMetrics";
+import MicSettings from "@/components/MicSettings";
 import ProjectSidebar from "@/components/ProjectSidebar";
 import CommandPalette from "@/components/CommandPalette";
 import StatusBar from "@/components/StatusBar";
@@ -68,9 +69,12 @@ const Index = () => {
             </div>
           </div>
           
-          {/* Right Sidebar - Voice Metrics */}
+          {/* Right Sidebar - Voice Metrics & Mic Settings */}
           <div className="col-span-3 space-y-6">
             <VoiceMetrics />
+            
+            {/* Mic Settings Panel */}
+            <MicSettings />
             
             {/* Quick Actions */}
             <div className="glass-panel p-4">
