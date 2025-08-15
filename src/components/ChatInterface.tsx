@@ -163,7 +163,7 @@ const ChatInterface = () => {
 
   return (
     <div className="glass-panel h-full flex flex-col">
-      <div className="p-4 border-b border-border/30">
+      <div className="p-4 border-b border-border/30 flex-shrink-0">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-text-primary">Chat Interface</h3>
@@ -178,7 +178,8 @@ const ChatInterface = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      {/* Scrollable Messages Area */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
         {messages.map((message) => (
           <MessageBubble key={message.id} message={message} />
         ))}
@@ -203,7 +204,8 @@ const ChatInterface = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 border-t border-border/30">
+      {/* Fixed Input Area */}
+      <div className="p-4 border-t border-border/30 flex-shrink-0">
         <div className="flex space-x-2">
           <Input
             value={input}

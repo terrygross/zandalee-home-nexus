@@ -50,9 +50,22 @@ const Index = () => {
             <ProjectSidebar />
           </div>
           
-          {/* Main Chat Interface */}
-          <div className="col-span-6">
-            <ChatInterface />
+          {/* Main Content Area */}
+          <div className="col-span-6 flex flex-col space-y-4">
+            {/* Avatar Area - Reserved for Zandalee */}
+            <div className="h-48 glass-panel flex items-center justify-center">
+              <div className="text-center space-y-2">
+                <div className="w-20 h-20 mx-auto rounded-full bg-energy-cyan/20 border-2 border-energy-cyan/40 flex items-center justify-center">
+                  <div className="text-energy-cyan text-2xl font-bold">Z</div>
+                </div>
+                <p className="text-sm text-text-muted">Zandalee Avatar (Coming Soon)</p>
+              </div>
+            </div>
+            
+            {/* Chat Interface - Now takes remaining space */}
+            <div className="flex-1">
+              <ChatInterface />
+            </div>
           </div>
           
           {/* Right Sidebar - Voice Metrics */}
