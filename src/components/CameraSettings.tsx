@@ -1,7 +1,7 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera, CameraOff, TestTube, Eye } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -13,20 +13,36 @@ const CameraSettings = () => {
   const [isTestingCamera, setIsTestingCamera] = useState(false);
   const [isListingDevices, setIsListingDevices] = useState(false);
   const { toast } = useToast();
-  const { listCameraDevices, testCamera } = useZandaleeAPI();
+  const { listCameraDevices, testCamera, setCameraEnabled: setAPICameraEnabled } = useZandaleeAPI();
+
+  // Load camera state from localStorage on mount
+  useEffect(() => {
+    const savedState = localStorage.getItem('camera-enabled');
+    if (savedState) {
+      setCameraEnabled(JSON.parse(savedState));
+    }
+  }, []);
 
   const toggleCamera = async (enabled: boolean) => {
     setCameraEnabled(enabled);
+    localStorage.setItem('camera-enabled', JSON.stringify(enabled));
     
-    if (enabled) {
+    try {
+      await setAPICameraEnabled(enabled);
       toast({
-        title: "Camera Enabled",
-        description: "Camera system is now active for future visual processing",
+        title: enabled ? "Camera Enabled" : "Camera Disabled",
+        description: enabled 
+          ? "Camera system is now active for visual processing"
+          : "Camera system has been deactivated",
       });
-    } else {
+    } catch (error) {
+      // Revert the toggle if API call fails
+      setCameraEnabled(!enabled);
+      localStorage.setItem('camera-enabled', JSON.stringify(!enabled));
       toast({
-        title: "Camera Disabled",
-        description: "Camera system has been deactivated",
+        title: "Camera Toggle Failed",
+        description: error instanceof Error ? error.message : 'Failed to toggle camera',
+        variant: "destructive"
       });
     }
   };
@@ -72,49 +88,54 @@ const CameraSettings = () => {
 
   return (
     <Card className="glass-panel">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center space-x-2 text-text-primary text-sm">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center space-x-2 text-text-primary text-xs">
           {cameraEnabled ? (
             <Camera className="w-4 h-4 text-energy-blue flex-shrink-0" />
           ) : (
             <CameraOff className="w-4 h-4 text-text-muted flex-shrink-0" />
           )}
-          <span className="truncate">Camera Settings</span>
+          <span className="truncate">Camera</span>
         </CardTitle>
-        <CardDescription className="text-text-secondary text-xs">
-          Configure visual input for future features
-        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
-        {/* Camera Enable/Disable Toggle */}
-        <div className="flex items-center justify-between p-3 bg-space-surface/30 rounded-lg">
-          <div className="flex items-center space-x-2">
-            <Eye className="w-4 h-4 text-energy-blue" />
-            <Label htmlFor="camera-toggle" className="text-xs font-medium text-text-primary">
-              Enable Camera
-            </Label>
+      <CardContent className="space-y-2">
+        {/* Prominent Camera Toggle */}
+        <div className={`p-2 rounded-lg border-2 transition-all ${
+          cameraEnabled 
+            ? 'bg-energy-blue/20 border-energy-blue/50' 
+            : 'bg-space-surface/30 border-space-surface/50'
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Eye className={`w-4 h-4 ${cameraEnabled ? 'text-energy-blue' : 'text-text-muted'}`} />
+              <Label htmlFor="camera-toggle" className="text-xs font-medium text-text-primary">
+                Visual Input
+              </Label>
+            </div>
+            <Switch
+              id="camera-toggle"
+              checked={cameraEnabled}
+              onCheckedChange={toggleCamera}
+            />
           </div>
-          <Switch
-            id="camera-toggle"
-            checked={cameraEnabled}
-            onCheckedChange={toggleCamera}
-          />
+          <div className="text-xs text-text-muted mt-1">
+            {cameraEnabled ? 'Zandalee can see surroundings' : 'Visual processing disabled'}
+          </div>
         </div>
 
         {/* Camera Controls - Only show when enabled */}
         {cameraEnabled && (
-          <div className="space-y-2">
+          <div className="space-y-1">
             <Button
               onClick={testCameraSystem}
               disabled={isTestingCamera}
-              className="w-full h-auto p-3 bg-energy-blue/20 hover:bg-energy-blue/30 border border-energy-blue/30 flex items-center space-x-2 text-xs"
+              className="w-full h-auto p-2 bg-energy-blue/20 hover:bg-energy-blue/30 border border-energy-blue/30 flex items-center space-x-2 text-xs"
               variant="outline"
             >
-              <TestTube className="w-4 h-4 text-energy-blue flex-shrink-0" />
+              <TestTube className="w-3 h-3 text-energy-blue flex-shrink-0" />
               <div className="text-left min-w-0 flex-1">
-                <div className="font-medium text-text-primary truncate">Test Camera</div>
-                <div className="text-text-secondary truncate">
-                  {isTestingCamera ? 'Testing...' : 'Check camera access'}
+                <div className="font-medium text-text-primary truncate">
+                  {isTestingCamera ? 'Testing...' : 'Test Camera'}
                 </div>
               </div>
             </Button>
@@ -122,14 +143,13 @@ const CameraSettings = () => {
             <Button
               onClick={listDevices}
               disabled={isListingDevices}
-              className="w-full h-auto p-3 bg-energy-pulse/20 hover:bg-energy-pulse/30 border border-energy-pulse/30 flex items-center space-x-2 text-xs"
+              className="w-full h-auto p-2 bg-energy-pulse/20 hover:bg-energy-pulse/30 border border-energy-pulse/30 flex items-center space-x-2 text-xs"
               variant="outline"
             >
-              <Camera className="w-4 h-4 text-energy-pulse flex-shrink-0" />
+              <Camera className="w-3 h-3 text-energy-pulse flex-shrink-0" />
               <div className="text-left min-w-0 flex-1">
-                <div className="font-medium text-text-primary truncate">List Devices</div>
-                <div className="text-text-secondary truncate">
-                  {isListingDevices ? 'Loading...' : 'Show available cameras'}
+                <div className="font-medium text-text-primary truncate">
+                  {isListingDevices ? 'Loading...' : 'List Devices'}
                 </div>
               </div>
             </Button>
@@ -137,9 +157,9 @@ const CameraSettings = () => {
         )}
 
         {/* Future Features Notice */}
-        <div className="p-2 bg-energy-cyan/5 border border-energy-cyan/20 rounded-lg">
+        <div className="p-1 bg-energy-cyan/5 border border-energy-cyan/20 rounded-lg">
           <p className="text-xs text-energy-cyan">
-            📹 Future: Visual processing, gesture recognition, and avatar lip-sync
+            📹 Gesture recognition & lip-sync ready
           </p>
         </div>
       </CardContent>

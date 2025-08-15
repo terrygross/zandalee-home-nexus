@@ -1,16 +1,9 @@
-
 import { useState, useEffect } from "react";
-import ZandaleeHeader from "@/components/ZandaleeHeader";
 import ChatInterface from "@/components/ChatInterface";
-import VoiceMetrics from "@/components/VoiceMetrics";
-import MicSettings from "@/components/MicSettings";
-import ProjectSidebar from "@/components/ProjectSidebar";
 import CommandPalette from "@/components/CommandPalette";
-import StatusBar from "@/components/StatusBar";
-import MemoryManager from "@/components/MemoryManager";
-import SelfTestRunner from "@/components/SelfTestRunner";
 import SettingsDrawer from "@/components/SettingsDrawer";
 import CameraSettings from "@/components/CameraSettings";
+import AvatarPanel from "@/components/AvatarPanel";
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -71,20 +64,22 @@ const Index = () => {
           </div>
         </div>
         
-        {/* Main Content Grid - More responsive */}
+        {/* Main Content Grid */}
         <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-1">
-          {/* Left Sidebar - Hidden on small screens, collapsible on medium */}
+          {/* Left Sidebar - Avatar + Memory */}
           <div className="hidden lg:flex lg:col-span-2 flex-col gap-1">
-            <div className="glass-panel p-2 text-xs">
-              <h4 className="font-semibold text-text-primary mb-1">Projects</h4>
-              <div className="space-y-1">
-                <div className="p-1 bg-energy-cyan/10 rounded text-energy-cyan">Personal Assistant</div>
-                <div className="p-1 hover:bg-space-surface rounded text-text-secondary cursor-pointer">+ New Project</div>
-              </div>
-            </div>
+            {/* Avatar Panel */}
+            <AvatarPanel />
+            
+            {/* Memory Panel */}
             <div className="flex-1 min-h-0 glass-panel p-2">
               <h4 className="text-xs font-semibold text-text-primary mb-1">Memory</h4>
               <div className="text-xs text-text-muted">42 memories loaded</div>
+              <div className="mt-2 space-y-1">
+                <div className="p-1 bg-energy-cyan/10 rounded text-xs text-energy-cyan">Recent conversations</div>
+                <div className="p-1 hover:bg-space-surface rounded text-xs text-text-secondary cursor-pointer">Voice patterns</div>
+                <div className="p-1 hover:bg-space-surface rounded text-xs text-text-secondary cursor-pointer">Preferences</div>
+              </div>
             </div>
           </div>
           
@@ -93,8 +88,11 @@ const Index = () => {
             <ChatInterface />
           </div>
           
-          {/* Right Sidebar - Collapsible on smaller screens */}
+          {/* Right Sidebar - Camera + Controls */}
           <div className="hidden md:flex md:col-span-1 lg:col-span-2 flex-col gap-1">
+            {/* Camera Settings with Toggle */}
+            <CameraSettings />
+            
             {/* Voice Metrics - Compact */}
             <div className="glass-panel p-2">
               <h4 className="text-xs font-semibold text-text-primary mb-1">Voice</h4>
@@ -110,7 +108,7 @@ const Index = () => {
               </div>
             </div>
             
-            {/* Mic Settings - Ultra Compact */}
+            {/* Audio Status - Ultra Compact */}
             <div className="glass-panel p-2">
               <h4 className="text-xs font-semibold text-text-primary mb-1">Audio</h4>
               <div className="space-y-1">
@@ -123,12 +121,6 @@ const Index = () => {
                   <div className="w-2 h-2 bg-status-success rounded-full"></div>
                 </div>
               </div>
-            </div>
-            
-            {/* Camera - Ultra Compact */}
-            <div className="glass-panel p-2">
-              <h4 className="text-xs font-semibold text-text-primary mb-1">Camera</h4>
-              <div className="text-xs text-text-muted">Disabled</div>
             </div>
             
             {/* Quick Actions - Minimal */}
