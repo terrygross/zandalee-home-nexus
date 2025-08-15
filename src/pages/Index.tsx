@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import ZandaleeHeader from "@/components/ZandaleeHeader";
 import AvatarPanel from "@/components/AvatarPanel";
@@ -17,6 +18,10 @@ const Index = () => {
     setIsMounted(true);
   }, []);
 
+  const handleVoiceTranscript = (transcript: string) => {
+    console.log('Voice transcript:', transcript);
+  };
+
   return (
     <div className="min-h-screen bg-space-deep text-text-primary flex flex-col">
       {/* Header */}
@@ -26,12 +31,12 @@ const Index = () => {
       <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar */}
         <div className="w-80 bg-space-surface/20 border-r border-energy-cyan/30 flex flex-col overflow-hidden">
-          {/* Avatar Panel */}
-          <div className="flex-shrink-0">
+          {/* Avatar Panel - Takes up top half */}
+          <div className="flex-1 min-h-0 p-3">
             <AvatarPanel />
           </div>
           
-          {/* Memory Manager */}
+          {/* Memory Manager - Takes up bottom half */}
           <div className="flex-1 min-h-0">
             <MemoryManager />
           </div>
@@ -46,29 +51,29 @@ const Index = () => {
           
           {/* Voice Input */}
           <div className="flex-shrink-0">
-            <VoiceInput />
+            <VoiceInput onTranscript={handleVoiceTranscript} />
           </div>
         </div>
 
-        {/* Right Sidebar */}
-        <div className="w-80 bg-space-surface/20 border-l border-energy-cyan/30 flex flex-col overflow-hidden">
+        {/* Right Sidebar - More compact */}
+        <div className="w-72 bg-space-surface/20 border-l border-energy-cyan/30 flex flex-col overflow-hidden">
           {/* Audio Controls */}
-          <div className="flex-shrink-0 p-3">
+          <div className="flex-shrink-0 p-2">
             <AudioControls />
           </div>
           
           {/* Camera Settings */}
-          <div className="flex-shrink-0 p-3">
+          <div className="flex-shrink-0 p-2">
             <CameraSettings />
           </div>
           
           {/* Mic Settings */}
-          <div className="flex-shrink-0 p-3">
+          <div className="flex-shrink-0 p-2">
             <MicSettings />
           </div>
           
           {/* Voice Metrics */}
-          <div className="flex-1 min-h-0 p-3">
+          <div className="flex-1 min-h-0 p-2">
             <VoiceMetrics />
           </div>
         </div>

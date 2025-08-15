@@ -68,7 +68,7 @@ const AvatarPanel = () => {
   };
 
   return (
-    <Card className="glass-panel">
+    <Card className="glass-panel h-full">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center justify-between text-text-primary text-xs">
           <span>Zandalee Avatar</span>
@@ -84,13 +84,13 @@ const AvatarPanel = () => {
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2">
-        {/* Avatar Display */}
-        <div className="flex justify-center">
-          <Avatar className="h-16 w-16 border-2 border-energy-cyan/30">
-            <AvatarImage src={avatarUrl || undefined} alt="Zandalee" />
+      <CardContent className="space-y-3 flex flex-col h-full">
+        {/* Large Avatar Display - fills most of the space */}
+        <div className="flex-1 flex items-center justify-center min-h-[200px]">
+          <Avatar className="w-32 h-32 border-2 border-energy-cyan/30">
+            <AvatarImage src={avatarUrl || undefined} alt="Zandalee" className="object-cover" />
             <AvatarFallback className="bg-energy-cyan/10 text-energy-cyan">
-              <User className="h-8 w-8" />
+              <User className="w-16 h-16" />
             </AvatarFallback>
           </Avatar>
         </div>
