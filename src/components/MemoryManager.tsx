@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,14 +26,12 @@ interface MemoryItem {
   trust: string;
 }
 
-interface DiaryEntry {
+interface DiaryEntryItem {
   id: string;
-  date: string;
-  ts: string;
   text: string;
-  image_path?: string;
-  emotion?: string;
-  tags: string;
+  photo_url?: string;
+  emotion_tag?: string;
+  created_at: string;
 }
 
 const EMOTION_OPTIONS = [
@@ -49,8 +48,9 @@ const EMOTION_OPTIONS = [
 
 const MemoryManager = () => {
   const [memories, setMemories] = useState<MemoryItem[]>([]);
-  const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([]);
+  const [diaryEntries, setDiaryEntries] = useState<DiaryEntryItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [diarySearchQuery, setDiarySearchQuery] = useState("");
   const [newMemory, setNewMemory] = useState({
     text: "",
     kind: "semantic",
@@ -62,9 +62,8 @@ const MemoryManager = () => {
   });
   const [newDiary, setNewDiary] = useState({
     text: "",
-    image: "",
-    emotion: "none",
-    tags: ""
+    photo_url: "",
+    emotion_tag: "none"
   });
   const [isLoading, setIsLoading] = useState(false);
   const [uploadingMemory, setUploadingMemory] = useState(false);
@@ -73,7 +72,7 @@ const MemoryManager = () => {
   const { searchMemories, learnMemory } = useZandaleeAPI();
   const { toast } = useToast();
 
-  const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:3001';
+  const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:8759';
 
   useEffect(() => {
     loadMemories();
@@ -109,6 +108,11 @@ const MemoryManager = () => {
       }
     } catch (error) {
       console.error('Failed to load diary:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load diary entries",
+        variant: "destructive"
+      });
     }
   };
 
@@ -137,9 +141,35 @@ const MemoryManager = () => {
     }
   };
 
+  const handleDiarySearch = async () => {
+    if (!diarySearchQuery.trim()) {
+      loadDiary();
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${API_BASE}/diary/search?q=${encodeURIComponent(diarySearchQuery)}&limit=20`);
+      const result = await response.json();
+      if (result.ok) {
+        setDiaryEntries(result.items || []);
+      }
+    } catch (error) {
+      console.error('Diary search failed:', error);
+      toast({
+        title: "Search Failed",
+        description: "Could not search diary entries",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleImageUpload = async (file: File, isForDiary: boolean = false) => {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('for_diary', isForDiary.toString());
 
     if (isForDiary) {
       setUploadingDiary(true);
@@ -156,7 +186,7 @@ const MemoryManager = () => {
       const result = await response.json();
       if (result.ok) {
         if (isForDiary) {
-          setNewDiary({ ...newDiary, image: result.path });
+          setNewDiary({ ...newDiary, photo_url: result.url });
         } else {
           setNewMemory({ ...newMemory, image: result.path });
         }
@@ -258,17 +288,19 @@ const MemoryManager = () => {
 
     try {
       setIsLoading(true);
-      const tags = newDiary.tags.split(',').map(tag => tag.trim()).filter(Boolean);
+      
+      const formData = new FormData();
+      formData.append('text', newDiary.text);
+      if (newDiary.photo_url) {
+        formData.append('photo_url', newDiary.photo_url);
+      }
+      if (newDiary.emotion_tag && newDiary.emotion_tag !== "none") {
+        formData.append('emotion_tag', newDiary.emotion_tag);
+      }
       
       const response = await fetch(`${API_BASE}/diary/append`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: newDiary.text,
-          image: newDiary.image || null,
-          emotion: newDiary.emotion === "none" ? null : newDiary.emotion,
-          tags: tags
-        })
+        body: formData
       });
 
       const result = await response.json();
@@ -276,9 +308,8 @@ const MemoryManager = () => {
         // Reset form
         setNewDiary({
           text: "",
-          image: "",
-          emotion: "none",
-          tags: ""
+          photo_url: "",
+          emotion_tag: "none"
         });
 
         // Reload diary
@@ -316,7 +347,7 @@ const MemoryManager = () => {
             <Brain className="w-4 h-4 text-energy-cyan" />
             <span>Memory & Diary</span>
           </div>
-          <span className="text-[10px] text-text-muted">{memories.length} memories</span>
+          <span className="text-[10px] text-text-muted">{memories.length} memories, {diaryEntries.length} entries</span>
         </CardTitle>
       </CardHeader>
       
@@ -528,6 +559,25 @@ const MemoryManager = () => {
           </TabsContent>
           
           <TabsContent value="diary" className="flex-1 flex flex-col min-h-0 mt-0">
+            {/* Search */}
+            <div className="flex gap-1 mb-2 flex-shrink-0">
+              <Input
+                placeholder="Search diary entries..."
+                value={diarySearchQuery}
+                onChange={(e) => setDiarySearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleDiarySearch()}
+                className="h-8 text-xs bg-space-surface/60 border-energy-cyan/30"
+              />
+              <Button
+                onClick={handleDiarySearch}
+                size="sm"
+                className="h-8 w-8 p-0 bg-energy-cyan/20 hover:bg-energy-cyan/30"
+                disabled={isLoading}
+              >
+                <Search className="w-3 h-3" />
+              </Button>
+            </div>
+
             {/* Diary List */}
             <div className="flex-1 min-h-0 overflow-y-auto space-y-2 mb-2">
               {diaryEntries.length === 0 ? (
@@ -543,7 +593,7 @@ const MemoryManager = () => {
                     <div className="text-xs text-text-primary mb-1">
                       {entry.text}
                     </div>
-                    {entry.image_path && (
+                    {entry.photo_url && (
                       <div className="mb-1">
                         <div className="flex items-center gap-1 text-[10px] text-energy-blue">
                           <Image className="w-3 h-3" />
@@ -553,27 +603,18 @@ const MemoryManager = () => {
                     )}
                     <div className="flex items-center justify-between">
                       <div className="flex gap-1 items-center">
-                        {entry.tags && entry.tags.split(',').slice(0, 2).map((tag) => (
-                          <Badge
-                            key={tag}
-                            variant="outline"
-                            className="text-[10px] h-4 px-1 border-energy-blue/30"
-                          >
-                            {tag.trim()}
-                          </Badge>
-                        ))}
-                        {entry.emotion && entry.emotion !== "none" && (
+                        {entry.emotion_tag && entry.emotion_tag !== "none" && (
                           <Badge
                             variant="outline"
                             className="text-[10px] h-4 px-1 border-energy-purple/30"
                           >
                             <Heart className="w-2 h-2 mr-1" />
-                            {getEmotionEmoji(entry.emotion)}
+                            {getEmotionEmoji(entry.emotion_tag)}
                           </Badge>
                         )}
                       </div>
                       <div className="text-[10px] text-text-muted">
-                        {new Date(entry.ts).toLocaleDateString()}
+                        {new Date(entry.created_at).toLocaleDateString()}
                       </div>
                     </div>
                   </div>
@@ -609,7 +650,7 @@ const MemoryManager = () => {
                     <Upload className="w-3 h-3" />
                     {uploadingDiary ? "Uploading..." : "Add Photo"}
                   </label>
-                  {newDiary.image && (
+                  {newDiary.photo_url && (
                     <div className="flex items-center gap-1 text-[10px] text-energy-green">
                       <Image className="w-3 h-3" />
                       <span>Photo attached</span>
@@ -618,35 +659,23 @@ const MemoryManager = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-2 mb-2">
-                <div>
-                  <div className="text-[10px] text-text-muted mb-1">Emotion</div>
-                  <Select
-                    value={newDiary.emotion}
-                    onValueChange={(value) => setNewDiary({ ...newDiary, emotion: value })}
-                  >
-                    <SelectTrigger className="h-6 text-xs bg-space-surface/60">
-                      <SelectValue placeholder="None" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {EMOTION_OPTIONS.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <div className="text-[10px] text-text-muted mb-1">Tags</div>
-                  <Input
-                    placeholder="tag1, tag2"
-                    value={newDiary.tags}
-                    onChange={(e) => setNewDiary({ ...newDiary, tags: e.target.value })}
-                    className="h-6 text-xs bg-space-surface/60 border-energy-cyan/30"
-                  />
-                </div>
+              <div className="mb-2">
+                <div className="text-[10px] text-text-muted mb-1">Emotion</div>
+                <Select
+                  value={newDiary.emotion_tag}
+                  onValueChange={(value) => setNewDiary({ ...newDiary, emotion_tag: value })}
+                >
+                  <SelectTrigger className="h-6 text-xs bg-space-surface/60">
+                    <SelectValue placeholder="None" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {EMOTION_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               
               <Button

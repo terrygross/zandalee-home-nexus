@@ -10,7 +10,8 @@ from datetime import datetime, date
 from typing import Dict, List, Optional, Any
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import sqlite3
 import logging
@@ -182,11 +183,15 @@ class PhotoAwareMemoryManager:
         self.zandalee_home = os.getenv("ZANDALEE_HOME", "C:\\Users\\teren\\Documents\\Zandalee")
         self.mem_dir = os.path.join(self.zandalee_home, "zandalee_memories")
         self.photos_dir = os.path.join(self.mem_dir, "photos")
+        self.storage_dir = os.path.join(self.zandalee_home, "storage")
+        self.diary_photos_dir = os.path.join(self.storage_dir, "diary_photos")
         self.db_path = os.path.join(self.mem_dir, "mem.db")
         
         # Ensure directories exist
         os.makedirs(self.mem_dir, exist_ok=True)
         os.makedirs(self.photos_dir, exist_ok=True)
+        os.makedirs(self.storage_dir, exist_ok=True)
+        os.makedirs(self.diary_photos_dir, exist_ok=True)
         
         self.init_db()
     
@@ -216,7 +221,18 @@ class PhotoAwareMemoryManager:
                 )
             """)
             
-            # Create diary table
+            # Create diary entries table (fixed schema)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS diary_entries (
+                    id           TEXT PRIMARY KEY,
+                    text         TEXT NOT NULL,
+                    photo_url    TEXT,
+                    emotion_tag  TEXT,
+                    created_at   TEXT NOT NULL
+                )
+            """)
+            
+            # Legacy diary table for backward compatibility
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS diary (
                     id         TEXT PRIMARY KEY,
@@ -234,11 +250,13 @@ class PhotoAwareMemoryManager:
             conn.execute("CREATE INDEX IF NOT EXISTS idx_mem_created ON memories(created_at);")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_mem_tags ON memories(tags);")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_diary_date ON diary(date);")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_diary_entries_created ON diary_entries(created_at);")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_diary_entries_emotion ON diary_entries(emotion_tag);")
             
             conn.commit()
     
-    def save_uploaded_file(self, file: UploadFile) -> Dict[str, Any]:
-        """Save uploaded image file and return relative path"""
+    def save_uploaded_file(self, file: UploadFile, for_diary: bool = False) -> Dict[str, Any]:
+        """Save uploaded image file and return URL"""
         try:
             # Validate file type
             allowed_types = ["image/png", "image/jpeg", "image/webp"]
@@ -253,10 +271,13 @@ class PhotoAwareMemoryManager:
             if file_size > 10 * 1024 * 1024:  # 10MB
                 return {"ok": False, "error": "File too large. Maximum size: 10MB"}
             
+            # Choose directory based on usage
+            target_dir = self.diary_photos_dir if for_diary else self.photos_dir
+            
             # Generate unique filename with date subdirectory
             now = datetime.now()
             date_dir = now.strftime("%Y\\%m\\%d")
-            full_date_dir = os.path.join(self.photos_dir, date_dir.replace("\\", os.sep))
+            full_date_dir = os.path.join(target_dir, date_dir.replace("\\", os.sep))
             os.makedirs(full_date_dir, exist_ok=True)
             
             # Get file extension
@@ -275,9 +296,11 @@ class PhotoAwareMemoryManager:
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
             
-            # Return relative path
-            relative_path = f"photos\\{date_dir}\\{filename}"
-            return {"ok": True, "path": relative_path}
+            # Return URL for local serving
+            relative_path = f"diary_photos/{date_dir}/{filename}" if for_diary else f"photos/{date_dir}/{filename}"
+            url = f"http://127.0.0.1:8759/files/{relative_path}"
+            
+            return {"ok": True, "path": relative_path, "url": url}
             
         except Exception as e:
             logger.error(f"File upload error: {e}")
@@ -376,8 +399,74 @@ class PhotoAwareMemoryManager:
             logger.error(f"Memory update error: {e}")
             return {"ok": False, "error": str(e)}
     
+    def append_diary_entry(self, text: str, photo_url: str = None, emotion_tag: str = None) -> Dict[str, Any]:
+        """Append new diary entry to diary_entries table"""
+        try:
+            entry_id = str(uuid.uuid4())
+            now = datetime.now().isoformat()
+            
+            with sqlite3.connect(self.db_path) as conn:
+                conn.execute("""
+                    INSERT INTO diary_entries (id, text, photo_url, emotion_tag, created_at)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (entry_id, text, photo_url, emotion_tag, now))
+                conn.commit()
+            
+            return {"ok": True, "id": entry_id}
+        except Exception as e:
+            logger.error(f"Diary append error: {e}")
+            return {"ok": False, "error": str(e)}
+    
+    def list_diary_entries(self, limit: int = 20) -> List[Dict]:
+        """List diary entries from diary_entries table"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.row_factory = sqlite3.Row
+                
+                cursor = conn.execute("""
+                    SELECT id, text, photo_url, emotion_tag, created_at
+                    FROM diary_entries 
+                    ORDER BY created_at DESC 
+                    LIMIT ?
+                """, (limit,))
+                rows = cursor.fetchall()
+                
+                return [dict(row) for row in rows]
+        except Exception as e:
+            logger.error(f"Diary list error: {e}")
+            return []
+    
+    def search_diary_entries(self, query: str = "", emotion: str = None, limit: int = 20) -> List[Dict]:
+        """Search diary entries"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.row_factory = sqlite3.Row
+                
+                sql = "SELECT id, text, photo_url, emotion_tag, created_at FROM diary_entries WHERE 1=1"
+                params = []
+                
+                if query:
+                    sql += " AND text LIKE ?"
+                    params.append(f"%{query}%")
+                
+                if emotion:
+                    sql += " AND emotion_tag = ?"
+                    params.append(emotion)
+                
+                sql += " ORDER BY created_at DESC LIMIT ?"
+                params.append(limit)
+                
+                cursor = conn.execute(sql, params)
+                rows = cursor.fetchall()
+                
+                return [dict(row) for row in rows]
+        except Exception as e:
+            logger.error(f"Diary search error: {e}")
+            return []
+    
+    # ... keep existing code (legacy diary methods for backward compatibility)
     def append_diary(self, entry: DiaryEntry) -> Dict[str, Any]:
-        """Append diary entry with photo and emotion support"""
+        """Legacy diary append for backward compatibility"""
         try:
             entry_id = str(uuid.uuid4())
             now = datetime.now()
@@ -394,12 +483,12 @@ class PhotoAwareMemoryManager:
             
             return {"ok": True, "id": entry_id}
         except Exception as e:
-            logger.error(f"Diary append error: {e}")
+            logger.error(f"Legacy diary append error: {e}")
             return {"ok": False, "error": str(e)}
-    
+
     def list_diary(self, date_filter: str = None, since: str = None, limit: int = 50, 
                    tags: List[str] = [], emotion: str = None) -> List[Dict]:
-        """List diary entries with filtering"""
+        """Legacy diary list for backward compatibility"""
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
@@ -432,13 +521,16 @@ class PhotoAwareMemoryManager:
                 
                 return [dict(row) for row in rows]
         except Exception as e:
-            logger.error(f"Diary list error: {e}")
+            logger.error(f"Legacy diary list error: {e}")
             return []
 
 # Initialize components
 voice_core = VoiceCore()
 memory_manager = PhotoAwareMemoryManager()
 audio_wizard = AudioWizard()
+
+# Mount static files for serving uploaded images
+app.mount("/files", StaticFiles(directory=memory_manager.storage_dir), name="files")
 
 # API Routes
 @app.get("/")
@@ -485,9 +577,9 @@ async def use_mic_device(request: MicUseRequest):
 
 # FILE UPLOAD ENDPOINT
 @app.post("/files/upload")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...), for_diary: bool = False):
     """Upload image file for memories/diary"""
-    return memory_manager.save_uploaded_file(file)
+    return memory_manager.save_uploaded_file(file, for_diary)
 
 # ENHANCED MEMORY ENDPOINTS
 @app.post("/memory/learn")
@@ -507,20 +599,38 @@ async def update_memory(update: MemoryUpdate):
     """Update memory fields"""
     return memory_manager.update_memory(update.id, update.patch)
 
-# ENHANCED DIARY ENDPOINTS
+# NEW DIARY ENDPOINTS (Local-First)
 @app.post("/diary/append")
-async def append_diary(entry: DiaryEntry):
-    """Append diary entry with photo and emotion support"""
-    return memory_manager.append_diary(entry)
+async def append_diary_entry(text: str = Form(...), photo_url: str = Form(None), emotion_tag: str = Form(None)):
+    """Append new diary entry"""
+    return memory_manager.append_diary_entry(text, photo_url, emotion_tag)
 
 @app.get("/diary/list")
-async def list_diary(date: str = None, since: str = None, limit: int = 50, 
+async def list_diary_entries(limit: int = 20):
+    """List recent diary entries"""
+    results = memory_manager.list_diary_entries(limit)
+    return {"ok": True, "items": results}
+
+@app.get("/diary/search")
+async def search_diary_entries(q: str = "", emotion: str = None, limit: int = 20):
+    """Search diary entries"""
+    results = memory_manager.search_diary_entries(q, emotion, limit)
+    return {"ok": True, "items": results}
+
+# LEGACY DIARY ENDPOINTS (Backward Compatibility)
+@app.post("/diary/append_legacy")
+async def append_diary_legacy(entry: DiaryEntry):
+    """Legacy diary append for backward compatibility"""
+    return memory_manager.append_diary(entry)
+
+@app.get("/diary/list_legacy")
+async def list_diary_legacy(date: str = None, since: str = None, limit: int = 50, 
                     tags: str = "", emotion: str = None):
-    """List diary entries with filtering"""
+    """Legacy diary list for backward compatibility"""
     tag_list = [t.strip() for t in tags.split(",") if t.strip()] if tags else []
     results = memory_manager.list_diary(date, since, limit, tag_list, emotion)
     return {"ok": True, "items": results}
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=3001)
+    uvicorn.run(app, host="127.0.0.1", port=8759)
