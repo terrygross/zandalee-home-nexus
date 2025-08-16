@@ -65,8 +65,8 @@ const ScreenSharePanel = () => {
   }, [stream]);
 
   return (
-    <div className="glass-panel p-3 h-full flex flex-col">
-      <div className="flex items-center justify-between mb-3">
+    <div className="glass-panel p-2 h-full flex flex-col">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center space-x-2">
           <Monitor className="w-4 h-4 text-energy-cyan" />
           <span className="text-sm font-medium text-text-primary">Screen Share</span>
@@ -80,23 +80,23 @@ const ScreenSharePanel = () => {
       </div>
 
       {!isSharing ? (
-        <div className="flex-1 flex flex-col items-center justify-center space-y-3">
-          <AlertTriangle className="w-8 h-8 text-status-warning opacity-50" />
-          <p className="text-xs text-text-muted text-center">
+        <div className="flex-1 flex flex-col items-center justify-center space-y-2 min-h-0">
+          <AlertTriangle className="w-6 h-6 text-status-warning opacity-50" />
+          <p className="text-xs text-text-muted text-center leading-tight">
             Share your screen with Zandalee for visual assistance
           </p>
           <Button
             onClick={startScreenShare}
             size="sm"
-            className="bg-energy-cyan/20 hover:bg-energy-cyan/30 text-energy-cyan border border-energy-cyan/30 text-xs"
+            className="bg-energy-cyan/20 hover:bg-energy-cyan/30 text-energy-cyan border border-energy-cyan/30 text-xs px-2 py-1"
           >
             <Monitor className="w-3 h-3 mr-1" />
             Start Sharing
           </Button>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col space-y-2">
-          <div className="flex-1 bg-space-surface/30 rounded-lg overflow-hidden">
+        <div className="flex-1 flex flex-col space-y-2 min-h-0">
+          <div className="flex-1 bg-space-surface/30 rounded-lg overflow-hidden min-h-0">
             <video
               ref={videoRef}
               autoPlay
@@ -108,7 +108,7 @@ const ScreenSharePanel = () => {
             onClick={stopScreenShare}
             size="sm"
             variant="destructive"
-            className="text-xs"
+            className="text-xs px-2 py-1"
           >
             <MonitorStop className="w-3 h-3 mr-1" />
             Stop Sharing
@@ -116,7 +116,7 @@ const ScreenSharePanel = () => {
         </div>
       )}
 
-      <p className="text-xs text-text-muted mt-2 opacity-75">
+      <p className="text-xs text-text-muted mt-1 opacity-75 text-center">
         View-only mode. No control access.
       </p>
     </div>
