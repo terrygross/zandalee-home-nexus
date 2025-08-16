@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,7 +36,7 @@ interface DiaryEntry {
 }
 
 const EMOTION_OPTIONS = [
-  { value: "", label: "None" },
+  { value: "none", label: "None" },
   { value: "happy", label: "😊 Happy" },
   { value: "proud", label: "🌟 Proud" },
   { value: "excited", label: "🎉 Excited" },
@@ -59,12 +58,12 @@ const MemoryManager = () => {
     importance: 0.5,
     relevance: 0.5,
     image: "",
-    emotion: ""
+    emotion: "none"
   });
   const [newDiary, setNewDiary] = useState({
     text: "",
     image: "",
-    emotion: "",
+    emotion: "none",
     tags: ""
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -76,7 +75,6 @@ const MemoryManager = () => {
 
   const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:3001';
 
-  // Load initial memories and diary
   useEffect(() => {
     loadMemories();
     loadDiary();
@@ -209,7 +207,7 @@ const MemoryManager = () => {
           importance: newMemory.importance,
           relevance: newMemory.relevance,
           image: newMemory.image || null,
-          emotion: newMemory.emotion || null
+          emotion: newMemory.emotion === "none" ? null : newMemory.emotion
         })
       });
 
@@ -223,7 +221,7 @@ const MemoryManager = () => {
           importance: 0.5,
           relevance: 0.5,
           image: "",
-          emotion: ""
+          emotion: "none"
         });
 
         // Reload memories
@@ -268,7 +266,7 @@ const MemoryManager = () => {
         body: JSON.stringify({
           text: newDiary.text,
           image: newDiary.image || null,
-          emotion: newDiary.emotion || null,
+          emotion: newDiary.emotion === "none" ? null : newDiary.emotion,
           tags: tags
         })
       });
@@ -279,7 +277,7 @@ const MemoryManager = () => {
         setNewDiary({
           text: "",
           image: "",
-          emotion: "",
+          emotion: "none",
           tags: ""
         });
 
@@ -383,7 +381,7 @@ const MemoryManager = () => {
                             {tag.trim()}
                           </Badge>
                         ))}
-                        {memory.emotion && (
+                        {memory.emotion && memory.emotion !== "none" && (
                           <Badge
                             variant="outline"
                             className="text-[10px] h-4 px-1 border-energy-purple/30"
@@ -564,7 +562,7 @@ const MemoryManager = () => {
                             {tag.trim()}
                           </Badge>
                         ))}
-                        {entry.emotion && (
+                        {entry.emotion && entry.emotion !== "none" && (
                           <Badge
                             variant="outline"
                             className="text-[10px] h-4 px-1 border-energy-purple/30"
