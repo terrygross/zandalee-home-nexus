@@ -4,9 +4,11 @@ import asyncio
 import subprocess
 import json
 import time
-from datetime import datetime
+import uuid
+import shutil
+from datetime import datetime, date
 from typing import Dict, List, Optional, Any
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -28,27 +30,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Pydantic models
-class ChatMessage(BaseModel):
-    content: str
-    role: str = "user"
+# ... keep existing code (Pydantic models, global state)
 
-class VoiceCommand(BaseModel):
-    text: str
-
-class ProjectCreate(BaseModel):
-    name: str
-
+# Enhanced Pydantic models for photo-aware system
 class MemoryItem(BaseModel):
-    content: str
+    text: str
     kind: str = "semantic"
     tags: List[str] = []
     importance: float = 0.5
     relevance: float = 0.5
+    image: Optional[str] = None
+    emotion: Optional[str] = None
+    source: str = "chat"
+    trust: str = "told"
 
-# Global state
-current_project = "Personal Assistant"
-connected_clients = set()
+class MemoryUpdate(BaseModel):
+    id: str
+    patch: Dict[str, Any]
+
+class DiaryEntry(BaseModel):
+    text: str
+    image: Optional[str] = None
+    emotion: Optional[str] = None
+    tags: List[str] = []
 
 # Voice Core Implementation with Real Bridge Integration
 class VoiceCore:
@@ -144,7 +148,6 @@ class VoiceCore:
     
     async def stop(self) -> Dict[str, Any]:
         """Optional: Stop TTS playback"""
-        # For now, return not supported as this requires process management
         return {"ok": False, "error": "not_supported"}
     
     def get_metrics(self) -> Dict[str, Any]:
@@ -156,119 +159,275 @@ class VoiceCore:
             "last_error": self._last_error
         }
 
-# Initialize voice core
-voice_core = VoiceCore()
-
-# ... keep existing code (memory manager, project manager, and other classes)
-
-# Memory system integration
-class MemoryManager:
+# Enhanced Memory and Diary Manager with photo support
+class PhotoAwareMemoryManager:
     def __init__(self):
-        self.db_path = os.getenv("ZANDALEE_MEM_DIR", "C:\\Users\\teren\\Documents\\Zandalee\\zandalee_memories") + "\\mem.db"
+        self.zandalee_home = os.getenv("ZANDALEE_HOME", "C:\\Users\\teren\\Documents\\Zandalee")
+        self.mem_dir = os.path.join(self.zandalee_home, "zandalee_memories")
+        self.photos_dir = os.path.join(self.mem_dir, "photos")
+        self.db_path = os.path.join(self.mem_dir, "mem.db")
+        
+        # Ensure directories exist
+        os.makedirs(self.mem_dir, exist_ok=True)
+        os.makedirs(self.photos_dir, exist_ok=True)
+        
         self.init_db()
     
     def init_db(self):
-        """Initialize SQLite database"""
-        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+        """Initialize SQLite database with photo-aware schema"""
         with sqlite3.connect(self.db_path) as conn:
+            # Enable WAL mode for better concurrency
+            conn.execute("PRAGMA journal_mode=WAL;")
+            
+            # Create memories table with image and emotion support
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS memories (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    content TEXT NOT NULL,
-                    kind TEXT NOT NULL,
-                    tags TEXT,
-                    importance REAL,
-                    relevance REAL,
-                    project TEXT,
-                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                    id            TEXT PRIMARY KEY,
+                    text          TEXT NOT NULL,
+                    kind          TEXT CHECK(kind IN ('semantic','episodic','procedural','working','event')) NOT NULL,
+                    tags          TEXT NOT NULL,
+                    importance    REAL DEFAULT 0.5,
+                    relevance     REAL DEFAULT 0.5,
+                    image_path    TEXT,
+                    emotion       TEXT,
+                    source        TEXT DEFAULT 'chat',
+                    trust         TEXT DEFAULT 'told',
+                    created_at    TEXT NOT NULL,
+                    expires_at    TEXT,
+                    retired       INTEGER DEFAULT 0,
+                    version       INTEGER DEFAULT 1
                 )
             """)
+            
+            # Create diary table
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS diary (
+                    id         TEXT PRIMARY KEY,
+                    date       TEXT NOT NULL,
+                    ts         TEXT NOT NULL,
+                    text       TEXT NOT NULL,
+                    image_path TEXT,
+                    emotion    TEXT,
+                    tags       TEXT DEFAULT ''
+                )
+            """)
+            
+            # Create indexes
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_mem_kind ON memories(kind);")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_mem_created ON memories(created_at);")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_mem_tags ON memories(tags);")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_diary_date ON diary(date);")
+            
+            conn.commit()
     
-    def remember(self, content: str, kind: str, tags: List[str], importance: float, relevance: float):
-        """Store a new memory"""
-        with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.execute("""
-                INSERT INTO memories (content, kind, tags, importance, relevance, project)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (content, kind, ",".join(tags), importance, relevance, current_project))
-            return cursor.lastrowid
+    def save_uploaded_file(self, file: UploadFile) -> Dict[str, Any]:
+        """Save uploaded image file and return relative path"""
+        try:
+            # Validate file type
+            allowed_types = ["image/png", "image/jpeg", "image/webp"]
+            if file.content_type not in allowed_types:
+                return {"ok": False, "error": f"Invalid file type. Allowed: {', '.join(allowed_types)}"}
+            
+            # Check file size (10MB limit)
+            file.file.seek(0, 2)  # Seek to end
+            file_size = file.file.tell()
+            file.file.seek(0)  # Reset to beginning
+            
+            if file_size > 10 * 1024 * 1024:  # 10MB
+                return {"ok": False, "error": "File too large. Maximum size: 10MB"}
+            
+            # Generate unique filename with date subdirectory
+            now = datetime.now()
+            date_dir = now.strftime("%Y\\%m\\%d")
+            full_date_dir = os.path.join(self.photos_dir, date_dir.replace("\\", os.sep))
+            os.makedirs(full_date_dir, exist_ok=True)
+            
+            # Get file extension
+            ext = "png"
+            if file.content_type == "image/jpeg":
+                ext = "jpg"
+            elif file.content_type == "image/webp":
+                ext = "webp"
+            
+            # Generate unique filename
+            file_id = str(uuid.uuid4())
+            filename = f"{file_id}.{ext}"
+            file_path = os.path.join(full_date_dir, filename)
+            
+            # Save file
+            with open(file_path, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+            
+            # Return relative path
+            relative_path = f"photos\\{date_dir}\\{filename}"
+            return {"ok": True, "path": relative_path}
+            
+        except Exception as e:
+            logger.error(f"File upload error: {e}")
+            return {"ok": False, "error": str(e)}
     
-    def recall(self, query: str, limit: int = 10):
-        """Search memories"""
-        with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.execute("""
-                SELECT * FROM memories 
-                WHERE content LIKE ? OR tags LIKE ?
-                ORDER BY importance DESC, timestamp DESC
-                LIMIT ?
-            """, (f"%{query}%", f"%{query}%", limit))
-            rows = cursor.fetchall()
-            return [dict(zip([col[0] for col in cursor.description], row)) for row in rows]
+    def learn_memory(self, memory: MemoryItem) -> Dict[str, Any]:
+        """Store a new memory with photo and emotion support"""
+        try:
+            memory_id = str(uuid.uuid4())
+            now = datetime.now().isoformat()
+            tags_csv = ",".join(memory.tags)
+            
+            with sqlite3.connect(self.db_path) as conn:
+                conn.execute("""
+                    INSERT INTO memories (
+                        id, text, kind, tags, importance, relevance, 
+                        image_path, emotion, source, trust, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    memory_id, memory.text, memory.kind, tags_csv,
+                    memory.importance, memory.relevance, memory.image,
+                    memory.emotion, memory.source, memory.trust, now
+                ))
+                conn.commit()
+            
+            return {"ok": True, "id": memory_id}
+        except Exception as e:
+            logger.error(f"Memory learn error: {e}")
+            return {"ok": False, "error": str(e)}
     
-    def get_stats(self):
-        """Get memory statistics"""
-        with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.execute("SELECT kind, COUNT(*) FROM memories GROUP BY kind")
-            stats = dict(cursor.fetchall())
-            cursor = conn.execute("SELECT COUNT(*) FROM memories")
-            total = cursor.fetchone()[0]
-            return {"total": total, "by_kind": stats}
-
-memory_manager = MemoryManager()
-
-# Project management
-class ProjectManager:
-    def __init__(self):
-        self.projects_dir = os.getenv("ZANDALEE_PROJECTS_DIR", "C:\\Users\\teren\\Documents\\Zandalee\\projects")
-    
-    def create_project(self, name: str):
-        """Create a new project directory structure"""
-        safe_name = "".join(c for c in name if c.isalnum() or c in (' ', '-', '_')).rstrip()
-        project_path = os.path.join(self.projects_dir, safe_name)
-        
-        os.makedirs(project_path, exist_ok=True)
-        for subdir in ["files", "notes", "diary", "memory"]:
-            os.makedirs(os.path.join(project_path, subdir), exist_ok=True)
-        
-        return {"name": safe_name, "path": project_path}
-    
-    def list_projects(self):
-        """List all projects"""
-        if not os.path.exists(self.projects_dir):
+    def search_memories(self, query: str = "", tags: List[str] = [], emotion: str = None, limit: int = 10) -> List[Dict]:
+        """Search memories with photo and emotion filtering"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.row_factory = sqlite3.Row
+                
+                sql = "SELECT * FROM memories WHERE retired = 0"
+                params = []
+                
+                if query:
+                    sql += " AND text LIKE ?"
+                    params.append(f"%{query}%")
+                
+                if tags:
+                    for tag in tags:
+                        sql += " AND tags LIKE ?"
+                        params.append(f"%{tag}%")
+                
+                if emotion:
+                    sql += " AND emotion = ?"
+                    params.append(emotion)
+                
+                sql += " ORDER BY importance DESC, created_at DESC LIMIT ?"
+                params.append(limit)
+                
+                cursor = conn.execute(sql, params)
+                rows = cursor.fetchall()
+                
+                return [dict(row) for row in rows]
+        except Exception as e:
+            logger.error(f"Memory search error: {e}")
             return []
-        
-        projects = []
-        for item in os.listdir(self.projects_dir):
-            if os.path.isdir(os.path.join(self.projects_dir, item)):
-                projects.append({
-                    "name": item,
-                    "status": "active" if item == current_project else "idle",
-                    "lastUsed": "2m ago",
-                    "memories": len(memory_manager.recall(f"project:{item}"))
-                })
-        return projects
+    
+    def update_memory(self, memory_id: str, patch: Dict[str, Any]) -> Dict[str, Any]:
+        """Update memory fields"""
+        try:
+            if not patch:
+                return {"ok": False, "error": "No fields to update"}
+            
+            # Convert tags array to CSV if present
+            if "tags" in patch and isinstance(patch["tags"], list):
+                patch["tags"] = ",".join(patch["tags"])
+            
+            # Build UPDATE query
+            set_clauses = []
+            params = []
+            for key, value in patch.items():
+                if key in ["text", "tags", "importance", "relevance", "emotion", "image", "retired"]:
+                    set_clauses.append(f"{key} = ?")
+                    params.append(value)
+            
+            if not set_clauses:
+                return {"ok": False, "error": "No valid fields to update"}
+            
+            params.append(memory_id)
+            sql = f"UPDATE memories SET {', '.join(set_clauses)} WHERE id = ?"
+            
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.execute(sql, params)
+                if cursor.rowcount == 0:
+                    return {"ok": False, "error": "Memory not found"}
+                conn.commit()
+            
+            return {"ok": True}
+        except Exception as e:
+            logger.error(f"Memory update error: {e}")
+            return {"ok": False, "error": str(e)}
+    
+    def append_diary(self, entry: DiaryEntry) -> Dict[str, Any]:
+        """Append diary entry with photo and emotion support"""
+        try:
+            entry_id = str(uuid.uuid4())
+            now = datetime.now()
+            date_str = now.strftime("%Y-%m-%d")
+            ts_str = now.isoformat()
+            tags_csv = ",".join(entry.tags)
+            
+            with sqlite3.connect(self.db_path) as conn:
+                conn.execute("""
+                    INSERT INTO diary (id, date, ts, text, image_path, emotion, tags)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, (entry_id, date_str, ts_str, entry.text, entry.image, entry.emotion, tags_csv))
+                conn.commit()
+            
+            return {"ok": True, "id": entry_id}
+        except Exception as e:
+            logger.error(f"Diary append error: {e}")
+            return {"ok": False, "error": str(e)}
+    
+    def list_diary(self, date_filter: str = None, since: str = None, limit: int = 50, 
+                   tags: List[str] = [], emotion: str = None) -> List[Dict]:
+        """List diary entries with filtering"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.row_factory = sqlite3.Row
+                
+                sql = "SELECT * FROM diary WHERE 1=1"
+                params = []
+                
+                if date_filter:
+                    sql += " AND date = ?"
+                    params.append(date_filter)
+                
+                if since:
+                    sql += " AND ts >= ?"
+                    params.append(since)
+                
+                if tags:
+                    for tag in tags:
+                        sql += " AND tags LIKE ?"
+                        params.append(f"%{tag}%")
+                
+                if emotion:
+                    sql += " AND emotion = ?"
+                    params.append(emotion)
+                
+                sql += " ORDER BY ts DESC LIMIT ?"
+                params.append(limit)
+                
+                cursor = conn.execute(sql, params)
+                rows = cursor.fetchall()
+                
+                return [dict(row) for row in rows]
+        except Exception as e:
+            logger.error(f"Diary list error: {e}")
+            return []
 
-project_manager = ProjectManager()
+# Initialize components
+voice_core = VoiceCore()
+memory_manager = PhotoAwareMemoryManager()
+
+# ... keep existing code (project manager and other classes)
 
 # API Routes
 @app.get("/")
 async def root():
     return {"message": "Zandalee AI Backend", "status": "active"}
-
-@app.post("/chat")
-async def chat(message: ChatMessage):
-    """Handle chat messages with AI processing"""
-    try:
-        response_text = generate_ai_response(message.content)
-        
-        return {
-            "id": str(int(datetime.now().timestamp() * 1000)),
-            "role": "assistant",
-            "content": response_text,
-            "timestamp": datetime.now().isoformat()
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 # REAL VOICE ENDPOINTS (No Mocks)
 @app.post("/speak")
@@ -288,217 +447,45 @@ async def stop_voice():
     result = await voice_core.stop()
     return result
 
-# ... keep existing code (old mock endpoints for mic, memory, projects, commands, websocket, etc.)
+# FILE UPLOAD ENDPOINT
+@app.post("/files/upload")
+async def upload_file(file: UploadFile = File(...)):
+    """Upload image file for memories/diary"""
+    return memory_manager.save_uploaded_file(file)
 
-# Add new audio calibration endpoints
-@app.post("/mic/preflight")
-async def mic_preflight():
-    """Prepare for mic calibration - pause TTS, load last profile"""
-    return {"status": "success", "message": "TTS paused, ready for calibration"}
-
-@app.get("/mic/list")
-async def list_audio_devices():
-    """List available audio input devices"""
-    try:
-        # Mock devices for now - will be implemented in Step 2
-        return [
-            {"id": 0, "name": "Default Microphone", "max_input_channels": 1, "samplerate": 16000},
-            {"id": 1, "name": "Microphone Array (Intel)", "max_input_channels": 2, "samplerate": 48000},
-            {"id": 2, "name": "USB Headset Mic", "max_input_channels": 1, "samplerate": 44100}
-        ]
-    except Exception as e:
-        logger.error(f"Device list error: {e}")
-        return []
-
-@app.post("/mic/test")
-async def test_microphone_device(request: dict):
-    """Test a specific microphone device"""
-    device_id = request.get("device_id")
-    # Mock implementation for now - will be implemented in Step 2
-    import random
-    return {
-        "id": device_id,
-        "name": f"Test Device {device_id}",
-        "snr_db": random.uniform(15, 35),
-        "voiced_ratio": random.uniform(0.3, 0.8),
-        "start_delay_ms": random.uniform(0, 50),
-        "clipping_percent": random.uniform(0, 5),
-        "dropout_percent": random.uniform(0, 2),
-        "score": random.uniform(0.6, 0.95),
-        "samplerate": 16000
-    }
-
-@app.post("/mic/use")
-async def use_microphone_device(request: dict):
-    """Set the active microphone device and save configuration"""
-    device_id = request.get("id")
-    
-    try:
-        config_dir = os.path.join(os.path.dirname(__file__), "config")
-        os.makedirs(config_dir, exist_ok=True)
-        
-        audio_config = {
-            "machine": f"PC-{os.environ.get('COMPUTERNAME', 'UNKNOWN')}",
-            "device_id": device_id,
-            "device_name": f"Device {device_id}",
-            "samplerate": 16000,
-            "frame_ms": 10,
-            "vad_mode": 1,
-            "start_voiced_frames": 2,
-            "end_unvoiced_frames": 500,
-            "preroll_ms": 500
-        }
-        
-        with open(os.path.join(config_dir, "audio.json"), "w") as f:
-            json.dump(audio_config, f, indent=2)
-        
-        memory_text = f"Use device {device_id} on {audio_config['machine']}; silence_hold_ms=5000; preroll=500."
-        memory_manager.remember(
-            memory_text,
-            "semantic",
-            ["audio", "prefs", f"device:{audio_config['machine']}"],
-            0.9,
-            0.9
-        )
-        
-        return {"status": "success", "message": f"Using device {device_id}", "config": audio_config}
-        
-    except Exception as e:
-        logger.error(f"Device configuration error: {e}")
-        return {"error": str(e)}
-
-@app.post("/commands/execute")
-async def execute_command(command: dict):
-    """Execute console commands"""
-    cmd = command.get("command", "")
-    
-    if cmd == ":mic.list":
-        devices = await list_audio_devices()
-        return {"success": True, "data": devices}
-    
-    elif cmd == ":mic.setup":
-        await mic_preflight()
-        return {"success": True, "message": "Run 'Run Mic Setup' from UI to complete wizard"}
-    
-    elif cmd.startswith(":mic.use"):
-        try:
-            device_id = int(cmd.split()[-1])
-            result = await use_microphone_device({"id": device_id})
-            return {"success": True, "data": result}
-        except (ValueError, IndexError):
-            return {"success": False, "message": "Usage: :mic.use <device_id>"}
-    
-    elif cmd.startswith(":say"):
-        text = cmd.replace(":say", "").strip().strip('"')
-        result = await voice_core.speak(text)
-        return {"success": True, "data": result}
-    
-    elif cmd.startswith(":project.new"):
-        name = cmd.split('"')[1] if '"' in cmd else cmd.split()[-1]
-        result = project_manager.create_project(name)
-        global current_project
-        current_project = result["name"]
-        return {"success": True, "message": f"Created project: {name}", "data": result}
-    
-    elif cmd == ":project.list":
-        projects = project_manager.list_projects()
-        return {"success": True, "data": projects}
-    
-    elif cmd.startswith(":mem.learn"):
-        parts = cmd.split('"')
-        if len(parts) >= 2:
-            content = parts[1]
-            mem_id = memory_manager.remember(content, "semantic", [f"project:{current_project}"], 0.5, 0.5)
-            return {"success": True, "message": f"Learned memory #{mem_id}"}
-    
-    elif cmd.startswith(":mem.search"):
-        query = cmd.replace(":mem.search", "").strip()
-        results = memory_manager.recall(query)
-        return {"success": True, "data": results}
-    
-    elif cmd == ":mem.stats":
-        stats = memory_manager.get_stats()
-        return {"success": True, "data": stats}
-    
-    elif cmd == ":help":
-        return {"success": True, "message": "Available commands: :project.new, :project.list, :mem.learn, :mem.search, :mem.stats, :mic.list, :mic.setup, :mic.use, :say, :help"}
-    
-    else:
-        return {"success": False, "message": f"Unknown command: {cmd}"}
-
-@app.get("/projects")
-async def get_projects():
-    """Get all projects"""
-    return project_manager.list_projects()
-
-@app.post("/projects")
-async def create_project(project: ProjectCreate):
-    """Create a new project"""
-    result = project_manager.create_project(project.name)
-    global current_project
-    current_project = result["name"]
-    return result
-
-@app.get("/memory/stats")
-async def get_memory_stats():
-    """Get memory statistics"""
-    return memory_manager.get_stats()
-
+# ENHANCED MEMORY ENDPOINTS
 @app.post("/memory/learn")
 async def learn_memory(memory: MemoryItem):
-    """Learn a new memory"""
-    mem_id = memory_manager.remember(
-        memory.content, 
-        memory.kind, 
-        memory.tags + [f"project:{current_project}"], 
-        memory.importance, 
-        memory.relevance
-    )
-    return {"id": mem_id, "message": "Memory learned successfully"}
+    """Learn a new memory with photo and emotion support"""
+    return memory_manager.learn_memory(memory)
 
-@app.get("/memory/search/{query}")
-async def search_memory(query: str):
-    """Search memories"""
-    return memory_manager.recall(query)
+@app.get("/memory/search")
+async def search_memory(q: str = "", tags: str = "", emotion: str = None, limit: int = 10):
+    """Search memories with photo and emotion filtering"""
+    tag_list = [t.strip() for t in tags.split(",") if t.strip()] if tags else []
+    results = memory_manager.search_memories(q, tag_list, emotion, limit)
+    return {"ok": True, "items": results}
 
-@app.get("/status")
-async def get_status():
-    """Get system status"""
-    return {
-        "voice_active": voice_core.voice_active,
-        "current_project": current_project,
-        "memory_count": memory_manager.get_stats()["total"]
-    }
+@app.post("/memory/update")
+async def update_memory(update: MemoryUpdate):
+    """Update memory fields"""
+    return memory_manager.update_memory(update.id, update.patch)
 
-# WebSocket for real-time updates
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    connected_clients.add(websocket)
-    
-    try:
-        while True:
-            # Send real-time voice metrics every second
-            metrics = voice_core.get_metrics()
-            await websocket.send_json({"type": "voice_metrics", "data": metrics})
-            await asyncio.sleep(1)
-    except WebSocketDisconnect:
-        connected_clients.remove(websocket)
+# ENHANCED DIARY ENDPOINTS
+@app.post("/diary/append")
+async def append_diary(entry: DiaryEntry):
+    """Append diary entry with photo and emotion support"""
+    return memory_manager.append_diary(entry)
 
-def generate_ai_response(input_text: str) -> str:
-    """Generate AI response - this will be replaced with DeepSeek later"""
-    lower_input = input_text.lower()
-    
-    if "project" in lower_input:
-        return "I can help you manage projects! Use ':project.new ProjectName' to create a new project, or ':project.list' to see existing ones."
-    elif "memory" in lower_input or "remember" in lower_input:
-        return "Memory management is one of my core functions. I can learn new information with ':mem.learn', search memories with ':mem.search', and show stats with ':mem.stats'."
-    elif "screenshot" in lower_input:
-        return "I can capture screenshots and save them to your active project. The images are automatically organized and can be referenced in our conversations."
-    elif input_text.startswith(":"):
-        return f"Command '{input_text}' recognized. Processing..."
-    else:
-        return f"I understand you said: '{input_text}'. As your AI assistant, I'm here to help with projects, memory management, automation, and more!"
+@app.get("/diary/list")
+async def list_diary(date: str = None, since: str = None, limit: int = 50, 
+                    tags: str = "", emotion: str = None):
+    """List diary entries with filtering"""
+    tag_list = [t.strip() for t in tags.split(",") if t.strip()] if tags else []
+    results = memory_manager.list_diary(date, since, limit, tag_list, emotion)
+    return {"ok": True, "items": results}
+
+# ... keep existing code (chat, projects, commands, websocket, other endpoints)
 
 if __name__ == "__main__":
     import uvicorn

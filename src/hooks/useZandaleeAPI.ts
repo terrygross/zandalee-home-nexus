@@ -44,6 +44,8 @@ interface MemoryItem {
   created_at: string;
   source: string;
   trust: string;
+  image_path?: string;
+  emotion?: string;
 }
 
 interface Config {
@@ -197,22 +199,25 @@ export const useZandaleeAPI = () => {
   };
 
   // Memory APIs
-  const learnMemory = async (text: string, kind: string = 'semantic', tags: string[] = [], importance: number = 0.5, relevance: number = 0.5) => {
+  const learnMemory = async (text: string, kind: string = 'semantic', tags: string[] = [], importance: number = 0.5, relevance: number = 0.5, image?: string, emotion?: string) => {
     const response = await fetch(`${API_BASE}/memory/learn`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, kind, tags, importance, relevance })
+      body: JSON.stringify({ text, kind, tags, importance, relevance, image, emotion })
     });
     if (!response.ok) throw new Error('Failed to learn memory');
     return await response.json();
   };
 
-  const searchMemories = async (query: string = '', tags: string[] = [], limit: number = 10): Promise<MemoryItem[]> => {
+  const searchMemories = async (query: string = '', tags: string[] = [], limit: number = 10, emotion?: string): Promise<MemoryItem[]> => {
     const params = new URLSearchParams({
       q: query,
       tags: tags.join(','),
       limit: limit.toString()
     });
+    if (emotion) {
+      params.append('emotion', emotion);
+    }
     const response = await fetch(`${API_BASE}/memory/search?${params}`);
     if (!response.ok) throw new Error('Failed to search memories');
     const result = await response.json();
@@ -230,13 +235,40 @@ export const useZandaleeAPI = () => {
   };
 
   // Diary APIs
-  const appendDiary = async (text: string) => {
+  const appendDiary = async (text: string, image?: string, emotion?: string, tags: string[] = []) => {
     const response = await fetch(`${API_BASE}/diary/append`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text, image, emotion, tags })
     });
     if (!response.ok) throw new Error('Failed to append to diary');
+    return await response.json();
+  };
+
+  const listDiary = async (date?: string, since?: string, limit: number = 50, tags: string[] = [], emotion?: string) => {
+    const params = new URLSearchParams({
+      limit: limit.toString()
+    });
+    if (date) params.append('date', date);
+    if (since) params.append('since', since);
+    if (tags.length > 0) params.append('tags', tags.join(','));
+    if (emotion) params.append('emotion', emotion);
+    
+    const response = await fetch(`${API_BASE}/diary/list?${params}`);
+    if (!response.ok) throw new Error('Failed to list diary entries');
+    const result = await response.json();
+    return result.items || [];
+  };
+
+  const uploadFile = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await fetch(`${API_BASE}/files/upload`, {
+      method: 'POST',
+      body: formData
+    });
+    if (!response.ok) throw new Error('Failed to upload file');
     return await response.json();
   };
 
@@ -397,7 +429,11 @@ export const useZandaleeAPI = () => {
     
     // Diary
     appendDiary,
+    listDiary,
     rollupDiary,
+    
+    // File handling
+    uploadFile,
     
     // Avatar
     getAvatarStatus,
