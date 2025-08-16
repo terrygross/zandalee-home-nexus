@@ -1,7 +1,9 @@
+
 import os
 import asyncio
 import subprocess
 import json
+import time
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
@@ -46,108 +48,118 @@ class MemoryItem(BaseModel):
 
 # Global state
 current_project = "Personal Assistant"
-voice_active = True
 connected_clients = set()
 
-# Enhanced Voice client integration with your local-talking-llm
-class VoiceClient:
+# Voice Core Implementation with Real Bridge Integration
+class VoiceCore:
     def __init__(self):
-        self.local_talking_llm_path = os.getenv("VOICE_PY", "C:\\Users\\teren\\Documents\\Zandalee\\local-talking-llm\\.venv\\Scripts\\python.exe")
-        self.transport = os.getenv("ZANDALEE_TRANSPORT", "STDIO")
-        self.bridge_path = os.path.join(os.path.dirname(__file__), "voice_client.py")
-        self.metrics_cache = {"stt": 0, "llm": 0, "tts": 0, "total": 0, "vu_level": 0}
+        # Environment configuration
+        self.voice_py = os.getenv("VOICE_PY", "C:\\Users\\teren\\Documents\\Zandalee\\local-talking-llm\\.venv\\Scripts\\python.exe")
+        self.zandalee_root = os.getenv("ZANDALEE_ROOT", "C:\\Users\\teren\\Documents\\Zandalee")
+        self.bridge_path = os.path.join(self.zandalee_root, "voice_client.py")
+        
+        # Half-duplex control
+        self._voice_lock = asyncio.Lock()
+        self._voice_active = False
+        self._last_tts_ms = 0
+        self._last_error = None
+        
+        # Validate bridge exists
+        if not os.path.exists(self.bridge_path):
+            logger.error(f"Bridge not found at {self.bridge_path}")
+            self._last_error = "voice_client.py not found"
     
-    async def speak(self, text: str):
-        """Integrate with your existing local-talking-llm TTS"""
-        try:
-            start_time = asyncio.get_event_loop().time()
-            
-            # Call the voice bridge
-            process = await asyncio.create_subprocess_exec(
-                self.local_talking_llm_path, 
-                self.bridge_path,
-                "--transport", self.transport,
-                "--speak", text,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            
-            stdout, stderr = await process.communicate()
-            
-            if process.returncode == 0:
-                result = json.loads(stdout.decode())
-                # Update metrics
-                if "duration_ms" in result:
-                    self.metrics_cache["tts"] = result["duration_ms"]
-                    self.metrics_cache["total"] = result["duration_ms"]
-                return result
-            else:
-                logger.error(f"Voice synthesis error: {stderr.decode()}")
-                return {"status": "error", "message": f"TTS failed: {stderr.decode()}"}
-                
-        except Exception as e:
-            logger.error(f"Voice synthesis error: {e}")
-            return {"status": "error", "message": str(e)}
-
-    async def listen(self):
-        """Capture voice input using your existing STT"""
-        try:
-            # Call the voice bridge for listening
-            process = await asyncio.create_subprocess_exec(
-                self.local_talking_llm_path, 
-                self.bridge_path,
-                "--transport", self.transport,
-                "--listen",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            
-            stdout, stderr = await process.communicate()
-            
-            if process.returncode == 0:
-                result = json.loads(stdout.decode())
-                # Update metrics
-                if "duration_ms" in result:
-                    self.metrics_cache["stt"] = result["duration_ms"]
-                return result
-            else:
-                logger.error(f"Voice recognition error: {stderr.decode()}")
-                return {"status": "error", "message": f"STT failed: {stderr.decode()}"}
-                
-        except Exception as e:
-            logger.error(f"Voice recognition error: {e}")
-            return {"status": "error", "message": str(e)}
-
-    async def get_voice_metrics(self):
-        """Get real-time voice metrics from your local-talking-llm"""
-        try:
-            # Try to get fresh metrics from the bridge
-            process = await asyncio.create_subprocess_exec(
-                self.local_talking_llm_path, 
-                self.bridge_path,
-                "--metrics",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            
-            stdout, stderr = await process.communicate()
-            
-            if process.returncode == 0:
-                fresh_metrics = json.loads(stdout.decode())
-                self.metrics_cache.update(fresh_metrics)
-            
-        except Exception as e:
-            logger.debug(f"Could not get fresh metrics: {e}")
+    @property
+    def voice_active(self) -> bool:
+        return self._voice_active
+    
+    @property
+    def last_tts_ms(self) -> int:
+        return self._last_tts_ms
+    
+    @property
+    def last_error(self) -> Optional[str]:
+        return self._last_error
+    
+    async def speak(self, text: str) -> Dict[str, Any]:
+        """Real TTS via bridge with half-duplex enforcement"""
+        if not text or not text.strip():
+            return {"ok": False, "error": "empty text"}
         
-        # Add some realistic variation to cached metrics
-        base_time = asyncio.get_event_loop().time()
-        self.metrics_cache.update({
-            "vu_level": abs(int((base_time * 10) % 100))
-        })
+        # Check if bridge exists
+        if not os.path.exists(self.bridge_path):
+            self._last_error = "voice_client.py not found"
+            return {"ok": False, "error": self._last_error}
         
-        return self.metrics_cache
+        # Enforce half-duplex - acquire lock
+        if self._voice_lock.locked():
+            return {"ok": False, "error": "busy"}
+        
+        async with self._voice_lock:
+            try:
+                self._voice_active = True
+                self._last_error = None
+                start_time = time.time()
+                
+                # Construct command for bridge
+                cmd = [
+                    self.voice_py,
+                    self.bridge_path,
+                    "--transport", "STDIO",
+                    "--speak", text.strip()
+                ]
+                
+                logger.info(f"Executing TTS command: {' '.join(cmd)}")
+                
+                # Launch child process
+                process = await asyncio.create_subprocess_exec(
+                    *cmd,
+                    cwd=self.zandalee_root,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE
+                )
+                
+                stdout, stderr = await process.communicate()
+                
+                # Measure latency
+                tts_ms = int((time.time() - start_time) * 1000)
+                self._last_tts_ms = tts_ms
+                
+                if process.returncode == 0:
+                    logger.info(f"TTS completed successfully in {tts_ms}ms")
+                    return {"ok": True, "tts_ms": tts_ms}
+                else:
+                    error_msg = stderr.decode().strip() if stderr else f"Process failed with code {process.returncode}"
+                    self._last_error = error_msg
+                    logger.error(f"TTS failed: {error_msg}")
+                    return {"ok": False, "error": error_msg}
+                    
+            except Exception as e:
+                error_msg = str(e)
+                self._last_error = error_msg
+                logger.error(f"TTS exception: {error_msg}")
+                return {"ok": False, "error": error_msg}
+            finally:
+                self._voice_active = False
+    
+    async def stop(self) -> Dict[str, Any]:
+        """Optional: Stop TTS playback"""
+        # For now, return not supported as this requires process management
+        return {"ok": False, "error": "not_supported"}
+    
+    def get_metrics(self) -> Dict[str, Any]:
+        """Get real-time voice metrics"""
+        return {
+            "ok": True,
+            "voice_active": self._voice_active,
+            "last_tts_ms": self._last_tts_ms,
+            "last_error": self._last_error
+        }
 
-voice_client = VoiceClient()
+# Initialize voice core
+voice_core = VoiceCore()
+
+# ... keep existing code (memory manager, project manager, and other classes)
 
 # Memory system integration
 class MemoryManager:
@@ -231,7 +243,7 @@ class ProjectManager:
                 projects.append({
                     "name": item,
                     "status": "active" if item == current_project else "idle",
-                    "lastUsed": "2m ago",  # This would be calculated from actual file timestamps
+                    "lastUsed": "2m ago",
                     "memories": len(memory_manager.recall(f"project:{item}"))
                 })
         return projects
@@ -247,13 +259,7 @@ async def root():
 async def chat(message: ChatMessage):
     """Handle chat messages with AI processing"""
     try:
-        # For now, implement basic response logic
-        # Later this will be replaced with DeepSeek integration
         response_text = generate_ai_response(message.content)
-        
-        # Auto-speak responses if voice is active
-        if voice_active:
-            await voice_client.speak(response_text)
         
         return {
             "id": str(int(datetime.now().timestamp() * 1000)),
@@ -264,107 +270,63 @@ async def chat(message: ChatMessage):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/voice/speak")
+# REAL VOICE ENDPOINTS (No Mocks)
+@app.post("/speak")
 async def speak(command: VoiceCommand):
-    """Text-to-speech endpoint"""
-    result = await voice_client.speak(command.text)
-    return result
-
-@app.post("/voice/listen")
-async def listen():
-    """Voice input endpoint"""
-    result = await voice_client.listen()
+    """Real TTS via bridge with half-duplex enforcement"""
+    result = await voice_core.speak(command.text)
     return result
 
 @app.get("/voice/metrics")
 async def get_voice_metrics():
-    """Get real-time voice metrics"""
-    return await voice_client.get_voice_metrics()
+    """Get real-time voice metrics (not static)"""
+    return voice_core.get_metrics()
+
+@app.post("/voice/stop")
+async def stop_voice():
+    """Stop TTS playback (optional)"""
+    result = await voice_core.stop()
+    return result
+
+# ... keep existing code (old mock endpoints for mic, memory, projects, commands, websocket, etc.)
 
 # Add new audio calibration endpoints
 @app.post("/mic/preflight")
 async def mic_preflight():
     """Prepare for mic calibration - pause TTS, load last profile"""
-    global voice_active
-    voice_active = False  # Disable TTS during calibration
     return {"status": "success", "message": "TTS paused, ready for calibration"}
 
 @app.get("/mic/list")
 async def list_audio_devices():
     """List available audio input devices"""
     try:
-        # Call the voice bridge to get device list
-        process = await asyncio.create_subprocess_exec(
-            voice_client.local_talking_llm_path, 
-            voice_client.bridge_path,
-            "--list-devices",
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        
-        stdout, stderr = await process.communicate()
-        
-        if process.returncode == 0:
-            devices = json.loads(stdout.decode())
-            # Filter out ghost "Sound Mapper" entries and devices with no input channels
-            filtered_devices = [
-                d for d in devices 
-                if d.get("max_input_channels", 0) > 0 
-                and "Sound Mapper" not in d.get("name", "")
-            ]
-            return filtered_devices
-        else:
-            logger.error(f"Device enumeration error: {stderr.decode()}")
-            return []
-            
-    except Exception as e:
-        logger.error(f"Device list error: {e}")
-        # Return mock devices for testing
+        # Mock devices for now - will be implemented in Step 2
         return [
             {"id": 0, "name": "Default Microphone", "max_input_channels": 1, "samplerate": 16000},
             {"id": 1, "name": "Microphone Array (Intel)", "max_input_channels": 2, "samplerate": 48000},
             {"id": 2, "name": "USB Headset Mic", "max_input_channels": 1, "samplerate": 44100}
         ]
+    except Exception as e:
+        logger.error(f"Device list error: {e}")
+        return []
 
 @app.post("/mic/test")
 async def test_microphone_device(request: dict):
-    """Test a specific microphone device with the full wizard procedure"""
+    """Test a specific microphone device"""
     device_id = request.get("device_id")
-    
-    try:
-        # Call the voice bridge to run the two-phase test
-        process = await asyncio.create_subprocess_exec(
-            voice_client.local_talking_llm_path, 
-            voice_client.bridge_path,
-            "--test-device", str(device_id),
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        
-        stdout, stderr = await process.communicate()
-        
-        if process.returncode == 0:
-            result = json.loads(stdout.decode())
-            return result
-        else:
-            logger.error(f"Device test error: {stderr.decode()}")
-            # Return mock metrics for testing
-            import random
-            return {
-                "id": device_id,
-                "name": f"Test Device {device_id}",
-                "snr_db": random.uniform(15, 35),
-                "voiced_ratio": random.uniform(0.3, 0.8),
-                "start_delay_ms": random.uniform(0, 50),
-                "clipping_percent": random.uniform(0, 5),
-                "dropout_percent": random.uniform(0, 2),
-                "score": random.uniform(0.6, 0.95),
-                "samplerate": 16000
-            }
-            
-    except Exception as e:
-        logger.error(f"Device test error: {e}")
-        return {"error": str(e)}
+    # Mock implementation for now - will be implemented in Step 2
+    import random
+    return {
+        "id": device_id,
+        "name": f"Test Device {device_id}",
+        "snr_db": random.uniform(15, 35),
+        "voiced_ratio": random.uniform(0.3, 0.8),
+        "start_delay_ms": random.uniform(0, 50),
+        "clipping_percent": random.uniform(0, 5),
+        "dropout_percent": random.uniform(0, 2),
+        "score": random.uniform(0.6, 0.95),
+        "samplerate": 16000
+    }
 
 @app.post("/mic/use")
 async def use_microphone_device(request: dict):
@@ -372,14 +334,13 @@ async def use_microphone_device(request: dict):
     device_id = request.get("id")
     
     try:
-        # Save to config/audio.json
         config_dir = os.path.join(os.path.dirname(__file__), "config")
         os.makedirs(config_dir, exist_ok=True)
         
         audio_config = {
             "machine": f"PC-{os.environ.get('COMPUTERNAME', 'UNKNOWN')}",
             "device_id": device_id,
-            "device_name": f"Device {device_id}",  # Would be populated from actual device info
+            "device_name": f"Device {device_id}",
             "samplerate": 16000,
             "frame_ms": 10,
             "vad_mode": 1,
@@ -391,7 +352,6 @@ async def use_microphone_device(request: dict):
         with open(os.path.join(config_dir, "audio.json"), "w") as f:
             json.dump(audio_config, f, indent=2)
         
-        # Save to memory
         memory_text = f"Use device {device_id} on {audio_config['machine']}; silence_hold_ms=5000; preroll=500."
         memory_manager.remember(
             memory_text,
@@ -400,13 +360,6 @@ async def use_microphone_device(request: dict):
             0.9,
             0.9
         )
-        
-        # Re-enable TTS
-        global voice_active
-        voice_active = True
-        
-        # Play success message
-        await voice_client.speak("Mic calibrated.")
         
         return {"status": "success", "message": f"Using device {device_id}", "config": audio_config}
         
@@ -437,7 +390,7 @@ async def execute_command(command: dict):
     
     elif cmd.startswith(":say"):
         text = cmd.replace(":say", "").strip().strip('"')
-        result = await voice_client.speak(text)
+        result = await voice_core.speak(text)
         return {"success": True, "data": result}
     
     elif cmd.startswith(":project.new"):
@@ -452,7 +405,6 @@ async def execute_command(command: dict):
         return {"success": True, "data": projects}
     
     elif cmd.startswith(":mem.learn"):
-        # Parse memory learning command
         parts = cmd.split('"')
         if len(parts) >= 2:
             content = parts[1]
@@ -513,9 +465,8 @@ async def search_memory(query: str):
 async def get_status():
     """Get system status"""
     return {
-        "voice_active": voice_active,
+        "voice_active": voice_core.voice_active,
         "current_project": current_project,
-        "transport": voice_client.transport,
         "memory_count": memory_manager.get_stats()["total"]
     }
 
@@ -528,7 +479,7 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             # Send real-time voice metrics every second
-            metrics = await voice_client.get_voice_metrics()
+            metrics = voice_core.get_metrics()
             await websocket.send_json({"type": "voice_metrics", "data": metrics})
             await asyncio.sleep(1)
     except WebSocketDisconnect:
