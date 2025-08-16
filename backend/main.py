@@ -15,6 +15,9 @@ from pydantic import BaseModel
 import sqlite3
 import logging
 
+# Import the new audio wizard
+from audio_wizard import AudioWizard
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -29,8 +32,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# ... keep existing code (Pydantic models, global state)
 
 # Enhanced Pydantic models for photo-aware system
 class MemoryItem(BaseModel):
@@ -53,6 +54,22 @@ class DiaryEntry(BaseModel):
     image: Optional[str] = None
     emotion: Optional[str] = None
     tags: List[str] = []
+
+class VoiceCommand(BaseModel):
+    text: str
+
+# New mic wizard models
+class MicWizardConfig(BaseModel):
+    frame_ms: Optional[int] = 10
+    samplerates: Optional[List[int]] = [16000, 48000, 44100]
+    vad_mode: Optional[int] = 1
+    start_voiced_frames: Optional[int] = 2
+    silence_hold_ms: Optional[int] = 5000
+    preroll_ms: Optional[int] = 500
+    voice_prompt: Optional[str] = "testing one two three"
+
+class MicUseRequest(BaseModel):
+    id: int
 
 # Voice Core Implementation with Real Bridge Integration
 class VoiceCore:
@@ -421,8 +438,7 @@ class PhotoAwareMemoryManager:
 # Initialize components
 voice_core = VoiceCore()
 memory_manager = PhotoAwareMemoryManager()
-
-# ... keep existing code (project manager and other classes)
+audio_wizard = AudioWizard()
 
 # API Routes
 @app.get("/")
@@ -445,6 +461,26 @@ async def get_voice_metrics():
 async def stop_voice():
     """Stop TTS playback (optional)"""
     result = await voice_core.stop()
+    return result
+
+# MIC WIZARD ENDPOINTS (NEW)
+@app.get("/mic/list")
+async def list_mic_devices():
+    """List available input devices (real, no mocks)"""
+    devices = audio_wizard.list_devices()
+    return devices
+
+@app.post("/mic/wizard")
+async def run_mic_wizard(config: MicWizardConfig = None):
+    """Run complete mic wizard with real device testing"""
+    config_dict = config.dict() if config else {}
+    result = audio_wizard.run_wizard(config_dict)
+    return result
+
+@app.post("/mic/use")
+async def use_mic_device(request: MicUseRequest):
+    """Manually set a specific device"""
+    result = audio_wizard.use_device(request.id)
     return result
 
 # FILE UPLOAD ENDPOINT
@@ -484,8 +520,6 @@ async def list_diary(date: str = None, since: str = None, limit: int = 50,
     tag_list = [t.strip() for t in tags.split(",") if t.strip()] if tags else []
     results = memory_manager.list_diary(date, since, limit, tag_list, emotion)
     return {"ok": True, "items": results}
-
-# ... keep existing code (chat, projects, commands, websocket, other endpoints)
 
 if __name__ == "__main__":
     import uvicorn

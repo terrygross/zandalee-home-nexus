@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -18,13 +19,32 @@ interface AudioDevice {
 interface DeviceMetrics {
   id: number;
   name: string;
+  samplerate: number;
+  noise_rms: number;
+  voice_rms: number;
   snr_db: number;
   voiced_ratio: number;
   start_delay_ms: number;
-  clipping_percent: number;
-  dropout_percent: number;
+  clipping_pct: number;
+  dropouts: number;
   score: number;
-  samplerate: number;
+}
+
+interface WizardConfig {
+  frame_ms?: number;
+  samplerates?: number[];
+  vad_mode?: number;
+  start_voiced_frames?: number;
+  silence_hold_ms?: number;
+  preroll_ms?: number;
+  voice_prompt?: string;
+}
+
+interface WizardResponse {
+  ok: boolean;
+  results?: DeviceMetrics[];
+  chosen?: any;
+  error?: string;
 }
 
 interface MicWizardPageProps {
@@ -44,7 +64,7 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
   const [wizardLog, setWizardLog] = useState<string[]>([]);
   const { toast } = useToast();
 
-  const { listMicDevices, useMicDevice, runMicWizard, speak } = useZandaleeAPI();
+  const { listMicDevices, useMicDevice, speak } = useZandaleeAPI();
 
   const addLog = (message: string) => {
     setWizardLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${message}`]);
@@ -55,6 +75,20 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
       startWizard();
     }
   }, [open]);
+
+  const runMicWizard = async (config: WizardConfig = {}): Promise<WizardResponse> => {
+    const response = await fetch('http://localhost:3001/mic/wizard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config)
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    return response.json();
+  };
 
   const startWizard = async () => {
     setIsProcessing(true);
@@ -71,22 +105,73 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
       addLog('Enumerating audio input devices...');
       
       const deviceList = await listMicDevices();
-      const inputDevices = deviceList.filter(d => 
-        d.max_input_channels > 0 && 
-        !d.name.toLowerCase().includes('sound mapper')
-      );
+      setDevices(deviceList);
+      addLog(`Found ${deviceList.length} valid input devices`);
       
-      setDevices(inputDevices);
-      addLog(`Found ${inputDevices.length} valid input devices`);
-      
-      if (inputDevices.length === 0) {
+      if (deviceList.length === 0) {
         throw new Error('No valid input devices found');
       }
 
-      // Start testing phase
+      // Start testing phase - use real backend wizard
       setStep('testing');
-      addLog('Starting device testing phase...');
-      await testAllDevices();
+      addLog('Starting comprehensive device testing...');
+      addLog('This will test noise floor and voice quality for each device');
+      
+      // Show simulated progress during real testing
+      const progressInterval = setInterval(() => {
+        setProgress(prev => Math.min(prev + 2, 95));
+      }, 200);
+
+      try {
+        const wizardConfig: WizardConfig = {
+          frame_ms: 10,
+          samplerates: [16000, 48000, 44100],
+          vad_mode: 1,
+          start_voiced_frames: 2,
+          silence_hold_ms: 5000,
+          preroll_ms: 500,
+          voice_prompt: "testing one two three"
+        };
+
+        addLog('Running wizard with real device testing...');
+        addLog('Please say "testing one two three" when prompted');
+        
+        const result = await runMicWizard(wizardConfig);
+        
+        clearInterval(progressInterval);
+        setProgress(100);
+        
+        if (!result.ok) {
+          throw new Error(result.error || 'Wizard failed');
+        }
+
+        addLog(`Wizard completed successfully. Tested ${result.results?.length || 0} devices`);
+        
+        if (!result.results || result.results.length === 0) {
+          throw new Error('No working devices found');
+        }
+
+        // Process results
+        const sortedResults = result.results.sort((a, b) => {
+          if (Math.abs(a.score - b.score) < 0.01) {
+            if (Math.abs(a.start_delay_ms - b.start_delay_ms) < 1) {
+              return b.snr_db - a.snr_db;
+            }
+            return a.start_delay_ms - b.start_delay_ms;
+          }
+          return b.score - a.score;
+        });
+
+        setMetrics(sortedResults);
+        setSelectedDevice(sortedResults[0]);
+        setStep('results');
+        
+        addLog(`Recommended device: ${sortedResults[0].name} (Score: ${(sortedResults[0].score * 100).toFixed(1)})`);
+        
+      } catch (error) {
+        clearInterval(progressInterval);
+        throw error;
+      }
       
     } catch (error) {
       addLog(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -98,76 +183,6 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
     } finally {
       setIsProcessing(false);
     }
-  };
-
-  const testAllDevices = async () => {
-    const results: DeviceMetrics[] = [];
-    
-    for (let i = 0; i < devices.length; i++) {
-      const device = devices[i];
-      setCurrentDeviceIndex(i);
-      setProgress((i / devices.length) * 100);
-      
-      addLog(`Testing device ${i + 1}/${devices.length}: ${device.name}`);
-      
-      try {
-        // Test noise floor
-        setTestingPhase('noise');
-        addLog(`  Phase 1: Recording noise floor (1.0s)`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Test voice with pre-roll
-        setTestingPhase('voice');
-        addLog(`  Phase 2: Voice test with 500ms pre-roll`);
-        addLog(`  Please say: "testing one two three"`);
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        
-        // Simulate device testing (in real implementation, this would call the actual wizard API)
-        const mockMetrics: DeviceMetrics = {
-          id: device.id,
-          name: device.name,
-          snr_db: Math.random() * 20 + 15, // 15-35 dB
-          voiced_ratio: Math.random() * 0.5 + 0.3, // 30-80%
-          start_delay_ms: Math.random() * 50, // 0-50ms
-          clipping_percent: Math.random() * 5, // 0-5%
-          dropout_percent: Math.random() * 2, // 0-2%
-          score: 0, // Will be calculated
-          samplerate: device.samplerate
-        };
-
-        // Calculate score using the exact formula
-        const snr_score = 0.50 * (mockMetrics.snr_db / 35); // Normalize to 35dB max
-        const voiced_score = 0.20 * mockMetrics.voiced_ratio;
-        const delay_penalty = 0.15 * (mockMetrics.start_delay_ms / 50); // Normalize to 50ms max
-        const clipping_penalty = 0.10 * (mockMetrics.clipping_percent / 5); // Normalize to 5% max
-        const dropout_penalty = 0.05 * (mockMetrics.dropout_percent / 2); // Normalize to 2% max
-        
-        mockMetrics.score = Math.max(0, snr_score + voiced_score - delay_penalty - clipping_penalty - dropout_penalty);
-        
-        results.push(mockMetrics);
-        addLog(`  Results: SNR=${mockMetrics.snr_db.toFixed(1)}dB, Voiced=${(mockMetrics.voiced_ratio*100).toFixed(1)}%, Score=${(mockMetrics.score*100).toFixed(1)}`);
-        
-      } catch (error) {
-        addLog(`  Failed to test device: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      }
-    }
-    
-    // Sort by score, then by start delay, then by SNR
-    results.sort((a, b) => {
-      if (Math.abs(a.score - b.score) < 0.01) {
-        if (Math.abs(a.start_delay_ms - b.start_delay_ms) < 1) {
-          return b.snr_db - a.snr_db;
-        }
-        return a.start_delay_ms - b.start_delay_ms;
-      }
-      return b.score - a.score;
-    });
-
-    setMetrics(results);
-    setSelectedDevice(results[0] || null);
-    setStep('results');
-    
-    addLog(`Testing complete. Recommended device: ${results[0]?.name || 'None'}`);
   };
 
   const confirmDevice = async () => {
@@ -210,7 +225,8 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
     setStep('testing');
     setMetrics([]);
     setSelectedDevice(null);
-    await testAllDevices();
+    setProgress(0);
+    await startWizard();
   };
 
   const formatScore = (score: number) => (score * 100).toFixed(1);
@@ -255,12 +271,12 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
               {step === 'testing' && (
                 <div className="space-y-3">
                   <div className="text-center">
-                    <Mic className="w-8 h-8 text-energy-glow mx-auto mb-2" />
+                    <Mic className="w-8 h-8 text-energy-glow mx-auto mb-2 animate-pulse" />
                     <h3 className="text-sm font-semibold text-text-primary">
-                      Testing {currentDeviceIndex + 1}/{devices.length}
+                      Testing Devices
                     </h3>
-                    <p className="text-text-secondary text-xs truncate">
-                      {devices[currentDeviceIndex]?.name}
+                    <p className="text-text-secondary text-xs">
+                      Real audio analysis
                     </p>
                   </div>
 
@@ -268,17 +284,8 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
 
                   <div className="text-center">
                     <div className="inline-flex items-center space-x-1 px-2 py-1 bg-space-surface/50 rounded text-xs">
-                      {testingPhase === 'noise' ? (
-                        <>
-                          <div className="w-1.5 h-1.5 bg-energy-pulse rounded-full animate-pulse" />
-                          <span className="text-text-primary">Noise floor</span>
-                        </>
-                      ) : (
-                        <>
-                          <div className="w-1.5 h-1.5 bg-energy-cyan rounded-full animate-pulse" />
-                          <span className="text-text-primary">Say: "testing"</span>
-                        </>
-                      )}
+                      <div className="w-1.5 h-1.5 bg-energy-cyan rounded-full animate-pulse" />
+                      <span className="text-text-primary">Say: "testing"</span>
                     </div>
                   </div>
                 </div>
@@ -345,7 +352,7 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
                             <TableCell className="p-1">{metric.snr_db.toFixed(1)}</TableCell>
                             <TableCell className="p-1">{(metric.voiced_ratio * 100).toFixed(1)}</TableCell>
                             <TableCell className="p-1">{metric.start_delay_ms.toFixed(0)}</TableCell>
-                            <TableCell className="p-1">{metric.clipping_percent.toFixed(1)}</TableCell>
+                            <TableCell className="p-1">{metric.clipping_pct.toFixed(1)}</TableCell>
                             <TableCell className="font-semibold text-energy-cyan p-1">
                               {formatScore(metric.score)}
                             </TableCell>
