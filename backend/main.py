@@ -16,8 +16,9 @@ from pydantic import BaseModel
 import sqlite3
 import logging
 
-# Import the new audio wizard
+# Import the new audio wizard and config manager
 from audio_wizard import AudioWizard
+from config_manager import ConfigManager
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -34,7 +35,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Enhanced Pydantic models for photo-aware system
+# ... keep existing code (Enhanced Pydantic models for photo-aware system)
 class MemoryItem(BaseModel):
     text: str
     kind: str = "semantic"
@@ -76,7 +77,11 @@ class MicWizardConfig(BaseModel):
 class MicUseRequest(BaseModel):
     id: int
 
-# Voice Core Implementation with Real Bridge Integration
+# New config models
+class ConfigData(BaseModel):
+    data: Dict[str, Any]
+
+# ... keep existing code (VoiceCore class implementation)
 class VoiceCore:
     def __init__(self):
         # Environment configuration
@@ -181,7 +186,7 @@ class VoiceCore:
             "last_error": self._last_error
         }
 
-# Enhanced Memory and Diary Manager with photo and avatar support
+# ... keep existing code (PhotoAwareMemoryManager class implementation)
 class PhotoAwareMemoryManager:
     def __init__(self):
         self.zandalee_home = os.getenv("ZANDALEE_HOME", "C:\\Users\\teren\\Documents\\Zandalee")
@@ -207,7 +212,7 @@ class PhotoAwareMemoryManager:
             # Enable WAL mode for better concurrency
             conn.execute("PRAGMA journal_mode=WAL;")
             
-            # ... keep existing code (memories table creation)
+            # ... keep existing code (memories table creation and other tables)
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS memories (
                     id            TEXT PRIMARY KEY,
@@ -227,7 +232,6 @@ class PhotoAwareMemoryManager:
                 )
             """)
             
-            # ... keep existing code (diary_entries table creation)
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS diary_entries (
                     id           TEXT PRIMARY KEY,
@@ -238,7 +242,6 @@ class PhotoAwareMemoryManager:
                 )
             """)
             
-            # ... keep existing code (legacy diary table creation)
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS diary (
                     id         TEXT PRIMARY KEY,
@@ -251,7 +254,6 @@ class PhotoAwareMemoryManager:
                 )
             """)
             
-            # New avatars table
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS avatars (
                     id           TEXT PRIMARY KEY,
@@ -274,7 +276,7 @@ class PhotoAwareMemoryManager:
             
             conn.commit()
     
-    # ... keep existing code (save_uploaded_file, learn_memory, search_memories, update_memory methods)
+    # ... keep existing code (all methods from save_uploaded_file through get_avatar_status)
     def save_uploaded_file(self, file: UploadFile, for_diary: bool = False, for_avatar: bool = False) -> Dict[str, Any]:
         """Save uploaded image file and return URL"""
         try:
@@ -421,7 +423,6 @@ class PhotoAwareMemoryManager:
             logger.error(f"Memory update error: {e}")
             return {"ok": False, "error": str(e)}
     
-    # ... keep existing code (diary methods)
     def append_diary_entry(self, text: str, photo_url: str = None, emotion_tag: str = None) -> Dict[str, Any]:
         """Append new diary entry to diary_entries table"""
         try:
@@ -487,7 +488,6 @@ class PhotoAwareMemoryManager:
             logger.error(f"Diary search error: {e}")
             return []
     
-    # ... keep existing code (legacy diary append and list methods)
     def append_diary(self, entry: DiaryEntry) -> Dict[str, Any]:
         """Legacy diary append for backward compatibility"""
         try:
@@ -547,7 +547,6 @@ class PhotoAwareMemoryManager:
             logger.error(f"Legacy diary list error: {e}")
             return []
     
-    # New avatar methods
     def upload_avatar(self, file: UploadFile, name: str) -> Dict[str, Any]:
         """Upload and store avatar image"""
         try:
@@ -670,11 +669,12 @@ class PhotoAwareMemoryManager:
 voice_core = VoiceCore()
 memory_manager = PhotoAwareMemoryManager()
 audio_wizard = AudioWizard()
+config_manager = ConfigManager()
 
 # Mount static files for serving uploaded images and avatars
 app.mount("/files", StaticFiles(directory=memory_manager.storage_dir), name="files")
 
-# ... keep existing code (API routes for voice, mic, memory, diary)
+# ... keep existing code (API routes for voice, mic, memory, diary, avatar)
 @app.get("/")
 async def root():
     return {"message": "Zandalee AI Backend", "status": "active"}
@@ -799,6 +799,46 @@ async def get_avatar_status():
 async def delete_avatar(avatar_id: str):
     """Delete avatar"""
     return memory_manager.delete_avatar(avatar_id)
+
+# NEW CONFIG ENDPOINTS
+@app.get("/config/{config_type}")
+async def get_config(config_type: str):
+    """Get configuration by type (audio/llm/ui/avatar)"""
+    if config_type not in ["audio", "llm", "ui", "avatar"]:
+        raise HTTPException(status_code=400, detail="Invalid config type")
+    
+    config_data = config_manager.load_config(config_type)
+    return {"ok": True, "config": config_data}
+
+@app.post("/config/{config_type}")
+async def set_config(config_type: str, config_data: ConfigData):
+    """Set configuration by type with validation"""
+    if config_type not in ["audio", "llm", "ui", "avatar"]:
+        raise HTTPException(status_code=400, detail="Invalid config type")
+    
+    success, error_msg = config_manager.save_config(config_type, config_data.data)
+    if not success:
+        raise HTTPException(status_code=400, detail=error_msg)
+    
+    return {"ok": True, "message": f"{config_type} config saved successfully"}
+
+@app.get("/config")
+async def get_all_configs():
+    """Get all configuration types"""
+    all_configs = config_manager.get_all_configs()
+    return {"ok": True, "configs": all_configs}
+
+@app.post("/config/{config_type}/reset")
+async def reset_config(config_type: str):
+    """Reset configuration to defaults"""
+    if config_type not in ["audio", "llm", "ui", "avatar"]:
+        raise HTTPException(status_code=400, detail="Invalid config type")
+    
+    success, error_msg = config_manager.reset_config(config_type)
+    if not success:
+        raise HTTPException(status_code=400, detail=error_msg)
+    
+    return {"ok": True, "message": f"{config_type} config reset to defaults"}
 
 if __name__ == "__main__":
     import uvicorn
