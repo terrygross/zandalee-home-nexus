@@ -59,6 +59,10 @@ class DiaryEntry(BaseModel):
 class VoiceCommand(BaseModel):
     text: str
 
+# New avatar models
+class AvatarSelect(BaseModel):
+    id: str
+
 # New mic wizard models
 class MicWizardConfig(BaseModel):
     frame_ms: Optional[int] = 10
@@ -177,7 +181,7 @@ class VoiceCore:
             "last_error": self._last_error
         }
 
-# Enhanced Memory and Diary Manager with photo support
+# Enhanced Memory and Diary Manager with photo and avatar support
 class PhotoAwareMemoryManager:
     def __init__(self):
         self.zandalee_home = os.getenv("ZANDALEE_HOME", "C:\\Users\\teren\\Documents\\Zandalee")
@@ -185,6 +189,7 @@ class PhotoAwareMemoryManager:
         self.photos_dir = os.path.join(self.mem_dir, "photos")
         self.storage_dir = os.path.join(self.zandalee_home, "storage")
         self.diary_photos_dir = os.path.join(self.storage_dir, "diary_photos")
+        self.avatars_dir = os.path.join(self.storage_dir, "avatars")
         self.db_path = os.path.join(self.mem_dir, "mem.db")
         
         # Ensure directories exist
@@ -192,16 +197,17 @@ class PhotoAwareMemoryManager:
         os.makedirs(self.photos_dir, exist_ok=True)
         os.makedirs(self.storage_dir, exist_ok=True)
         os.makedirs(self.diary_photos_dir, exist_ok=True)
+        os.makedirs(self.avatars_dir, exist_ok=True)
         
         self.init_db()
     
     def init_db(self):
-        """Initialize SQLite database with photo-aware schema"""
+        """Initialize SQLite database with photo-aware and avatar schema"""
         with sqlite3.connect(self.db_path) as conn:
             # Enable WAL mode for better concurrency
             conn.execute("PRAGMA journal_mode=WAL;")
             
-            # Create memories table with image and emotion support
+            # ... keep existing code (memories table creation)
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS memories (
                     id            TEXT PRIMARY KEY,
@@ -221,7 +227,7 @@ class PhotoAwareMemoryManager:
                 )
             """)
             
-            # Create diary entries table (fixed schema)
+            # ... keep existing code (diary_entries table creation)
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS diary_entries (
                     id           TEXT PRIMARY KEY,
@@ -232,7 +238,7 @@ class PhotoAwareMemoryManager:
                 )
             """)
             
-            # Legacy diary table for backward compatibility
+            # ... keep existing code (legacy diary table creation)
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS diary (
                     id         TEXT PRIMARY KEY,
@@ -245,17 +251,31 @@ class PhotoAwareMemoryManager:
                 )
             """)
             
-            # Create indexes
+            # New avatars table
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS avatars (
+                    id           TEXT PRIMARY KEY,
+                    name         TEXT NOT NULL,
+                    photo_url    TEXT NOT NULL,
+                    is_active    INTEGER DEFAULT 0,
+                    created_at   TEXT NOT NULL
+                )
+            """)
+            
+            # ... keep existing code (indexes creation)
             conn.execute("CREATE INDEX IF NOT EXISTS idx_mem_kind ON memories(kind);")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_mem_created ON memories(created_at);")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_mem_tags ON memories(tags);")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_diary_date ON diary(date);")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_diary_entries_created ON diary_entries(created_at);")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_diary_entries_emotion ON diary_entries(emotion_tag);")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_avatars_active ON avatars(is_active);")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_avatars_created ON avatars(created_at);")
             
             conn.commit()
     
-    def save_uploaded_file(self, file: UploadFile, for_diary: bool = False) -> Dict[str, Any]:
+    # ... keep existing code (save_uploaded_file, learn_memory, search_memories, update_memory methods)
+    def save_uploaded_file(self, file: UploadFile, for_diary: bool = False, for_avatar: bool = False) -> Dict[str, Any]:
         """Save uploaded image file and return URL"""
         try:
             # Validate file type
@@ -272,13 +292,18 @@ class PhotoAwareMemoryManager:
                 return {"ok": False, "error": "File too large. Maximum size: 10MB"}
             
             # Choose directory based on usage
-            target_dir = self.diary_photos_dir if for_diary else self.photos_dir
+            if for_avatar:
+                target_dir = self.avatars_dir
+                url_prefix = "avatars"
+            elif for_diary:
+                target_dir = self.diary_photos_dir
+                url_prefix = "diary_photos"
+            else:
+                target_dir = self.photos_dir
+                url_prefix = "photos"
             
-            # Generate unique filename with date subdirectory
-            now = datetime.now()
-            date_dir = now.strftime("%Y\\%m\\%d")
-            full_date_dir = os.path.join(target_dir, date_dir.replace("\\", os.sep))
-            os.makedirs(full_date_dir, exist_ok=True)
+            # Generate unique filename
+            file_id = str(uuid.uuid4())
             
             # Get file extension
             ext = "png"
@@ -287,20 +312,17 @@ class PhotoAwareMemoryManager:
             elif file.content_type == "image/webp":
                 ext = "webp"
             
-            # Generate unique filename
-            file_id = str(uuid.uuid4())
             filename = f"{file_id}.{ext}"
-            file_path = os.path.join(full_date_dir, filename)
+            file_path = os.path.join(target_dir, filename)
             
             # Save file
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
             
             # Return URL for local serving
-            relative_path = f"diary_photos/{date_dir}/{filename}" if for_diary else f"photos/{date_dir}/{filename}"
-            url = f"http://127.0.0.1:8759/files/{relative_path}"
+            url = f"http://127.0.0.1:8759/files/{url_prefix}/{filename}"
             
-            return {"ok": True, "path": relative_path, "url": url}
+            return {"ok": True, "path": f"{url_prefix}/{filename}", "url": url, "id": file_id}
             
         except Exception as e:
             logger.error(f"File upload error: {e}")
@@ -399,6 +421,7 @@ class PhotoAwareMemoryManager:
             logger.error(f"Memory update error: {e}")
             return {"ok": False, "error": str(e)}
     
+    # ... keep existing code (diary methods)
     def append_diary_entry(self, text: str, photo_url: str = None, emotion_tag: str = None) -> Dict[str, Any]:
         """Append new diary entry to diary_entries table"""
         try:
@@ -464,7 +487,7 @@ class PhotoAwareMemoryManager:
             logger.error(f"Diary search error: {e}")
             return []
     
-    # ... keep existing code (legacy diary methods for backward compatibility)
+    # ... keep existing code (legacy diary append and list methods)
     def append_diary(self, entry: DiaryEntry) -> Dict[str, Any]:
         """Legacy diary append for backward compatibility"""
         try:
@@ -523,16 +546,135 @@ class PhotoAwareMemoryManager:
         except Exception as e:
             logger.error(f"Legacy diary list error: {e}")
             return []
+    
+    # New avatar methods
+    def upload_avatar(self, file: UploadFile, name: str) -> Dict[str, Any]:
+        """Upload and store avatar image"""
+        try:
+            # Save the file
+            upload_result = self.save_uploaded_file(file, for_avatar=True)
+            if not upload_result["ok"]:
+                return upload_result
+            
+            # Store in database
+            avatar_id = upload_result["id"]
+            now = datetime.now().isoformat()
+            
+            with sqlite3.connect(self.db_path) as conn:
+                conn.execute("""
+                    INSERT INTO avatars (id, name, photo_url, created_at)
+                    VALUES (?, ?, ?, ?)
+                """, (avatar_id, name, upload_result["url"], now))
+                conn.commit()
+            
+            return {"ok": True, "id": avatar_id, "name": name, "photo_url": upload_result["url"]}
+        except Exception as e:
+            logger.error(f"Avatar upload error: {e}")
+            return {"ok": False, "error": str(e)}
+    
+    def list_avatars(self) -> List[Dict]:
+        """List all avatars"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.row_factory = sqlite3.Row
+                
+                cursor = conn.execute("""
+                    SELECT id, name, photo_url, is_active, created_at
+                    FROM avatars 
+                    ORDER BY created_at DESC
+                """)
+                rows = cursor.fetchall()
+                
+                return [dict(row) for row in rows]
+        except Exception as e:
+            logger.error(f"Avatar list error: {e}")
+            return []
+    
+    def select_avatar(self, avatar_id: str) -> Dict[str, Any]:
+        """Set active avatar"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                # First, deactivate all avatars
+                conn.execute("UPDATE avatars SET is_active = 0")
+                
+                # Then activate the selected one
+                cursor = conn.execute("UPDATE avatars SET is_active = 1 WHERE id = ?", (avatar_id,))
+                if cursor.rowcount == 0:
+                    return {"ok": False, "error": "Avatar not found"}
+                
+                conn.commit()
+            
+            return {"ok": True}
+        except Exception as e:
+            logger.error(f"Avatar select error: {e}")
+            return {"ok": False, "error": str(e)}
+    
+    def get_avatar_status(self) -> Dict[str, Any]:
+        """Get current active avatar"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.row_factory = sqlite3.Row
+                
+                cursor = conn.execute("""
+                    SELECT id, name, photo_url
+                    FROM avatars 
+                    WHERE is_active = 1
+                    LIMIT 1
+                """)
+                row = cursor.fetchone()
+                
+                if row:
+                    return {
+                        "ok": True,
+                        "active_avatar_id": row["id"],
+                        "name": row["name"],
+                        "photo_url": row["photo_url"]
+                    }
+                else:
+                    return {"ok": True, "active_avatar_id": None, "name": None, "photo_url": None}
+        except Exception as e:
+            logger.error(f"Avatar status error: {e}")
+            return {"ok": False, "error": str(e)}
+    
+    def delete_avatar(self, avatar_id: str) -> Dict[str, Any]:
+        """Delete avatar from database and storage"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.row_factory = sqlite3.Row
+                
+                # Get avatar info first
+                cursor = conn.execute("SELECT photo_url FROM avatars WHERE id = ?", (avatar_id,))
+                row = cursor.fetchone()
+                
+                if not row:
+                    return {"ok": False, "error": "Avatar not found"}
+                
+                # Extract filename from URL and delete file
+                photo_url = row["photo_url"]
+                if "avatars/" in photo_url:
+                    filename = photo_url.split("avatars/")[-1]
+                    file_path = os.path.join(self.avatars_dir, filename)
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                
+                # Delete from database
+                conn.execute("DELETE FROM avatars WHERE id = ?", (avatar_id,))
+                conn.commit()
+            
+            return {"ok": True}
+        except Exception as e:
+            logger.error(f"Avatar delete error: {e}")
+            return {"ok": False, "error": str(e)}
 
 # Initialize components
 voice_core = VoiceCore()
 memory_manager = PhotoAwareMemoryManager()
 audio_wizard = AudioWizard()
 
-# Mount static files for serving uploaded images
+# Mount static files for serving uploaded images and avatars
 app.mount("/files", StaticFiles(directory=memory_manager.storage_dir), name="files")
 
-# API Routes
+# ... keep existing code (API routes for voice, mic, memory, diary)
 @app.get("/")
 async def root():
     return {"message": "Zandalee AI Backend", "status": "active"}
@@ -577,9 +719,9 @@ async def use_mic_device(request: MicUseRequest):
 
 # FILE UPLOAD ENDPOINT
 @app.post("/files/upload")
-async def upload_file(file: UploadFile = File(...), for_diary: bool = False):
-    """Upload image file for memories/diary"""
-    return memory_manager.save_uploaded_file(file, for_diary)
+async def upload_file(file: UploadFile = File(...), for_diary: bool = False, for_avatar: bool = False):
+    """Upload image file for memories/diary/avatars"""
+    return memory_manager.save_uploaded_file(file, for_diary, for_avatar)
 
 # ENHANCED MEMORY ENDPOINTS
 @app.post("/memory/learn")
@@ -630,6 +772,33 @@ async def list_diary_legacy(date: str = None, since: str = None, limit: int = 50
     tag_list = [t.strip() for t in tags.split(",") if t.strip()] if tags else []
     results = memory_manager.list_diary(date, since, limit, tag_list, emotion)
     return {"ok": True, "items": results}
+
+# NEW AVATAR ENDPOINTS
+@app.post("/avatar/upload")
+async def upload_avatar(file: UploadFile = File(...), name: str = Form(...)):
+    """Upload avatar image"""
+    return memory_manager.upload_avatar(file, name)
+
+@app.get("/avatar/list")
+async def list_avatars():
+    """List all avatars"""
+    results = memory_manager.list_avatars()
+    return {"ok": True, "items": results}
+
+@app.post("/avatar/select")
+async def select_avatar(request: AvatarSelect):
+    """Select active avatar"""
+    return memory_manager.select_avatar(request.id)
+
+@app.get("/avatar/status")
+async def get_avatar_status():
+    """Get current active avatar status"""
+    return memory_manager.get_avatar_status()
+
+@app.delete("/avatar/{avatar_id}")
+async def delete_avatar(avatar_id: str):
+    """Delete avatar"""
+    return memory_manager.delete_avatar(avatar_id)
 
 if __name__ == "__main__":
     import uvicorn
