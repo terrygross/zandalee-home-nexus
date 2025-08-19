@@ -1,27 +1,26 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
-import LCARSPillButton from "./LCARSPillButton";
-import { MessageCircle, Brain, Settings, Camera, Mic, Monitor, User } from "lucide-react";
+import { User } from "lucide-react";
+import LCARSReadout from "./LCARSReadout";
 
 interface LCARSSidebarProps {
   className?: string;
-  onSettingsClick?: () => void;
 }
 
-const LCARSSidebar: React.FC<LCARSSidebarProps> = ({ className, onSettingsClick }) => {
-  const menuItems = [
-    { label: "CHAT", icon: MessageCircle, color: "orange" as const, action: () => console.log("Chat clicked") },
-    { label: "MEMORY", icon: Brain, color: "blue" as const, action: () => console.log("Memory clicked") },
-    { label: "CAMERA", icon: Camera, color: "amber" as const, action: () => console.log("Camera clicked") },
-    { label: "AUDIO", icon: Mic, color: "teal" as const, action: () => console.log("Audio clicked") },
-    { label: "SCREEN", icon: Monitor, color: "red" as const, action: () => console.log("Screen clicked") },
-    { label: "SETTINGS", icon: Settings, color: "violet" as const, action: onSettingsClick },
+const LCARSSidebar: React.FC<LCARSSidebarProps> = ({ className }) => {
+  const readouts = [
+    { label: "CPU", value: "87%", status: "success" as const },
+    { label: "MEM", value: "42%", status: "normal" as const },
+    { label: "NET", value: "1.2GB", status: "success" as const },
+    { label: "PWR", value: "NOMINAL", status: "success" as const },
+    { label: "TEMP", value: "32°C", status: "normal" as const },
+    { label: "DISK", value: "78%", status: "warning" as const },
   ];
 
   return (
     <div className={cn("h-full bg-lcars-black flex flex-col border-r border-lcars-orange/20 overflow-hidden", className)}>
-      {/* Avatar Display Area - More compact */}
+      {/* Avatar Display Area */}
       <div className="p-4 flex-shrink-0">
         <div className="w-full aspect-square bg-lcars-dark-gray/50 rounded-lg border-2 border-lcars-orange/30 flex items-center justify-center relative overflow-hidden">
           <User className="w-16 h-16 text-lcars-orange/60" />
@@ -32,19 +31,21 @@ const LCARSSidebar: React.FC<LCARSSidebarProps> = ({ className, onSettingsClick 
         </div>
       </div>
       
-      {/* Menu Pills - Smaller and more compact */}
-      <div className="flex-1 px-3 pb-3 space-y-1 overflow-hidden">
-        {menuItems.map((item) => (
-          <LCARSPillButton
-            key={item.label}
-            color={item.color}
-            className="w-full justify-start text-contrast-dark hover:text-contrast-dark font-bold h-8 text-xs px-4"
-            onClick={item.action}
-          >
-            <item.icon className="w-3 h-3 mr-2" />
-            {item.label}
-          </LCARSPillButton>
-        ))}
+      {/* System Status - Moved from right rail */}
+      <div className="flex-1 px-4 pb-4 overflow-auto">
+        <div className="text-lcars-light-gray font-lcars-sans text-sm uppercase tracking-wider font-bold border-b border-lcars-orange/30 pb-2 mb-4">
+          SYSTEM STATUS
+        </div>
+        <div className="space-y-4">
+          {readouts.map((readout, index) => (
+            <LCARSReadout
+              key={index}
+              label={readout.label}
+              value={readout.value}
+              status={readout.status}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
