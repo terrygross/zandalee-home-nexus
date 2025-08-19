@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -219,7 +220,7 @@ const AvatarPanel = () => {
     <div className="h-full bg-lcars-dark-gray/40 rounded border border-lcars-orange/20 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between p-3 pb-2 border-b border-lcars-orange/20 flex-shrink-0">
-        <div className="text-lcars-light-gray font-lcars-sans text-sm uppercase tracking-wider font-bold">
+        <div className="text-lcars-light-gray font-lcars-sans text-xs uppercase tracking-wider font-bold">
           AVATAR STATUS
         </div>
         <div className="flex text-[10px] border border-lcars-teal/30 rounded overflow-hidden">
