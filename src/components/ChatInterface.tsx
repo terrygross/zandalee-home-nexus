@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Send, User, Bot, Terminal, Star, Zap, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -84,7 +85,7 @@ const ChatInterface = () => {
       let responseContent: string;
 
       if (useDirectLLM) {
-        if (!isConfigured()) {
+        if (!isConfigured) {
           throw new Error(`No API key configured for ${activeProvider}. Please configure in settings.`);
         }
 
@@ -261,12 +262,12 @@ const ChatInterface = () => {
             <div className="flex items-center space-x-2">
               <div className={`w-2 h-2 rounded-full ${
                 useDirectLLM 
-                  ? (isConfigured() ? 'bg-energy-cyan animate-pulse' : 'bg-status-warning')
+                  ? (isConfigured ? 'bg-energy-cyan animate-pulse' : 'bg-status-warning')
                   : (isHealthy ? 'bg-status-success animate-pulse' : 'bg-status-error')
               }`} />
               <span className="text-xs text-text-muted">
                 {useDirectLLM 
-                  ? (isConfigured() ? `${activeProvider.toUpperCase()} Ready` : 'Not Configured')
+                  ? (isConfigured ? `${activeProvider.toUpperCase()} Ready` : 'Not Configured')
                   : (isHealthy ? 'Gateway Connected' : 'Gateway Offline')
                 }
               </span>
@@ -310,15 +311,15 @@ const ChatInterface = () => {
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Type a message..."
             className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted"
-            disabled={isProcessing || (!isHealthy && !useDirectLLM) || (useDirectLLM && !isConfigured())}
+            disabled={isProcessing || (!isHealthy && !useDirectLLM) || (useDirectLLM && !isConfigured)}
           />
           <VoiceInput
             onTranscript={handleVoiceTranscript}
-            disabled={isProcessing || (!isHealthy && !useDirectLLM) || (useDirectLLM && !isConfigured())}
+            disabled={isProcessing || (!isHealthy && !useDirectLLM) || (useDirectLLM && !isConfigured)}
           />
           <Button
             onClick={handleSend}
-            disabled={!input.trim() || isProcessing || (!isHealthy && !useDirectLLM) || (useDirectLLM && !isConfigured())}
+            disabled={!input.trim() || isProcessing || (!isHealthy && !useDirectLLM) || (useDirectLLM && !isConfigured)}
             className="bg-energy-cyan/20 hover:bg-energy-cyan/30 text-energy-cyan border border-energy-cyan/30 neon-border"
           >
             <Send className="w-4 h-4" />
