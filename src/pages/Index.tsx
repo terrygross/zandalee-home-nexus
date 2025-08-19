@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import ZandaleeHeader from "@/components/ZandaleeHeader";
 import AvatarPanel from "@/components/AvatarPanel";
@@ -74,7 +75,7 @@ const Index = () => {
             
             {/* Memory Core Panel - Right side */}
             <div className="w-80 flex-shrink-0 hidden lg:block overflow-hidden">
-              <LCARSPanel title="MEMORY CORE" color="teal" className="h-full">
+              <LCARSPanel color="teal" className="h-full">
                 <div className="h-full overflow-hidden">
                   <MemoryManager />
                 </div>
