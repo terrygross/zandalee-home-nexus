@@ -1,8 +1,9 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import LCARSPillButton from "./LCARSPillButton";
-import { MessageCircle, Brain, Camera, Mic, Monitor, X } from "lucide-react";
+import LCARSSystemStatus from "./LCARSSystemStatus";
+import { MessageCircle, Brain, Camera, Mic, Monitor, X, Activity } from "lucide-react";
 
 interface LCARSSettingsSidebarProps {
   className?: string;
@@ -15,6 +16,8 @@ const LCARSSettingsSidebar: React.FC<LCARSSettingsSidebarProps> = ({
   isOpen, 
   onClose
 }) => {
+  const [currentView, setCurrentView] = useState<string | null>(null);
+
   const menuItems = [
     { 
       label: "CHAT", 
@@ -22,7 +25,7 @@ const LCARSSettingsSidebar: React.FC<LCARSSettingsSidebarProps> = ({
       color: "orange" as const, 
       action: () => {
         console.log("Navigating to Chat interface");
-        // TODO: Navigate to chat view or toggle chat panel
+        setCurrentView("chat");
       }
     },
     { 
@@ -31,7 +34,7 @@ const LCARSSettingsSidebar: React.FC<LCARSSettingsSidebarProps> = ({
       color: "blue" as const, 
       action: () => {
         console.log("Opening Memory Manager");
-        // TODO: Open memory management interface
+        setCurrentView("memory");
       }
     },
     { 
@@ -40,7 +43,7 @@ const LCARSSettingsSidebar: React.FC<LCARSSettingsSidebarProps> = ({
       color: "amber" as const, 
       action: () => {
         console.log("Opening Camera settings");
-        // TODO: Open camera configuration panel
+        setCurrentView("camera");
       }
     },
     { 
@@ -49,7 +52,7 @@ const LCARSSettingsSidebar: React.FC<LCARSSettingsSidebarProps> = ({
       color: "teal" as const, 
       action: () => {
         console.log("Opening Audio settings");
-        // TODO: Open microphone wizard or audio settings
+        setCurrentView("audio");
       }
     },
     { 
@@ -58,19 +61,37 @@ const LCARSSettingsSidebar: React.FC<LCARSSettingsSidebarProps> = ({
       color: "red" as const, 
       action: () => {
         console.log("Opening Screen share");
-        // TODO: Toggle screen sharing functionality
+        setCurrentView("screen");
+      }
+    },
+    { 
+      label: "SYSTEM STATUS", 
+      icon: Activity, 
+      color: "violet" as const, 
+      action: () => {
+        console.log("Opening System Status");
+        setCurrentView("system-status");
       }
     },
   ];
 
   if (!isOpen) return null;
 
+  const handleClose = () => {
+    setCurrentView(null);
+    onClose();
+  };
+
+  const handleBackToMenu = () => {
+    setCurrentView(null);
+  };
+
   return (
     <>
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/50 z-40"
-        onClick={onClose}
+        onClick={handleClose}
       />
       
       {/* Sidebar */}
@@ -82,32 +103,54 @@ const LCARSSettingsSidebar: React.FC<LCARSSettingsSidebarProps> = ({
         {/* Header */}
         <div className="p-4 border-b border-lcars-orange/20 flex items-center justify-between">
           <span className="font-lcars-sans font-bold text-lcars-orange uppercase tracking-wider">
-            NAVIGATION
+            {currentView ? (
+              <button 
+                onClick={handleBackToMenu}
+                className="text-lcars-orange hover:text-lcars-peach transition-colors"
+              >
+                ← BACK
+              </button>
+            ) : (
+              "NAVIGATION"
+            )}
           </span>
           <button 
-            onClick={onClose}
+            onClick={handleClose}
             className="text-lcars-orange hover:text-lcars-peach transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
         
-        {/* Menu Items */}
-        <div className="p-4 space-y-3">
-          {menuItems.map((item) => (
-            <LCARSPillButton
-              key={item.label}
-              color={item.color}
-              className="w-full justify-start text-contrast-dark hover:text-contrast-dark font-bold h-12 text-sm px-6"
-              onClick={() => {
-                item.action?.();
-                onClose();
-              }}
-            >
-              <item.icon className="w-4 h-4 mr-3" />
-              {item.label}
-            </LCARSPillButton>
-          ))}
+        {/* Content */}
+        <div className="flex-1 overflow-hidden">
+          {currentView === "system-status" ? (
+            <div className="p-4 h-full">
+              <LCARSSystemStatus />
+            </div>
+          ) : currentView ? (
+            <div className="p-4 h-full flex items-center justify-center">
+              <div className="text-lcars-light-gray font-lcars-sans text-sm uppercase tracking-wider">
+                {currentView.replace("-", " ")} INTERFACE<br />
+                <span className="text-xs text-lcars-orange/60">Coming Soon...</span>
+              </div>
+            </div>
+          ) : (
+            /* Menu Items */
+            <div className="p-4 space-y-3">
+              {menuItems.map((item) => (
+                <LCARSPillButton
+                  key={item.label}
+                  color={item.color}
+                  className="w-full justify-start text-contrast-dark hover:text-contrast-dark font-bold h-12 text-sm px-6"
+                  onClick={item.action}
+                >
+                  <item.icon className="w-4 h-4 mr-3" />
+                  {item.label}
+                </LCARSPillButton>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </>
