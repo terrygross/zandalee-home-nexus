@@ -1,8 +1,10 @@
 
 import { useState, useRef, useEffect } from "react";
-import { Send, User, Bot, Terminal, Star } from "lucide-react";
+import { Send, User, Bot, Terminal, Star, Zap, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { useZandaleeAPI } from "@/hooks/useZandaleeAPI";
 import { useDirectLLM } from "@/hooks/useDirectLLM";
 import { useToast } from "@/hooks/use-toast";
@@ -15,12 +17,7 @@ interface Message {
   timestamp: Date;
 }
 
-interface ChatInterfaceProps {
-  directLLMMode?: boolean;
-  speakBackEnabled?: boolean;
-}
-
-const ChatInterface = ({ directLLMMode = false, speakBackEnabled = true }: ChatInterfaceProps) => {
+const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -37,6 +34,8 @@ const ChatInterface = ({ directLLMMode = false, speakBackEnabled = true }: ChatI
   ]);
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [speakBackEnabled, setSpeakBackEnabled] = useState(true);
+  const [directLLMMode, setDirectLLMMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -57,6 +56,16 @@ const ChatInterface = ({ directLLMMode = false, speakBackEnabled = true }: ChatI
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Show connection status
+  useEffect(() => {
+    if (isConnected && !directLLMMode) {
+      toast({
+        title: "Connected",
+        description: "Connected to Zandalee daemon successfully",
+      });
+    }
+  }, [isConnected, directLLMMode, toast]);
 
   const handleSend = async () => {
     if (!input.trim() || isProcessing) return;
@@ -221,9 +230,89 @@ const ChatInterface = ({ directLLMMode = false, speakBackEnabled = true }: ChatI
 
   return (
     <div className="glass-panel h-full flex flex-col">
-      {/* Input Area at top */}
       <div className="p-4 border-b border-border/30 flex-shrink-0">
-        <div className="flex space-x-2 mb-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-text-primary">Chat Interface</h3>
+            <p className="text-xs text-text-secondary">Communicate with Zandalee via text or voice</p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="direct-llm"
+                checked={directLLMMode}
+                onCheckedChange={setDirectLLMMode}
+              />
+              <Label htmlFor="direct-llm" className="text-xs flex items-center space-x-1">
+                <Zap className="w-3 h-3" />
+                <span>Direct LLM</span>
+              </Label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="speak-back"
+                checked={speakBackEnabled}
+                onCheckedChange={setSpeakBackEnabled}
+                disabled={directLLMMode}
+              />
+              <Label htmlFor="speak-back" className="text-xs">Speak Back</Label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full animate-pulse ${
+                directLLMMode 
+                  ? (isConfigured() ? 'bg-energy-cyan' : 'bg-status-warning')
+                  : (isConnected ? 'bg-status-success' : 'bg-status-error')
+              }`} />
+              <span className="text-xs text-text-muted">
+                {directLLMMode 
+                  ? (isConfigured() ? `${activeProvider.toUpperCase()} Ready` : 'Not Configured')
+                  : (isConnected ? 'Backend Connected' : 'Backend Disconnected')
+                }
+              </span>
+              {isSpeaking && !directLLMMode && (
+                <div className="flex items-center space-x-1 text-energy-glow">
+                  <Bot className="w-3 h-3 animate-pulse" />
+                  <span className="text-xs">Speaking</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Scrollable Messages Area */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+        {messages.map((message) => (
+          <MessageBubble key={message.id} message={message} />
+        ))}
+        
+        {isProcessing && (
+          <div className="flex justify-start">
+            <div className="flex items-center space-x-3">
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                directLLMMode ? 'bg-energy-cyan/20 text-energy-cyan' : 'bg-energy-blue/20 text-energy-blue'
+              }`}>
+                {directLLMMode ? <Zap className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+              </div>
+              <div className="glass-panel p-3 bg-card">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-energy-cyan rounded-full animate-pulse" />
+                  <div className="w-2 h-2 bg-energy-blue rounded-full animate-pulse delay-150" />
+                  <div className="w-2 h-2 bg-energy-pulse rounded-full animate-pulse delay-300" />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Fixed Input Area */}
+      <div className="p-4 border-t border-border/30 flex-shrink-0">
+        <div className="flex space-x-2">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -245,7 +334,7 @@ const ChatInterface = ({ directLLMMode = false, speakBackEnabled = true }: ChatI
           </Button>
         </div>
         
-        <div className="flex justify-between items-center text-xs text-text-muted">
+        <div className="flex justify-between items-center mt-2 text-xs text-text-muted">
           <span>
             {directLLMMode 
               ? `Direct mode: ${activeProvider.toUpperCase()} • Configure API key in settings ⚙️`
@@ -254,32 +343,6 @@ const ChatInterface = ({ directLLMMode = false, speakBackEnabled = true }: ChatI
           </span>
           <span>Press Enter to send</span>
         </div>
-      </div>
-
-      {/* Scrollable Messages Area - Now has more space */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
-        {messages.map((message) => (
-          <MessageBubble key={message.id} message={message} />
-        ))}
-        
-        {isProcessing && (
-          <div className="flex justify-start">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-energy-blue/20 text-energy-blue">
-                <Bot className="w-4 h-4" />
-              </div>
-              <div className="glass-panel p-3 bg-card">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-energy-cyan rounded-full animate-pulse" />
-                  <div className="w-2 h-2 bg-energy-blue rounded-full animate-pulse delay-150" />
-                  <div className="w-2 h-2 bg-energy-pulse rounded-full animate-pulse delay-300" />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        <div ref={messagesEndRef} />
       </div>
     </div>
   );

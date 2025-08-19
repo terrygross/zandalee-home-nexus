@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -46,26 +47,6 @@ export default {
 				// Glass morphism
 				'glass-bg': 'hsl(var(--glass-bg))',
 				'glass-border': 'hsl(var(--glass-border))',
-
-				// LCARS Colors
-				'lcars-black': 'hsl(var(--lcars-black))',
-				'lcars-dark-gray': 'hsl(var(--lcars-dark-gray))',
-				'lcars-medium-gray': 'hsl(var(--lcars-medium-gray))',
-				'lcars-light-gray': 'hsl(var(--lcars-light-gray))',
-				'lcars-orange': 'hsl(var(--lcars-orange))',
-				'lcars-peach': 'hsl(var(--lcars-peach))',
-				'lcars-red': 'hsl(var(--lcars-red))',
-				'lcars-rose': 'hsl(var(--lcars-rose))',
-				'lcars-magenta': 'hsl(var(--lcars-magenta))',
-				'lcars-violet': 'hsl(var(--lcars-violet))',
-				'lcars-purple': 'hsl(var(--lcars-purple))',
-				'lcars-indigo': 'hsl(var(--lcars-indigo))',
-				'lcars-blue': 'hsl(var(--lcars-blue))',
-				'lcars-sky': 'hsl(var(--lcars-sky))',
-				'lcars-teal': 'hsl(var(--lcars-teal))',
-				'lcars-mint': 'hsl(var(--lcars-mint))',
-				'lcars-amber': 'hsl(var(--lcars-amber))',
-				'lcars-golden': 'hsl(var(--lcars-golden))',
 				
 				// Standard shadcn colors
 				border: 'hsl(var(--border))',
@@ -102,18 +83,10 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				}
 			},
-			fontFamily: {
-				'mono': ['JetBrains Mono', 'Consolas', 'Monaco', 'monospace'],
-				'lcars-sans': ['Michroma', 'Share Tech Mono', 'sans-serif'],
-				'lcars-mono': ['Orbitron', 'monospace'],
-			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)',
-				'lcars': '2rem',
-				'lcars-sm': '1rem',
-				'lcars-elbow': '3rem',
+				sm: 'calc(var(--radius) - 4px)'
 			},
 			keyframes: {
 				'accordion-down': {
@@ -144,10 +117,6 @@ export default {
 					'0%': { transform: 'translateX(-100%)', opacity: '0' },
 					'50%': { opacity: '1' },
 					'100%': { transform: 'translateX(100%)', opacity: '0' }
-				},
-				'marquee': {
-					'0%': { transform: 'translateX(100%)' },
-					'100%': { transform: 'translateX(-100%)' }
 				}
 			},
 			animation: {
@@ -155,9 +124,11 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'energy-pulse': 'energy-pulse 2s ease-in-out infinite alternate',
 				'voice-pulse': 'voice-pulse 1s ease-in-out infinite',
-				'data-flow': 'data-flow 3s ease-in-out infinite',
-				'marquee': 'marquee 30s linear infinite'
+				'data-flow': 'data-flow 3s ease-in-out infinite'
 			},
+			fontFamily: {
+				'mono': ['JetBrains Mono', 'Consolas', 'Monaco', 'monospace'],
+			}
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
