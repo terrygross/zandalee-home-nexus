@@ -1,8 +1,12 @@
+
+import { useState } from "react";
 import { Brain, Cpu, Activity, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SettingsDrawer } from "./SettingsDrawer";
 
 const ZandaleeHeader = () => {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   return (
     <div className="glass-panel p-6">
       <div className="flex items-center justify-between">
@@ -35,18 +39,22 @@ const ZandaleeHeader = () => {
             v1.0.0
           </div>
 
-          <SettingsDrawer>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 hover:bg-energy-cyan/20 hover:text-energy-cyan border border-transparent hover:border-energy-cyan/30 transition-all duration-200"
-              title="Open Settings"
-            >
-              <Settings className="w-4 h-4" />
-            </Button>
-          </SettingsDrawer>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 hover:bg-energy-cyan/20 hover:text-energy-cyan border border-transparent hover:border-energy-cyan/30 transition-all duration-200"
+            title="Open Settings"
+            onClick={() => setIsSettingsOpen(true)}
+          >
+            <Settings className="w-4 h-4" />
+          </Button>
         </div>
       </div>
+
+      <SettingsDrawer 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
     </div>
   );
 };
