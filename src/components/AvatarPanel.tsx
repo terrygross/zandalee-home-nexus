@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -217,125 +216,131 @@ const AvatarPanel = () => {
   };
 
   return (
-    <Card className="glass-panel h-full flex flex-col">
-      <CardHeader className="pb-1 px-3 pt-2 flex-shrink-0">
-        <CardTitle className="flex items-center justify-between text-text-primary text-xs">
-          <span>Zandalee Avatar</span>
-          <div className="flex items-center gap-1">
-            {/* View Mode Toggle */}
-            <div className="flex text-[10px] border border-energy-cyan/30 rounded overflow-hidden">
-              <button
-                onClick={() => toggleViewMode('fill')}
-                className={`px-1.5 py-0.5 transition-colors ${
-                  viewMode === 'fill' 
-                    ? 'bg-energy-cyan/20 text-energy-cyan' 
-                    : 'text-text-muted hover:bg-energy-cyan/10'
-                }`}
-              >
-                Fill
-              </button>
-              <button
-                onClick={() => toggleViewMode('fit')}
-                className={`px-1.5 py-0.5 transition-colors ${
-                  viewMode === 'fit' 
-                    ? 'bg-energy-cyan/20 text-energy-cyan' 
-                    : 'text-text-muted hover:bg-energy-cyan/10'
-                }`}
-              >
-                Fit
-              </button>
-            </div>
-          </div>
-        </CardTitle>
-      </CardHeader>
+    <div className="h-full bg-lcars-dark-gray/40 rounded border border-lcars-orange/20 flex flex-col overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between p-3 pb-2 border-b border-lcars-orange/20 flex-shrink-0">
+        <div className="text-lcars-light-gray font-lcars-sans text-sm uppercase tracking-wider font-bold">
+          AVATAR STATUS
+        </div>
+        <div className="flex text-[10px] border border-lcars-teal/30 rounded overflow-hidden">
+          <button
+            onClick={() => toggleViewMode('fill')}
+            className={`px-2 py-1 transition-colors ${
+              viewMode === 'fill' 
+                ? 'bg-lcars-teal/20 text-lcars-teal' 
+                : 'text-lcars-light-gray hover:bg-lcars-teal/10'
+            }`}
+          >
+            FILL
+          </button>
+          <button
+            onClick={() => toggleViewMode('fit')}
+            className={`px-2 py-1 transition-colors ${
+              viewMode === 'fit' 
+                ? 'bg-lcars-teal/20 text-lcars-teal' 
+                : 'text-lcars-light-gray hover:bg-lcars-teal/10'
+            }`}
+          >
+            FIT
+          </button>
+        </div>
+      </div>
       
-      <CardContent className="flex-1 flex flex-col p-3 pt-1 min-h-0">
-        {/* Active Avatar Viewer */}
-        <div className="relative flex-1 min-h-0 rounded-md overflow-hidden border border-energy-cyan/30 bg-space-surface/40 mb-3">
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col p-3 pt-2 min-h-0">
+        {/* Active Avatar Display */}
+        <div className="h-32 rounded border border-lcars-teal/30 bg-lcars-black/60 mb-3 flex-shrink-0 overflow-hidden">
           {activeAvatar ? (
             <img
               src={activeAvatar.photo_url}
               alt={activeAvatar.name}
-              className={`absolute inset-0 w-full h-full ${
-                viewMode === 'fill' ? 'object-cover' : 'object-contain bg-space-surface'
+              className={`w-full h-full ${
+                viewMode === 'fill' ? 'object-cover' : 'object-contain'
               }`}
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-energy-cyan/10">
-              <div className="text-center text-energy-cyan">
-                <User className="w-16 h-16 mx-auto mb-2" />
-                <div className="text-xs text-text-muted">No active avatar</div>
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="text-center text-lcars-teal">
+                <User className="w-12 h-12 mx-auto mb-1" />
+                <div className="text-xs text-lcars-light-gray">NO ACTIVE AVATAR</div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Avatar Upload Section */}
-        <div className="space-y-2 mb-3">
+        {/* Upload Section */}
+        <div className="space-y-2 mb-3 flex-shrink-0">
           <Input
-            placeholder="Avatar name..."
+            placeholder="AVATAR NAME..."
             value={avatarName}
             onChange={(e) => setAvatarName(e.target.value)}
-            className="h-7 text-xs bg-space-surface/60 border-energy-cyan/30"
+            className="h-7 text-xs bg-lcars-black/60 border-lcars-teal/30 text-white placeholder:text-lcars-light-gray/60 font-lcars-mono uppercase"
             disabled={isUploading}
           />
           
           <Button
             onClick={triggerFileInput}
             disabled={isUploading || !avatarName.trim()}
-            className="w-full h-7 bg-energy-blue/20 hover:bg-energy-blue/30 border border-energy-blue/30 flex items-center justify-center gap-2 text-xs"
+            className="w-full h-7 bg-lcars-blue/20 hover:bg-lcars-blue/30 border border-lcars-blue/30 text-xs font-lcars-sans uppercase tracking-wider"
             variant="outline"
           >
-            <Upload className="w-3 h-3 text-energy-blue" />
-            <span className="text-text-primary">
-              {isUploading ? 'Uploading...' : 'Upload New Avatar'}
+            <Upload className="w-3 h-3 text-lcars-blue mr-2" />
+            <span className="text-white">
+              {isUploading ? 'UPLOADING...' : 'UPLOAD AVATAR'}
             </span>
           </Button>
         </div>
 
         {/* Avatar List */}
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-1">
-          {avatars.map((avatar) => (
-            <div
-              key={avatar.id}
-              className={`flex items-center gap-2 p-2 rounded border transition-colors ${
-                avatar.is_active 
-                  ? 'border-energy-cyan/50 bg-energy-cyan/10' 
-                  : 'border-energy-cyan/20 bg-space-surface/20 hover:bg-space-surface/40'
-              }`}
-            >
-              <img
-                src={avatar.photo_url}
-                alt={avatar.name}
-                className="w-8 h-8 rounded object-cover flex-shrink-0"
-              />
-              <div className="flex-1 min-w-0">
-                <div className="text-xs text-text-primary truncate">{avatar.name}</div>
-              </div>
-              <div className="flex items-center gap-1">
-                {avatar.is_active ? (
-                  <Check className="w-3 h-3 text-energy-cyan" />
-                ) : (
+        <div className="flex-1 min-h-0">
+          <div className="h-full space-y-1">
+            {avatars.slice(0, 4).map((avatar) => (
+              <div
+                key={avatar.id}
+                className={`flex items-center gap-2 p-2 rounded border transition-colors ${
+                  avatar.is_active 
+                    ? 'border-lcars-teal/50 bg-lcars-teal/10' 
+                    : 'border-lcars-orange/20 bg-lcars-black/20 hover:bg-lcars-black/40'
+                }`}
+              >
+                <img
+                  src={avatar.photo_url}
+                  alt={avatar.name}
+                  className="w-6 h-6 rounded object-cover flex-shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs text-white truncate font-lcars-mono uppercase">{avatar.name}</div>
+                </div>
+                <div className="flex items-center gap-1">
+                  {avatar.is_active ? (
+                    <Check className="w-3 h-3 text-lcars-teal" />
+                  ) : (
+                    <Button
+                      onClick={() => selectAvatar(avatar.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="h-5 px-1 hover:bg-lcars-teal/20 text-[9px] font-lcars-sans uppercase"
+                    >
+                      <span className="text-lcars-teal">SEL</span>
+                    </Button>
+                  )}
                   <Button
-                    onClick={() => selectAvatar(avatar.id)}
+                    onClick={() => deleteAvatar(avatar.id, avatar.name)}
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0 hover:bg-energy-cyan/20"
+                    className="h-5 w-5 p-0 hover:bg-lcars-red/20"
                   >
-                    <span className="text-[10px] text-energy-cyan">Select</span>
+                    <Trash2 className="w-2.5 h-2.5 text-lcars-red" />
                   </Button>
-                )}
-                <Button
-                  onClick={() => deleteAvatar(avatar.id, avatar.name)}
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 hover:bg-status-error/20"
-                >
-                  <Trash2 className="w-3 h-3 text-status-error" />
-                </Button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+            {avatars.length > 4 && (
+              <div className="text-center text-xs text-lcars-light-gray/60 font-lcars-mono pt-1">
+                +{avatars.length - 4} MORE AVATARS
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Hidden File Input */}
@@ -346,8 +351,8 @@ const AvatarPanel = () => {
           onChange={handleFileUpload}
           className="hidden"
         />
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
