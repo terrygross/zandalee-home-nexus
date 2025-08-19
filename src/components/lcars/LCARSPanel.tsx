@@ -46,7 +46,7 @@ const LCARSPanel: React.FC<LCARSPanelProps> = ({
       {title && (
         <div 
           className={cn(
-            "px-4 py-2 border-b-2 font-bold uppercase tracking-wider text-sm text-contrast-dark rounded-t-lg overflow-hidden",
+            "px-4 py-2 border-b-2 font-bold uppercase tracking-wider text-sm text-white rounded-t-lg overflow-hidden",
             colorClasses[color]
           )}
           style={{
