@@ -22,14 +22,9 @@ const LCARSSidebar: React.FC<LCARSSidebarProps> = ({ className }) => {
         </div>
       </div>
       
-      {/* Avatar Status - Moved from right rail */}
-      <div className="flex-1 px-4 pb-4 overflow-auto">
-        <div className="text-lcars-light-gray font-lcars-sans text-sm uppercase tracking-wider font-bold border-b border-lcars-orange/30 pb-2 mb-4">
-          AVATAR STATUS
-        </div>
-        <div className="h-full">
-          <AvatarPanel />
-        </div>
+      {/* Avatar Status - No redundant header */}
+      <div className="flex-1 px-4 pb-4 overflow-hidden">
+        <AvatarPanel />
       </div>
     </div>
   );
