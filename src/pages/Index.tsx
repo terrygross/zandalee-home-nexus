@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import ZandaleeHeader from "@/components/ZandaleeHeader";
 import AvatarPanel from "@/components/AvatarPanel";
@@ -12,12 +13,20 @@ import AudioControls from "@/components/AudioControls";
 import ScreenSharePanel from "@/components/ScreenSharePanel";
 import LCARSLayout from "@/components/lcars/LCARSLayout";
 import LCARSPanel from "@/components/lcars/LCARSPanel";
+import LCARSTicker from "@/components/lcars/LCARSTicker";
 import { SettingsDrawer } from "@/components/SettingsDrawer";
+import { useZandaleeAPI } from "@/hooks/useZandaleeAPI";
+import { useDirectLLM } from "@/hooks/useDirectLLM";
 
 const Index = () => {
   const [isMounted, setIsMounted] = useState(false);
   const [uiStyle, setUIStyle] = useState<string>("lcars");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [directLLMMode, setDirectLLMMode] = useState(false);
+  const [speakBackEnabled, setSpeakBackEnabled] = useState(true);
+
+  const { isConnected, isSpeaking } = useZandaleeAPI();
+  const { activeProvider, isConfigured } = useDirectLLM();
 
   useEffect(() => {
     setIsMounted(true);
@@ -39,14 +48,31 @@ const Index = () => {
   if (uiStyle === "lcars") {
     return (
       <>
-        <LCARSLayout onSettingsClick={handleSettingsClick}>
+        <LCARSLayout 
+          onSettingsClick={handleSettingsClick}
+          customTicker={
+            <LCARSTicker
+              directLLMMode={directLLMMode}
+              onDirectLLMChange={setDirectLLMMode}
+              speakBackEnabled={speakBackEnabled}
+              onSpeakBackChange={setSpeakBackEnabled}
+              isConnected={isConnected}
+              isSpeaking={isSpeaking}
+              activeProvider={activeProvider}
+              isConfigured={isConfigured()}
+            />
+          }
+        >
           <div className="h-full flex space-x-4 overflow-hidden">
             {/* Main Chat Interface - Centered and Primary */}
             <div className="flex-1 min-h-0 overflow-hidden">
               <LCARSPanel title="COMMUNICATION INTERFACE" color="orange" className="h-full">
                 <div className="h-full flex flex-col overflow-hidden">
                   <div className="flex-1 min-h-0 overflow-hidden">
-                    <ChatInterface />
+                    <ChatInterface 
+                      directLLMMode={directLLMMode}
+                      speakBackEnabled={speakBackEnabled}
+                    />
                   </div>
                 </div>
               </LCARSPanel>
