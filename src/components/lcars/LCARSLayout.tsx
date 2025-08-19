@@ -59,13 +59,13 @@ const LCARSLayout: React.FC<LCARSLayoutProps> = ({
       {/* Main Content Grid - Calculated Height */}
       <div className="flex-1 flex min-h-0" style={{ height: 'calc(100vh - 7.5rem)' }}>
         {/* Left Sidebar - Now with System Status */}
-        <div className="flex-shrink-0 z-10 w-72 md:w-80">
+        <div className="flex-shrink-0 z-10 w-72 md:w-80 p-4 pb-0">
           <LCARSSidebar />
         </div>
         
         {/* Central Viewport - Now takes full remaining width with proper padding alignment */}
-        <main className="flex-1 pt-4 pr-4 md:pt-6 md:pr-6 min-w-0 relative overflow-hidden">
-          <div className="h-full bg-lcars-dark-gray/30 rounded-lg p-4 md:p-6 overflow-hidden">
+        <main className="flex-1 pt-4 pr-4 md:pr-6 min-w-0 relative overflow-hidden">
+          <div className="h-full bg-lcars-black rounded-lg p-4 md:p-6 overflow-hidden">
             <div className="h-full overflow-hidden">
               {children}
             </div>

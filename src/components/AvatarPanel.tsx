@@ -217,9 +217,9 @@ const AvatarPanel = () => {
   };
 
   return (
-    <div className="h-full bg-lcars-dark-gray/40 rounded border border-lcars-orange/20 flex flex-col overflow-hidden">
+    <div className="h-full bg-lcars-black rounded border-2 border-lcars-teal flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between p-3 pb-2 border-b border-lcars-orange/20 flex-shrink-0">
+      <div className="flex items-center justify-between p-3 pb-2 flex-shrink-0">
         <div className="text-lcars-light-gray font-lcars-sans text-xs uppercase tracking-wider font-bold">
           AVATAR STATUS
         </div>
@@ -250,7 +250,7 @@ const AvatarPanel = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col p-3 pt-2 min-h-0">
         {/* Active Avatar Display */}
-        <div className="h-32 rounded border border-lcars-teal/30 bg-lcars-black/60 mb-3 flex-shrink-0 overflow-hidden">
+        <div className="h-32 rounded border border-lcars-teal/30 bg-lcars-black mb-3 flex-shrink-0 overflow-hidden">
           {activeAvatar ? (
             <img
               src={activeAvatar.photo_url}
@@ -275,7 +275,7 @@ const AvatarPanel = () => {
             placeholder="AVATAR NAME..."
             value={avatarName}
             onChange={(e) => setAvatarName(e.target.value)}
-            className="h-7 text-xs bg-lcars-black/60 border-lcars-teal/30 text-white placeholder:text-lcars-light-gray/60 font-lcars-mono uppercase"
+            className="h-7 text-xs bg-lcars-black border-lcars-teal/30 text-white placeholder:text-lcars-light-gray/60 font-lcars-mono uppercase"
             disabled={isUploading}
           />
           
@@ -301,7 +301,7 @@ const AvatarPanel = () => {
                 className={`flex items-center gap-2 p-2 rounded border transition-colors ${
                   avatar.is_active 
                     ? 'border-lcars-teal/50 bg-lcars-teal/10' 
-                    : 'border-lcars-orange/20 bg-lcars-black/20 hover:bg-lcars-black/40'
+                    : 'border-lcars-orange/20 bg-lcars-black hover:bg-lcars-black'
                 }`}
               >
                 <img
