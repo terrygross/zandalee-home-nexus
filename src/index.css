@@ -3,6 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import LCARS Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Michroma&display=swap');
+
 /* Zandalee Futuristic Design System */
 @layer base {
   :root {
@@ -86,7 +89,7 @@
     
     /* Override main theme variables for LCARS */
     --background: var(--lcars-black);
-    --foreground: var(--lcars-orange);
+    --foreground: var(--lcars-peach);
     --card: var(--lcars-dark-gray);
     --card-foreground: var(--lcars-peach);
     --popover: var(--lcars-medium-gray);
@@ -258,9 +261,58 @@
     );
   }
 
+  /* LCARS Elbow Corners */
+  .rounded-lcars-elbow {
+    border-radius: 0 0 2rem 0;
+  }
+
+  .rounded-tr-lcars-elbow {
+    border-top-right-radius: 2rem;
+  }
+
+  .rounded-tl-lcars-elbow {
+    border-top-left-radius: 2rem;
+  }
+
+  .rounded-br-lcars-elbow {
+    border-bottom-right-radius: 2rem;
+  }
+
+  .rounded-bl-lcars-elbow {
+    border-bottom-left-radius: 2rem;
+  }
+
+  .rounded-lcars {
+    border-radius: 2rem;
+  }
+
+  /* LCARS Pill Notches */
+  .lcars-pill-left-notch {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+    border-top-right-radius: 2rem;
+    border-bottom-right-radius: 2rem;
+  }
+
+  .lcars-pill-right-notch {
+    border-top-left-radius: 2rem;
+    border-bottom-left-radius: 2rem;
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+  }
+
   /* LCARS Marquee Animation */
   .theme-lcars .animate-marquee {
     animation: marquee 30s linear infinite;
+  }
+
+  /* LCARS Text Contrast Fixes */
+  .theme-lcars .text-white {
+    color: white !important;
+  }
+
+  .theme-lcars .text-black {
+    color: black !important;
   }
 }
 
@@ -304,6 +356,10 @@
   .theme-lcars .font-lcars-mono {
     text-shadow: 0 0 8px currentColor;
   }
+
+  /* LCARS Font Utilities */
+  .font-lcars-sans { font-family: 'Michroma', 'Orbitron', sans-serif; }
+  .font-lcars-mono { font-family: 'Orbitron', monospace; }
 }
 
 /* Keyframe animations */

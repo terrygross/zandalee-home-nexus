@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import ZandaleeHeader from "@/components/ZandaleeHeader";
 import AvatarPanel from "@/components/AvatarPanel";
@@ -13,10 +12,12 @@ import AudioControls from "@/components/AudioControls";
 import ScreenSharePanel from "@/components/ScreenSharePanel";
 import LCARSLayout from "@/components/lcars/LCARSLayout";
 import LCARSPanel from "@/components/lcars/LCARSPanel";
+import { SettingsDrawer } from "@/components/SettingsDrawer";
 
 const Index = () => {
   const [isMounted, setIsMounted] = useState(false);
   const [uiStyle, setUIStyle] = useState<string>("lcars");
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -30,51 +31,59 @@ const Index = () => {
     console.log('Voice transcript:', transcript);
   };
 
+  const handleSettingsClick = () => {
+    setIsSettingsOpen(true);
+  };
+
   // LCARS Layout
   if (uiStyle === "lcars") {
     return (
-      <LCARSLayout>
-        <div className="h-full flex flex-col space-y-4">
-          {/* Main Chat Interface */}
-          <div className="flex-1">
-            <LCARSPanel title="COMMUNICATION INTERFACE" color="orange" className="h-full">
-              <div className="h-full flex flex-col">
-                <div className="flex-1 min-h-0">
-                  <ChatInterface />
+      <>
+        <LCARSLayout onSettingsClick={handleSettingsClick}>
+          <div className="h-full flex flex-col space-y-4">
+            {/* Main Chat Interface */}
+            <div className="flex-1 min-h-0">
+              <LCARSPanel title="COMMUNICATION INTERFACE" color="orange" className="h-full">
+                <div className="h-full flex flex-col overflow-hidden">
+                  <div className="flex-1 min-h-0 overflow-hidden">
+                    <ChatInterface />
+                  </div>
                 </div>
-                <div className="flex-shrink-0 mt-4">
-                  <VoiceInput onTranscript={handleVoiceTranscript} />
-                </div>
-              </div>
-            </LCARSPanel>
-          </div>
-          
-          {/* Secondary Panels Row */}
-          <div className="h-64 grid grid-cols-3 gap-4">
-            <LCARSPanel title="AVATAR STATUS" color="blue" className="h-full">
-              <div className="h-full overflow-hidden">
-                <AvatarPanel />
-              </div>
-            </LCARSPanel>
+              </LCARSPanel>
+            </div>
             
-            <LCARSPanel title="MEMORY CORE" color="teal" className="h-full">
-              <div className="h-full overflow-hidden">
-                <MemoryManager />
-              </div>
-            </LCARSPanel>
-            
-            <LCARSPanel title="SYSTEM STATUS" color="amber" className="h-full">
-              <div className="h-full overflow-auto space-y-2">
-                <div className="space-y-2">
-                  <AudioControls />
-                  <CameraSettings />
-                  <MicSettings />
+            {/* Secondary Panels Row */}
+            <div className="h-48 grid grid-cols-3 gap-4 flex-shrink-0">
+              <LCARSPanel title="AVATAR STATUS" color="blue" className="h-full">
+                <div className="h-full overflow-hidden">
+                  <AvatarPanel />
                 </div>
-              </div>
-            </LCARSPanel>
+              </LCARSPanel>
+              
+              <LCARSPanel title="MEMORY CORE" color="teal" className="h-full">
+                <div className="h-full overflow-hidden">
+                  <MemoryManager />
+                </div>
+              </LCARSPanel>
+              
+              <LCARSPanel title="SYSTEM STATUS" color="amber" className="h-full">
+                <div className="h-full overflow-auto space-y-2">
+                  <div className="space-y-2">
+                    <AudioControls />
+                    <CameraSettings />
+                    <MicSettings />
+                  </div>
+                </div>
+              </LCARSPanel>
+            </div>
           </div>
-        </div>
-      </LCARSLayout>
+        </LCARSLayout>
+        
+        <SettingsDrawer 
+          isOpen={isSettingsOpen} 
+          onClose={() => setIsSettingsOpen(false)} 
+        />
+      </>
     );
   }
 

@@ -9,44 +9,48 @@ interface LCARSRightRailProps {
 }
 
 const LCARSRightRail: React.FC<LCARSRightRailProps> = ({ className }) => {
-  const railData = [
-    { number: "25", value: "READY", color: "teal" },
-    { number: "920", value: "ONLINE", color: "orange" },
-    { number: "5", value: "ACTIVE", color: "amber" },
-    { number: "62", value: "STABLE", color: "blue" },
-    { number: "56", value: "NORMAL", color: "violet" },
+  const railNumbers = ["25", "920", "5", "62", "56", "381", "44"];
+  const readouts = [
+    { label: "CPU", value: "87%", status: "success" as const },
+    { label: "MEM", value: "42%", status: "normal" as const },
+    { label: "NET", value: "1.2GB", status: "success" as const },
+    { label: "PWR", value: "NOMINAL", status: "success" as const },
   ];
 
   return (
-    <div className={cn("w-48 bg-lcars-black p-4 space-y-4", className)}>
-      {/* Numeric Rails with Status */}
-      {railData.map((item, index) => (
-        <div key={index} className="flex items-center space-x-3">
-          <span className="font-lcars-mono text-lcars-amber text-xl font-bold w-12">
-            {item.number}
-          </span>
-          <LCARSReadout
-            label=""
-            value={item.value}
-            status={item.color as any}
-            className="flex-1"
-          />
+    <div className={cn("w-48 bg-lcars-black flex flex-col h-full", className)}>
+      {/* Numeric Rail with readouts */}
+      <div className="p-3 space-y-4 flex-1 overflow-auto">
+        {railNumbers.map((number, index) => (
+          <div key={index} className="flex items-center space-x-3">
+            <span className="font-lcars-mono text-white text-xl font-bold tracking-wider w-12 text-right">
+              {number}
+            </span>
+            <div className="flex-1">
+              <LCARSVBar 
+                height={20 + (index * 8)} 
+                color={index % 2 === 0 ? "teal" : "amber"}
+                animated 
+              />
+            </div>
+          </div>
+        ))}
+        
+        {/* System Readouts */}
+        <div className="space-y-3 mt-6 pt-6 border-t border-lcars-orange/30">
+          {readouts.map((readout, index) => (
+            <LCARSReadout
+              key={index}
+              label={readout.label}
+              value={readout.value}
+              status={readout.status}
+            />
+          ))}
         </div>
-      ))}
-      
-      {/* Vertical Meters */}
-      <div className="space-y-4 mt-8">
-        <LCARSVBar value={75} color="orange" height={120} />
-        <LCARSVBar value={60} color="blue" height={100} />
-        <LCARSVBar value={90} color="teal" height={140} />
       </div>
       
-      {/* Additional Readouts */}
-      <div className="space-y-2 mt-8">
-        <LCARSReadout label="CPU" value="12%" status="normal" />
-        <LCARSReadout label="MEM" value="8.2GB" status="normal" />
-        <LCARSReadout label="NET" value="CONN" status="success" />
-      </div>
+      {/* Bottom Elbow */}
+      <div className="h-16 bg-lcars-blue rounded-tl-lcars-elbow flex-shrink-0" />
     </div>
   );
 };
