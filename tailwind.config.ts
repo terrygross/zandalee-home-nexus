@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -103,10 +102,18 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				}
 			},
+			fontFamily: {
+				'mono': ['JetBrains Mono', 'Consolas', 'Monaco', 'monospace'],
+				'lcars-sans': ['Michroma', 'Share Tech Mono', 'sans-serif'],
+				'lcars-mono': ['Orbitron', 'monospace'],
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				sm: 'calc(var(--radius) - 4px)',
+				'lcars': '2rem',
+				'lcars-sm': '1rem',
+				'lcars-elbow': '3rem',
 			},
 			keyframes: {
 				'accordion-down': {
@@ -137,6 +144,10 @@ export default {
 					'0%': { transform: 'translateX(-100%)', opacity: '0' },
 					'50%': { opacity: '1' },
 					'100%': { transform: 'translateX(100%)', opacity: '0' }
+				},
+				'marquee': {
+					'0%': { transform: 'translateX(100%)' },
+					'100%': { transform: 'translateX(-100%)' }
 				}
 			},
 			animation: {
@@ -144,11 +155,9 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'energy-pulse': 'energy-pulse 2s ease-in-out infinite alternate',
 				'voice-pulse': 'voice-pulse 1s ease-in-out infinite',
-				'data-flow': 'data-flow 3s ease-in-out infinite'
+				'data-flow': 'data-flow 3s ease-in-out infinite',
+				'marquee': 'marquee 30s linear infinite'
 			},
-			fontFamily: {
-				'mono': ['JetBrains Mono', 'Consolas', 'Monaco', 'monospace'],
-			}
 		}
 	},
 	plugins: [require("tailwindcss-animate")],

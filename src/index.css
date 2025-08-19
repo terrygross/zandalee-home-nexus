@@ -134,7 +134,7 @@
 
   /* LCARS specific body styling */
   .theme-lcars body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-lcars-sans;
     background-image: none;
     background-color: hsl(var(--lcars-black));
   }
@@ -257,6 +257,11 @@
       transparent 100%
     );
   }
+
+  /* LCARS Marquee Animation */
+  .theme-lcars .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
 }
 
 @layer utilities {
@@ -294,6 +299,11 @@
     @apply absolute top-0 left-0 w-8 h-8 rounded-br-full;
     background: hsl(var(--primary));
   }
+
+  /* LCARS Text Glow Effects */
+  .theme-lcars .font-lcars-mono {
+    text-shadow: 0 0 8px currentColor;
+  }
 }
 
 /* Keyframe animations */
@@ -321,6 +331,11 @@
   0% { transform: translateX(-100%); opacity: 0; }
   50% { opacity: 1; }
   100% { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
 }
 
 /* Scrollbars */
