@@ -23,65 +23,63 @@ const Index = () => {
   };
 
   return (
-    <div className="h-screen bg-space-deep text-text-primary flex flex-col overflow-hidden">
-      {/* Header - Fixed height */}
-      <div className="flex-shrink-0">
+    <div className="h-screen bg-space-deep text-text-primary flex flex-col">
+      {/* Header - Compact fixed height */}
+      <div className="flex-shrink-0 h-16">
         <ZandaleeHeader />
       </div>
       
-      {/* Main Content Area - Uses remaining space */}
-      <div className="flex-1 flex min-h-0 overflow-hidden">
-        {/* Left Sidebar - Fixed width, split vertically */}
-        <div className="w-80 bg-space-surface/20 border-r border-energy-cyan/30 flex flex-col">
-          {/* Avatar Panel - Takes 55% of left sidebar */}
-          <div className="flex-grow" style={{ flex: '0 0 55%' }}>
+      {/* Main Content - Flexible height */}
+      <div className="flex-1 flex min-h-0">
+        {/* Left Sidebar - Fixed width */}
+        <div className="w-64 bg-space-surface/20 border-r border-energy-cyan/30 flex flex-col">
+          {/* Avatar Panel - 60% */}
+          <div className="h-3/5 border-b border-energy-cyan/20">
             <AvatarPanel />
           </div>
           
-          {/* Memory Manager - Takes 45% of left sidebar */}
-          <div className="flex-grow" style={{ flex: '0 0 45%' }}>
+          {/* Memory Manager - 40% */}
+          <div className="h-2/5">
             <MemoryManager />
           </div>
         </div>
 
-        {/* Center Content - Chat takes all available space */}
+        {/* Center Content - Chat takes remaining space */}
         <div className="flex-1 min-w-0">
           <ChatInterface />
         </div>
 
-        {/* Right Sidebar - Compact, scrollable if needed */}
-        <div className="w-72 bg-space-surface/20 border-l border-energy-cyan/30 flex flex-col overflow-hidden">
-          {/* Audio Controls - Compact */}
-          <div className="flex-shrink-0 p-2 pb-1">
+        {/* Right Sidebar - Compact fixed width */}
+        <div className="w-56 bg-space-surface/20 border-l border-energy-cyan/30 flex flex-col">
+          {/* Audio Controls */}
+          <div className="flex-shrink-0 h-16 p-2">
             <AudioControls />
           </div>
           
-          {/* Camera Settings - Compact */}
-          <div className="flex-shrink-0 p-2 py-1">
+          {/* Camera Settings */}
+          <div className="flex-shrink-0 h-20 p-2">
             <CameraSettings />
           </div>
           
-          {/* Mic Settings - Compact */}
-          <div className="flex-shrink-0 p-2 py-1">
+          {/* Mic Settings */}
+          <div className="flex-shrink-0 h-20 p-2">
             <MicSettings />
           </div>
           
-          {/* Screen Share Panel - Fixed compact height */}
-          <div className="flex-shrink-0 p-2 py-1">
-            <div className="h-32">
-              <ScreenSharePanel />
-            </div>
+          {/* Screen Share Panel */}
+          <div className="flex-shrink-0 h-24 p-2">
+            <ScreenSharePanel />
           </div>
           
-          {/* Voice Metrics - Takes remaining space, scrollable if needed */}
-          <div className="flex-1 min-h-0 p-2 pt-1">
+          {/* Voice Metrics - Takes remaining space */}
+          <div className="flex-1 min-h-0 p-2">
             <VoiceMetrics />
           </div>
         </div>
       </div>
 
-      {/* Bottom Status Bar - Fixed height */}
-      <div className="flex-shrink-0">
+      {/* Bottom Status Bar - Compact fixed height */}
+      <div className="flex-shrink-0 h-8">
         <StatusBar />
       </div>
     </div>
