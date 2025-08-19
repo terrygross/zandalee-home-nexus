@@ -82,10 +82,6 @@ const LCARSLayout: React.FC<LCARSLayoutProps> = ({
       <LCARSSettingsSidebar
         isOpen={isSettingsSidebarOpen}
         onClose={() => setIsSettingsSidebarOpen(false)}
-        onSettingsClick={() => {
-          setIsSettingsSidebarOpen(false);
-          onSettingsClick?.();
-        }}
       />
     </div>
   );

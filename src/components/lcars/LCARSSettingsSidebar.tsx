@@ -2,28 +2,65 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import LCARSPillButton from "./LCARSPillButton";
-import { MessageCircle, Brain, Settings, Camera, Mic, Monitor, X } from "lucide-react";
+import { MessageCircle, Brain, Camera, Mic, Monitor, X } from "lucide-react";
 
 interface LCARSSettingsSidebarProps {
   className?: string;
   isOpen: boolean;
   onClose: () => void;
-  onSettingsClick?: () => void;
 }
 
 const LCARSSettingsSidebar: React.FC<LCARSSettingsSidebarProps> = ({ 
   className, 
   isOpen, 
-  onClose, 
-  onSettingsClick 
+  onClose
 }) => {
   const menuItems = [
-    { label: "CHAT", icon: MessageCircle, color: "orange" as const, action: () => console.log("Chat clicked") },
-    { label: "MEMORY", icon: Brain, color: "blue" as const, action: () => console.log("Memory clicked") },
-    { label: "CAMERA", icon: Camera, color: "amber" as const, action: () => console.log("Camera clicked") },
-    { label: "AUDIO", icon: Mic, color: "teal" as const, action: () => console.log("Audio clicked") },
-    { label: "SCREEN", icon: Monitor, color: "red" as const, action: () => console.log("Screen clicked") },
-    { label: "SETTINGS", icon: Settings, color: "violet" as const, action: onSettingsClick },
+    { 
+      label: "CHAT", 
+      icon: MessageCircle, 
+      color: "orange" as const, 
+      action: () => {
+        console.log("Navigating to Chat interface");
+        // TODO: Navigate to chat view or toggle chat panel
+      }
+    },
+    { 
+      label: "MEMORY", 
+      icon: Brain, 
+      color: "blue" as const, 
+      action: () => {
+        console.log("Opening Memory Manager");
+        // TODO: Open memory management interface
+      }
+    },
+    { 
+      label: "CAMERA", 
+      icon: Camera, 
+      color: "amber" as const, 
+      action: () => {
+        console.log("Opening Camera settings");
+        // TODO: Open camera configuration panel
+      }
+    },
+    { 
+      label: "AUDIO", 
+      icon: Mic, 
+      color: "teal" as const, 
+      action: () => {
+        console.log("Opening Audio settings");
+        // TODO: Open microphone wizard or audio settings
+      }
+    },
+    { 
+      label: "SCREEN", 
+      icon: Monitor, 
+      color: "red" as const, 
+      action: () => {
+        console.log("Opening Screen share");
+        // TODO: Toggle screen sharing functionality
+      }
+    },
   ];
 
   if (!isOpen) return null;
