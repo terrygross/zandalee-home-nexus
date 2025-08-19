@@ -8,45 +8,42 @@ const ZandaleeHeader = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
-    <div className="glass-panel p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+    <div className="h-full bg-space-surface/30 border-b border-energy-cyan/30 px-4 py-2">
+      <div className="flex items-center justify-between h-full">
+        <div className="flex items-center space-x-3">
           <div className="relative">
-            <div className="w-12 h-12 bg-gradient-to-br from-energy-cyan to-energy-blue rounded-xl flex items-center justify-center">
-              <Brain className="w-6 h-6 text-white" />
+            <div className="w-8 h-8 bg-gradient-to-br from-energy-cyan to-energy-blue rounded-lg flex items-center justify-center">
+              <Brain className="w-4 h-4 text-white" />
             </div>
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-status-success rounded-full animate-pulse" />
+            <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-status-success rounded-full animate-pulse" />
           </div>
           
           <div>
-            <h1 className="text-2xl font-bold text-text-primary">Zandalee</h1>
-            <p className="text-text-secondary">Family Desktop AI • Ready to assist</p>
+            <h1 className="text-lg font-bold text-text-primary">Zandalee</h1>
+            <p className="text-xs text-text-secondary">Family Desktop AI</p>
           </div>
         </div>
         
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-2 text-energy-cyan">
-            <Activity className="w-4 h-4" />
-            <span className="text-sm">Voice Active</span>
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1 text-energy-cyan text-xs">
+            <Activity className="w-3 h-3" />
+            <span>Voice</span>
           </div>
           
-          <div className="flex items-center space-x-2 text-energy-blue">
-            <Cpu className="w-4 h-4" />
-            <span className="text-sm">Processing</span>
+          <div className="flex items-center space-x-1 text-energy-blue text-xs">
+            <Cpu className="w-3 h-3" />
+            <span>Ready</span>
           </div>
           
-          <div className="text-text-muted text-sm">
-            v1.0.0
-          </div>
+          <div className="text-text-muted text-xs">v1.0.0</div>
 
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 hover:bg-energy-cyan/20 hover:text-energy-cyan border border-transparent hover:border-energy-cyan/30 transition-all duration-200"
-            title="Open Settings"
+            className="h-6 w-6 p-0 hover:bg-energy-cyan/20"
             onClick={() => setSettingsOpen(true)}
           >
-            <Settings className="w-4 h-4" />
+            <Settings className="w-3 h-3" />
           </Button>
 
           <SettingsDrawer 

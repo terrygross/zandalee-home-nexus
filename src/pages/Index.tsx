@@ -19,67 +19,69 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="h-dvh bg-space-deep text-text-primary flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="flex-shrink-0">
+    <div className="h-screen w-screen bg-space-deep text-text-primary flex flex-col overflow-hidden">
+      {/* Header - Fixed 60px */}
+      <header className="h-15 flex-shrink-0">
         <ZandaleeHeader />
-      </div>
+      </header>
       
-      {/* Main Content Area - Takes remaining height */}
-      <div className="flex-1 min-h-0 flex overflow-hidden">
-        {/* Left Sidebar - Avatar and Memory split */}
-        <div className="bg-space-surface/20 border-r border-energy-cyan/30 flex flex-col min-h-0 w-80 xl:w-80 lg:w-72 md:w-64 sm:w-56">
-          {/* Avatar Panel - Top half */}
-          <div className="basis-1/2 flex-1 min-h-0 p-2">
-            <AvatarPanel />
+      {/* Main Content - Takes remaining height */}
+      <main className="flex-1 flex overflow-hidden">
+        {/* Left Sidebar - Fixed 240px width */}
+        <aside className="w-60 flex-shrink-0 bg-space-surface/20 border-r border-energy-cyan/30 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col h-full">
+            {/* Avatar Panel - 60% of sidebar height */}
+            <div className="flex-[3] border-b border-energy-cyan/20 overflow-hidden">
+              <AvatarPanel />
+            </div>
+            
+            {/* Memory Manager - 40% of sidebar height */}
+            <div className="flex-[2] overflow-hidden">
+              <MemoryManager />
+            </div>
           </div>
-          
-          {/* Memory Manager - Bottom half */}
-          <div className="basis-1/2 flex-1 min-h-0 p-2 pt-0">
-            <MemoryManager />
-          </div>
-        </div>
+        </aside>
 
-        {/* Center Content - Chat Interface only */}
-        <div className="flex-1 min-w-0 min-h-0 flex flex-col">
-          <div className="flex-1 min-h-0">
-            <ChatInterface />
-          </div>
-        </div>
+        {/* Center Content - Chat takes remaining width */}
+        <section className="flex-1 overflow-hidden">
+          <ChatInterface />
+        </section>
 
-        {/* Right Sidebar - Compact controls */}
-        <div className="bg-space-surface/20 border-l border-energy-cyan/30 flex flex-col min-h-0 w-72 xl:w-72 lg:w-64 md:w-60 sm:w-56">
-          {/* Audio Controls */}
-          <div className="flex-shrink-0 p-2">
-            <AudioControls />
+        {/* Right Sidebar - Fixed 200px width */}
+        <aside className="w-50 flex-shrink-0 bg-space-surface/20 border-l border-energy-cyan/30 flex flex-col overflow-hidden">
+          <div className="flex flex-col h-full">
+            {/* Audio Controls - Fixed height */}
+            <div className="h-12 flex-shrink-0 p-1">
+              <AudioControls />
+            </div>
+            
+            {/* Camera Settings - Fixed height */}
+            <div className="h-16 flex-shrink-0 p-1">
+              <CameraSettings />
+            </div>
+            
+            {/* Mic Settings - Fixed height */}
+            <div className="h-16 flex-shrink-0 p-1">
+              <MicSettings />
+            </div>
+            
+            {/* Screen Share Panel - Fixed height */}
+            <div className="h-20 flex-shrink-0 p-1">
+              <ScreenSharePanel />
+            </div>
+            
+            {/* Voice Metrics - Takes remaining space */}
+            <div className="flex-1 p-1 overflow-hidden">
+              <VoiceMetrics />
+            </div>
           </div>
-          
-          {/* Camera Settings */}
-          <div className="flex-shrink-0 p-2 pt-0">
-            <CameraSettings />
-          </div>
-          
-          {/* Mic Settings */}
-          <div className="flex-shrink-0 p-2 pt-0">
-            <MicSettings />
-          </div>
-          
-          {/* Screen Share Panel - Fixed height container */}
-          <div className="flex-shrink-0 p-2 pt-0 h-40">
-            <ScreenSharePanel />
-          </div>
-          
-          {/* Voice Metrics - Takes remaining space with scroll */}
-          <div className="flex-1 min-h-0 p-2 pt-0 overflow-y-auto">
-            <VoiceMetrics />
-          </div>
-        </div>
-      </div>
+        </aside>
+      </main>
 
-      {/* Bottom Status Bar */}
-      <div className="flex-shrink-0">
+      {/* Bottom Status Bar - Fixed 28px */}
+      <footer className="h-7 flex-shrink-0">
         <StatusBar />
-      </div>
+      </footer>
     </div>
   );
 };
