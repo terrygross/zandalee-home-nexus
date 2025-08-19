@@ -1,9 +1,11 @@
 
 import { useState, useRef, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Upload, User, Trash2, Check } from "lucide-react";
+import { Upload, User, X, Trash2, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useZandaleeAPI } from "@/hooks/useZandaleeAPI";
 
 type ViewMode = 'fill' | 'fit';
 
@@ -23,7 +25,9 @@ const AvatarPanel = () => {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const zandaleeAPI = useZandaleeAPI();
 
+  // Load view mode from localStorage and fetch avatars on mount
   useEffect(() => {
     const savedViewMode = localStorage.getItem('zandalee-avatar-view-mode') as ViewMode;
     if (savedViewMode) {
@@ -71,6 +75,7 @@ const AvatarPanel = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
         title: "Invalid File",
@@ -80,6 +85,7 @@ const AvatarPanel = () => {
       return;
     }
 
+    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "File Too Large",
@@ -121,6 +127,7 @@ const AvatarPanel = () => {
         setAvatarName('');
         await loadAvatars();
         
+        // Clear file input
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
@@ -200,81 +207,89 @@ const AvatarPanel = () => {
     }
   };
 
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
   const toggleViewMode = (mode: ViewMode) => {
     setViewMode(mode);
     localStorage.setItem('zandalee-avatar-view-mode', mode);
   };
 
   return (
-    <div className="h-full flex flex-col bg-space-surface/20">
-      {/* Header */}
-      <div className="flex-shrink-0 p-2 border-b border-energy-cyan/30">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xs font-semibold text-text-primary">Avatar</h3>
-          <div className="flex text-[9px] border border-energy-cyan/30 rounded overflow-hidden">
-            <button
-              onClick={() => toggleViewMode('fill')}
-              className={`px-1.5 py-0.5 transition-colors ${
-                viewMode === 'fill' 
-                  ? 'bg-energy-cyan/20 text-energy-cyan' 
-                  : 'text-text-muted hover:bg-energy-cyan/10'
-              }`}
-            >
-              Fill
-            </button>
-            <button
-              onClick={() => toggleViewMode('fit')}
-              className={`px-1.5 py-0.5 transition-colors ${
-                viewMode === 'fit' 
-                  ? 'bg-energy-cyan/20 text-energy-cyan' 
-                  : 'text-text-muted hover:bg-energy-cyan/10'
-              }`}
-            >
-              Fit
-            </button>
+    <Card className="glass-panel h-full flex flex-col">
+      <CardHeader className="pb-1 px-3 pt-2 flex-shrink-0">
+        <CardTitle className="flex items-center justify-between text-text-primary text-xs">
+          <span>Zandalee Avatar</span>
+          <div className="flex items-center gap-1">
+            {/* View Mode Toggle */}
+            <div className="flex text-[10px] border border-energy-cyan/30 rounded overflow-hidden">
+              <button
+                onClick={() => toggleViewMode('fill')}
+                className={`px-1.5 py-0.5 transition-colors ${
+                  viewMode === 'fill' 
+                    ? 'bg-energy-cyan/20 text-energy-cyan' 
+                    : 'text-text-muted hover:bg-energy-cyan/10'
+                }`}
+              >
+                Fill
+              </button>
+              <button
+                onClick={() => toggleViewMode('fit')}
+                className={`px-1.5 py-0.5 transition-colors ${
+                  viewMode === 'fit' 
+                    ? 'bg-energy-cyan/20 text-energy-cyan' 
+                    : 'text-text-muted hover:bg-energy-cyan/10'
+                }`}
+              >
+                Fit
+              </button>
+            </div>
           </div>
-        </div>
-      </div>
+        </CardTitle>
+      </CardHeader>
       
-      <div className="flex-1 flex flex-col p-2 min-h-0">
-        {/* Avatar Viewer */}
-        <div className="flex-1 min-h-20 rounded border border-energy-cyan/30 bg-space-surface/40 mb-2">
+      <CardContent className="flex-1 flex flex-col p-3 pt-1 min-h-0">
+        {/* Active Avatar Viewer */}
+        <div className="relative flex-1 min-h-0 rounded-md overflow-hidden border border-energy-cyan/30 bg-space-surface/40 mb-3">
           {activeAvatar ? (
             <img
               src={activeAvatar.photo_url}
               alt={activeAvatar.name}
-              className={`w-full h-full ${
+              className={`absolute inset-0 w-full h-full ${
                 viewMode === 'fill' ? 'object-cover' : 'object-contain bg-space-surface'
               }`}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-energy-cyan/10">
+            <div className="absolute inset-0 flex items-center justify-center bg-energy-cyan/10">
               <div className="text-center text-energy-cyan">
-                <User className="w-8 h-8 mx-auto mb-1" />
-                <div className="text-[9px] text-text-muted">No avatar</div>
+                <User className="w-16 h-16 mx-auto mb-2" />
+                <div className="text-xs text-text-muted">No active avatar</div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Upload Controls */}
-        <div className="flex-shrink-0 space-y-1 mb-2">
+        {/* Avatar Upload Section */}
+        <div className="space-y-2 mb-3">
           <Input
             placeholder="Avatar name..."
             value={avatarName}
             onChange={(e) => setAvatarName(e.target.value)}
-            className="h-6 text-[10px] bg-space-surface/60 border-energy-cyan/30"
+            className="h-7 text-xs bg-space-surface/60 border-energy-cyan/30"
             disabled={isUploading}
           />
           
           <Button
-            onClick={() => fileInputRef.current?.click()}
+            onClick={triggerFileInput}
             disabled={isUploading || !avatarName.trim()}
-            className="w-full h-6 bg-energy-blue/20 hover:bg-energy-blue/30 border border-energy-blue/30 text-[10px]"
+            className="w-full h-7 bg-energy-blue/20 hover:bg-energy-blue/30 border border-energy-blue/30 flex items-center justify-center gap-2 text-xs"
             variant="outline"
           >
-            <Upload className="w-2 h-2 mr-1 text-energy-blue" />
-            {isUploading ? 'Uploading...' : 'Upload'}
+            <Upload className="w-3 h-3 text-energy-blue" />
+            <span className="text-text-primary">
+              {isUploading ? 'Uploading...' : 'Upload New Avatar'}
+            </span>
           </Button>
         </div>
 
@@ -283,7 +298,7 @@ const AvatarPanel = () => {
           {avatars.map((avatar) => (
             <div
               key={avatar.id}
-              className={`flex items-center gap-1.5 p-1.5 rounded border text-[9px] transition-colors ${
+              className={`flex items-center gap-2 p-2 rounded border transition-colors ${
                 avatar.is_active 
                   ? 'border-energy-cyan/50 bg-energy-cyan/10' 
                   : 'border-energy-cyan/20 bg-space-surface/20 hover:bg-space-surface/40'
@@ -292,37 +307,38 @@ const AvatarPanel = () => {
               <img
                 src={avatar.photo_url}
                 alt={avatar.name}
-                className="w-4 h-4 rounded object-cover flex-shrink-0"
+                className="w-8 h-8 rounded object-cover flex-shrink-0"
               />
               <div className="flex-1 min-w-0">
-                <div className="text-[9px] text-text-primary truncate">{avatar.name}</div>
+                <div className="text-xs text-text-primary truncate">{avatar.name}</div>
               </div>
-              <div className="flex items-center gap-0.5">
+              <div className="flex items-center gap-1">
                 {avatar.is_active ? (
-                  <Check className="w-2.5 h-2.5 text-energy-cyan" />
+                  <Check className="w-3 h-3 text-energy-cyan" />
                 ) : (
                   <Button
                     onClick={() => selectAvatar(avatar.id)}
                     variant="ghost"
                     size="sm"
-                    className="h-4 px-1 text-[8px] hover:bg-energy-cyan/20 text-energy-cyan"
+                    className="h-6 w-6 p-0 hover:bg-energy-cyan/20"
                   >
-                    Set
+                    <span className="text-[10px] text-energy-cyan">Select</span>
                   </Button>
                 )}
                 <Button
                   onClick={() => deleteAvatar(avatar.id, avatar.name)}
                   variant="ghost"
                   size="sm"
-                  className="h-4 w-4 p-0 hover:bg-status-error/20"
+                  className="h-6 w-6 p-0 hover:bg-status-error/20"
                 >
-                  <Trash2 className="w-2.5 h-2.5 text-status-error" />
+                  <Trash2 className="w-3 h-3 text-status-error" />
                 </Button>
               </div>
             </div>
           ))}
         </div>
 
+        {/* Hidden File Input */}
         <input
           ref={fileInputRef}
           type="file"
@@ -330,8 +346,8 @@ const AvatarPanel = () => {
           onChange={handleFileUpload}
           className="hidden"
         />
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
