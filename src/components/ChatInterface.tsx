@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Send, User, Bot, Terminal, Star, Zap, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ const ChatInterface = () => {
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [speakBackEnabled, setSpeakBackEnabled] = useState(true);
-  const [useDirectLLM, setUseDirectLLM] = useState(false);
+  const [useDirectLLMMode, setUseDirectLLMMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -83,7 +84,7 @@ const ChatInterface = () => {
     try {
       let responseContent: string;
 
-      if (useDirectLLM) {
+      if (useDirectLLMMode) {
         if (!isConfigured) {
           throw new Error(`No API key configured for ${activeProvider}. Please configure in settings.`);
         }
@@ -123,7 +124,7 @@ const ChatInterface = () => {
       setMessages(prev => [...prev, assistantMessage]);
       
       // Trigger TTS if enabled and using gateway
-      if (speakBackEnabled && !useDirectLLM) {
+      if (speakBackEnabled && !useDirectLLMMode) {
         try {
           await speak(responseContent);
         } catch (error) {
@@ -154,7 +155,7 @@ const ChatInterface = () => {
   };
 
   const handleSaveAsMemory = async (messageContent: string) => {
-    if (useDirectLLM) {
+    if (useDirectLLMMode) {
       toast({
         title: "Memory Save Unavailable",
         description: "Memory saving is only available in Gateway mode",
@@ -208,7 +209,7 @@ const ChatInterface = () => {
                 {message.timestamp.toLocaleTimeString()}
               </span>
               
-              {isAssistant && !useDirectLLM && (
+              {isAssistant && !useDirectLLMMode && (
                 <Button
                   size="sm"
                   variant="ghost"
@@ -239,8 +240,8 @@ const ChatInterface = () => {
             <div className="flex items-center space-x-2">
               <Switch
                 id="direct-llm"
-                checked={useDirectLLM}
-                onCheckedChange={setUseDirectLLM}
+                checked={useDirectLLMMode}
+                onCheckedChange={setUseDirectLLMMode}
               />
               <Label htmlFor="direct-llm" className="text-xs flex items-center space-x-1">
                 <Zap className="w-3 h-3" />
@@ -253,19 +254,19 @@ const ChatInterface = () => {
                 id="speak-back"
                 checked={speakBackEnabled}
                 onCheckedChange={setSpeakBackEnabled}
-                disabled={useDirectLLM}
+                disabled={useDirectLLMMode}
               />
               <Label htmlFor="speak-back" className="text-xs">Speak Back</Label>
             </div>
             
             <div className="flex items-center space-x-2">
               <div className={`w-2 h-2 rounded-full ${
-                useDirectLLM 
+                useDirectLLMMode 
                   ? (isConfigured ? 'bg-energy-cyan animate-pulse' : 'bg-status-warning')
                   : (isHealthy ? 'bg-status-success animate-pulse' : 'bg-status-error')
               }`} />
               <span className="text-xs text-text-muted">
-                {useDirectLLM 
+                {useDirectLLMMode 
                   ? (isConfigured ? `${activeProvider.toUpperCase()} Ready` : 'Not Configured')
                   : (isHealthy ? 'Gateway Connected' : 'Gateway Offline')
                 }
@@ -284,9 +285,9 @@ const ChatInterface = () => {
           <div className="flex justify-start">
             <div className="flex items-center space-x-3">
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                useDirectLLM ? 'bg-energy-cyan/20 text-energy-cyan' : 'bg-energy-blue/20 text-energy-blue'
+                useDirectLLMMode ? 'bg-energy-cyan/20 text-energy-cyan' : 'bg-energy-blue/20 text-energy-blue'
               }`}>
-                {useDirectLLM ? <Zap className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                {useDirectLLMMode ? <Zap className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
               </div>
               <div className="glass-panel p-3 bg-card">
                 <div className="flex space-x-1">
@@ -310,15 +311,15 @@ const ChatInterface = () => {
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Type a message..."
             className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted"
-            disabled={isProcessing || (!isHealthy && !useDirectLLM) || (useDirectLLM && !isConfigured)}
+            disabled={isProcessing || (!isHealthy && !useDirectLLMMode) || (useDirectLLMMode && !isConfigured)}
           />
           <VoiceInput
             onTranscript={handleVoiceTranscript}
-            disabled={isProcessing || (!isHealthy && !useDirectLLM) || (useDirectLLM && !isConfigured)}
+            disabled={isProcessing || (!isHealthy && !useDirectLLMMode) || (useDirectLLMMode && !isConfigured)}
           />
           <Button
             onClick={handleSend}
-            disabled={!input.trim() || isProcessing || (!isHealthy && !useDirectLLM) || (useDirectLLM && !isConfigured)}
+            disabled={!input.trim() || isProcessing || (!isHealthy && !useDirectLLMMode) || (useDirectLLMMode && !isConfigured)}
             className="bg-energy-cyan/20 hover:bg-energy-cyan/30 text-energy-cyan border border-energy-cyan/30 neon-border"
           >
             <Send className="w-4 h-4" />
@@ -327,7 +328,7 @@ const ChatInterface = () => {
         
         <div className="flex justify-between items-center mt-2 text-xs text-text-muted">
           <span>
-            {useDirectLLM 
+            {useDirectLLMMode 
               ? `Direct mode: ${activeProvider.toUpperCase()} • Configure API key in settings ⚙️`
               : `Gateway mode • Gateway health: ${isHealthy ? '✅' : '❌'} • Click ⭐ to save responses`
             }
