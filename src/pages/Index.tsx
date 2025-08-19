@@ -58,8 +58,8 @@ const Index = () => {
           activeProvider={activeProvider}
           isConfigured={isConfigured()}
         >
-          <div className="h-full flex space-x-6 overflow-hidden">
-            {/* Main Chat Interface - Now takes full width minus right sidebar */}
+          <div className="h-full flex space-x-4 overflow-hidden">
+            {/* Main Chat Interface - Now takes full width minus left sidebar */}
             <div className="flex-1 min-h-0 overflow-hidden">
               <LCARSPanel title="COMMUNICATION INTERFACE" color="orange" className="h-full">
                 <div className="h-full flex flex-col overflow-hidden">
@@ -73,8 +73,8 @@ const Index = () => {
               </LCARSPanel>
             </div>
             
-            {/* Memory Core Panel - Right side, made bigger */}
-            <div className="w-96 flex-shrink-0 hidden lg:block overflow-hidden">
+            {/* Memory Core Panel - Right side */}
+            <div className="w-80 flex-shrink-0 hidden lg:block overflow-hidden">
               <LCARSPanel color="teal" className="h-full">
                 <div className="h-full overflow-hidden">
                   <MemoryManager />
