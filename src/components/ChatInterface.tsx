@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Send, User, Bot, Terminal, Star, Zap, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -229,14 +228,15 @@ const ChatInterface = () => {
   };
 
   return (
-    <div className="glass-panel h-full flex flex-col">
-      <div className="p-4 border-b border-border/30 flex-shrink-0">
+    <div className="h-full flex flex-col bg-card/50 border-r border-border/30">
+      {/* Compact Header */}
+      <div className="flex-shrink-0 p-3 border-b border-border/30">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-text-primary">Chat Interface</h3>
-            <p className="text-xs text-text-secondary">Communicate with Zandalee via text or voice</p>
+            <h3 className="text-base font-semibold text-text-primary">Chat Interface</h3>
+            <p className="text-xs text-text-secondary">Communicate with Zandalee</p>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2">
               <Switch
                 id="direct-llm"
@@ -245,7 +245,7 @@ const ChatInterface = () => {
               />
               <Label htmlFor="direct-llm" className="text-xs flex items-center space-x-1">
                 <Zap className="w-3 h-3" />
-                <span>Direct LLM</span>
+                <span>Direct</span>
               </Label>
             </div>
             
@@ -256,7 +256,7 @@ const ChatInterface = () => {
                 onCheckedChange={setSpeakBackEnabled}
                 disabled={directLLMMode}
               />
-              <Label htmlFor="speak-back" className="text-xs">Speak Back</Label>
+              <Label htmlFor="speak-back" className="text-xs">Speak</Label>
             </div>
             
             <div className="flex items-center space-x-2">
@@ -267,14 +267,13 @@ const ChatInterface = () => {
               }`} />
               <span className="text-xs text-text-muted">
                 {directLLMMode 
-                  ? (isConfigured() ? `${activeProvider.toUpperCase()} Ready` : 'Not Configured')
-                  : (isConnected ? 'Backend Connected' : 'Backend Disconnected')
+                  ? (isConfigured() ? `${activeProvider.toUpperCase()}` : 'Config')
+                  : (isConnected ? 'Connected' : 'Disconnected')
                 }
               </span>
               {isSpeaking && !directLLMMode && (
                 <div className="flex items-center space-x-1 text-energy-glow">
                   <Bot className="w-3 h-3 animate-pulse" />
-                  <span className="text-xs">Speaking</span>
                 </div>
               )}
             </div>
@@ -282,14 +281,14 @@ const ChatInterface = () => {
         </div>
       </div>
 
-      {/* Scrollable Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+      {/* Messages Area - Scrollable, takes remaining space */}
+      <div className="flex-1 min-h-0 overflow-y-auto p-3">
         {messages.map((message) => (
           <MessageBubble key={message.id} message={message} />
         ))}
         
         {isProcessing && (
-          <div className="flex justify-start">
+          <div className="flex justify-start mb-4">
             <div className="flex items-center space-x-3">
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                 directLLMMode ? 'bg-energy-cyan/20 text-energy-cyan' : 'bg-energy-blue/20 text-energy-blue'
@@ -310,15 +309,15 @@ const ChatInterface = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Fixed Input Area */}
-      <div className="p-4 border-t border-border/30 flex-shrink-0">
-        <div className="flex space-x-2">
+      {/* Input Area - Fixed at bottom */}
+      <div className="flex-shrink-0 p-3 border-t border-border/30">
+        <div className="flex space-x-2 mb-2">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Type a message or command..."
-            className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted"
+            placeholder="Type a message..."
+            className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted h-9"
             disabled={isProcessing || (!isConnected && !directLLMMode) || (directLLMMode && !isConfigured())}
           />
           <VoiceInput
@@ -328,20 +327,17 @@ const ChatInterface = () => {
           <Button
             onClick={handleSend}
             disabled={!input.trim() || isProcessing || (!isConnected && !directLLMMode) || (directLLMMode && !isConfigured())}
-            className="bg-energy-cyan/20 hover:bg-energy-cyan/30 text-energy-cyan border border-energy-cyan/30 neon-border"
+            className="bg-energy-cyan/20 hover:bg-energy-cyan/30 text-energy-cyan border border-energy-cyan/30 neon-border h-9 px-3"
           >
             <Send className="w-4 h-4" />
           </Button>
         </div>
         
-        <div className="flex justify-between items-center mt-2 text-xs text-text-muted">
-          <span>
-            {directLLMMode 
-              ? `Direct mode: ${activeProvider.toUpperCase()} • Configure API key in settings ⚙️`
-              : `Backend mode • Click ⭐ Save to save responses as memories • Click mic for voice input`
-            }
-          </span>
-          <span>Press Enter to send</span>
+        <div className="text-xs text-text-muted">
+          {directLLMMode 
+            ? `Direct mode: ${activeProvider.toUpperCase()}`
+            : `Backend mode • Click ⭐ to save responses • Press Enter to send`
+          }
         </div>
       </div>
     </div>

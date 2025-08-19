@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -217,88 +216,84 @@ const AvatarPanel = () => {
   };
 
   return (
-    <Card className="glass-panel h-full flex flex-col">
-      <CardHeader className="pb-1 px-3 pt-2 flex-shrink-0">
-        <CardTitle className="flex items-center justify-between text-text-primary text-xs">
-          <span>Zandalee Avatar</span>
-          <div className="flex items-center gap-1">
-            {/* View Mode Toggle */}
-            <div className="flex text-[10px] border border-energy-cyan/30 rounded overflow-hidden">
-              <button
-                onClick={() => toggleViewMode('fill')}
-                className={`px-1.5 py-0.5 transition-colors ${
-                  viewMode === 'fill' 
-                    ? 'bg-energy-cyan/20 text-energy-cyan' 
-                    : 'text-text-muted hover:bg-energy-cyan/10'
-                }`}
-              >
-                Fill
-              </button>
-              <button
-                onClick={() => toggleViewMode('fit')}
-                className={`px-1.5 py-0.5 transition-colors ${
-                  viewMode === 'fit' 
-                    ? 'bg-energy-cyan/20 text-energy-cyan' 
-                    : 'text-text-muted hover:bg-energy-cyan/10'
-                }`}
-              >
-                Fit
-              </button>
-            </div>
+    <div className="h-full flex flex-col bg-card/50 border-b border-border/30">
+      {/* Compact Header */}
+      <div className="flex-shrink-0 p-2 border-b border-border/30">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-text-primary">Zandalee Avatar</h3>
+          <div className="flex text-[10px] border border-energy-cyan/30 rounded overflow-hidden">
+            <button
+              onClick={() => toggleViewMode('fill')}
+              className={`px-2 py-1 transition-colors ${
+                viewMode === 'fill' 
+                  ? 'bg-energy-cyan/20 text-energy-cyan' 
+                  : 'text-text-muted hover:bg-energy-cyan/10'
+              }`}
+            >
+              Fill
+            </button>
+            <button
+              onClick={() => toggleViewMode('fit')}
+              className={`px-2 py-1 transition-colors ${
+                viewMode === 'fit' 
+                  ? 'bg-energy-cyan/20 text-energy-cyan' 
+                  : 'text-text-muted hover:bg-energy-cyan/10'
+              }`}
+            >
+              Fit
+            </button>
           </div>
-        </CardTitle>
-      </CardHeader>
+        </div>
+      </div>
       
-      <CardContent className="flex-1 flex flex-col p-3 pt-1 min-h-0">
-        {/* Active Avatar Viewer */}
-        <div className="relative flex-1 min-h-0 rounded-md overflow-hidden border border-energy-cyan/30 bg-space-surface/40 mb-3">
+      <div className="flex-1 flex flex-col p-2 min-h-0">
+        {/* Avatar Viewer - Takes available space */}
+        <div className="flex-1 min-h-32 rounded-md overflow-hidden border border-energy-cyan/30 bg-space-surface/40 mb-2">
           {activeAvatar ? (
             <img
               src={activeAvatar.photo_url}
               alt={activeAvatar.name}
-              className={`absolute inset-0 w-full h-full ${
+              className={`w-full h-full ${
                 viewMode === 'fill' ? 'object-cover' : 'object-contain bg-space-surface'
               }`}
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-energy-cyan/10">
+            <div className="w-full h-full flex items-center justify-center bg-energy-cyan/10">
               <div className="text-center text-energy-cyan">
-                <User className="w-16 h-16 mx-auto mb-2" />
+                <User className="w-12 h-12 mx-auto mb-2" />
                 <div className="text-xs text-text-muted">No active avatar</div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Avatar Upload Section */}
-        <div className="space-y-2 mb-3">
+        {/* Upload Section - Compact */}
+        <div className="flex-shrink-0 space-y-2 mb-2">
           <Input
             placeholder="Avatar name..."
             value={avatarName}
             onChange={(e) => setAvatarName(e.target.value)}
-            className="h-7 text-xs bg-space-surface/60 border-energy-cyan/30"
+            className="h-8 text-xs bg-space-surface/60 border-energy-cyan/30"
             disabled={isUploading}
           />
           
           <Button
             onClick={triggerFileInput}
             disabled={isUploading || !avatarName.trim()}
-            className="w-full h-7 bg-energy-blue/20 hover:bg-energy-blue/30 border border-energy-blue/30 flex items-center justify-center gap-2 text-xs"
+            className="w-full h-8 bg-energy-blue/20 hover:bg-energy-blue/30 border border-energy-blue/30 text-xs"
             variant="outline"
           >
-            <Upload className="w-3 h-3 text-energy-blue" />
-            <span className="text-text-primary">
-              {isUploading ? 'Uploading...' : 'Upload New Avatar'}
-            </span>
+            <Upload className="w-3 h-3 mr-2 text-energy-blue" />
+            {isUploading ? 'Uploading...' : 'Upload Avatar'}
           </Button>
         </div>
 
-        {/* Avatar List */}
+        {/* Avatar List - Scrollable */}
         <div className="flex-1 min-h-0 overflow-y-auto space-y-1">
           {avatars.map((avatar) => (
             <div
               key={avatar.id}
-              className={`flex items-center gap-2 p-2 rounded border transition-colors ${
+              className={`flex items-center gap-2 p-2 rounded border text-xs transition-colors ${
                 avatar.is_active 
                   ? 'border-energy-cyan/50 bg-energy-cyan/10' 
                   : 'border-energy-cyan/20 bg-space-surface/20 hover:bg-space-surface/40'
@@ -307,7 +302,7 @@ const AvatarPanel = () => {
               <img
                 src={avatar.photo_url}
                 alt={avatar.name}
-                className="w-8 h-8 rounded object-cover flex-shrink-0"
+                className="w-6 h-6 rounded object-cover flex-shrink-0"
               />
               <div className="flex-1 min-w-0">
                 <div className="text-xs text-text-primary truncate">{avatar.name}</div>
@@ -320,9 +315,9 @@ const AvatarPanel = () => {
                     onClick={() => selectAvatar(avatar.id)}
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0 hover:bg-energy-cyan/20"
+                    className="h-6 px-2 text-[10px] hover:bg-energy-cyan/20 text-energy-cyan"
                   >
-                    <span className="text-[10px] text-energy-cyan">Select</span>
+                    Select
                   </Button>
                 )}
                 <Button
@@ -338,7 +333,6 @@ const AvatarPanel = () => {
           ))}
         </div>
 
-        {/* Hidden File Input */}
         <input
           ref={fileInputRef}
           type="file"
@@ -346,8 +340,8 @@ const AvatarPanel = () => {
           onChange={handleFileUpload}
           className="hidden"
         />
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
