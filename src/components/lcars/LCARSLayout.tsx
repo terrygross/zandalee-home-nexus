@@ -46,6 +46,7 @@ const LCARSLayout: React.FC<LCARSLayoutProps> = ({
           isSpeaking={isSpeaking}
           activeProvider={activeProvider}
           isConfigured={isConfigured}
+          onSettingsClick={onSettingsClick}
         />
       </div>
       

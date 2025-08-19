@@ -2,7 +2,7 @@
 import React from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Zap } from "lucide-react";
+import { Zap, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface LCARSTickerProps {
@@ -15,6 +15,7 @@ interface LCARSTickerProps {
   isSpeaking?: boolean;
   activeProvider?: string;
   isConfigured?: boolean;
+  onSettingsClick?: () => void;
 }
 
 const LCARSTicker: React.FC<LCARSTickerProps> = ({ 
@@ -26,27 +27,28 @@ const LCARSTicker: React.FC<LCARSTickerProps> = ({
   isConnected = false,
   isSpeaking = false,
   activeProvider = 'openai',
-  isConfigured = false
+  isConfigured = false,
+  onSettingsClick
 }) => {
   const currentTime = new Date();
   const stardate = `${currentTime.getFullYear()}.${String(currentTime.getMonth() + 1).padStart(2, '0')}.${String(currentTime.getDate()).padStart(2, '0')}`;
 
   return (
-    <div className={cn("h-14 bg-lcars-orange flex items-center px-6 border-b-2 border-lcars-orange/80", className)}>
+    <div className={cn("h-14 bg-lcars-orange flex items-center px-8 border-b-2 border-lcars-orange/80", className)}>
       {/* Left - LCARS Status */}
-      <div className="flex items-center space-x-4 flex-shrink-0">
+      <div className="flex items-center space-x-6 flex-shrink-0">
         <div className="w-8 h-8 bg-lcars-black rounded-full flex items-center justify-center border-2 border-lcars-black">
           <div className="w-4 h-4 bg-lcars-orange rounded-full" />
         </div>
-        <span className="font-lcars-sans font-bold text-contrast-dark text-[10px] uppercase tracking-wider">
+        <span className="font-lcars-sans font-bold text-contrast-dark text-[9px] uppercase tracking-wider">
           LCARS READY - COMMUNICATION INTERFACE ACTIVE
         </span>
       </div>
       
       {/* Center - Communication Interface Controls */}
-      <div className="flex-1 flex items-center justify-center space-x-8">
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-2">
+      <div className="flex-1 flex items-center justify-center">
+        <div className="flex items-center space-x-10">
+          <div className="flex items-center space-x-3">
             <Switch
               id="direct-llm"
               checked={directLLMMode}
@@ -59,7 +61,7 @@ const LCARSTicker: React.FC<LCARSTickerProps> = ({
             </Label>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <Switch
               id="speak-back"
               checked={speakBackEnabled}
@@ -70,7 +72,7 @@ const LCARSTicker: React.FC<LCARSTickerProps> = ({
             <Label htmlFor="speak-back" className="text-xs text-contrast-dark font-lcars-mono">Speak Back</Label>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <div className={`w-2 h-2 rounded-full animate-pulse ${
               directLLMMode 
                 ? (isConfigured ? 'bg-lcars-blue' : 'bg-lcars-orange')
@@ -83,16 +85,23 @@ const LCARSTicker: React.FC<LCARSTickerProps> = ({
               }
             </span>
             {isSpeaking && !directLLMMode && (
-              <span className="text-xs text-lcars-blue font-lcars-mono animate-pulse">Speaking</span>
+              <span className="text-xs text-lcars-blue font-lcars-mono animate-pulse ml-2">Speaking</span>
             )}
           </div>
         </div>
       </div>
       
-      {/* Right - Time and Date */}
-      <div className="flex items-center space-x-6 text-contrast-dark font-lcars-mono text-sm font-bold flex-shrink-0">
+      {/* Right - Time, Date and Settings */}
+      <div className="flex items-center space-x-8 text-contrast-dark font-lcars-mono text-sm font-bold flex-shrink-0">
         <span>STARDATE {stardate}</span>
         <span>{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+        <button 
+          onClick={onSettingsClick}
+          className="p-1 hover:bg-lcars-black/20 rounded transition-colors"
+          title="Settings"
+        >
+          <Settings className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );
