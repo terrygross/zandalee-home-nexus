@@ -19,39 +19,26 @@ const LCARSSidebar: React.FC<LCARSSidebarProps> = ({ className, onSettingsClick 
     { label: "SETTINGS", icon: Settings, color: "violet" as const, number: "06", action: onSettingsClick },
   ];
 
-  const railNumbers = ["26", "82", "22", "91", "47"];
-
   return (
-    <div className={cn("w-80 bg-lcars-black flex flex-col h-full border-r border-lcars-orange/20", className)}>
-      {/* Avatar Display Area */}
-      <div className="p-4 flex-shrink-0">
+    <div className={cn("h-full bg-lcars-black flex flex-col border-r border-lcars-orange/20 overflow-hidden", className)}>
+      {/* Avatar Display Area - Larger and more prominent */}
+      <div className="p-6 flex-shrink-0">
         <div className="w-full aspect-square bg-lcars-dark-gray/50 rounded-lg border-2 border-lcars-orange/30 flex items-center justify-center relative overflow-hidden">
-          <User className="w-16 h-16 text-lcars-orange/60" />
-          <div className="absolute top-2 right-2 w-3 h-3 bg-lcars-teal rounded-full animate-pulse" />
-          <div className="absolute bottom-2 left-2 text-xs text-white font-lcars-mono uppercase tracking-wider">
+          <User className="w-20 h-20 text-lcars-orange/60" />
+          <div className="absolute top-3 right-3 w-3 h-3 bg-lcars-teal rounded-full animate-pulse" />
+          <div className="absolute bottom-3 left-3 text-sm text-white font-lcars-mono uppercase tracking-wider font-bold">
             ZANDALEE
           </div>
         </div>
       </div>
       
-      {/* Numeric Rail */}
-      <div className="px-4 space-y-3 flex-shrink-0">
-        {railNumbers.map((number, index) => (
-          <div key={index} className="flex items-center justify-end">
-            <span className="font-lcars-mono text-lcars-amber text-xl font-bold tracking-wider">
-              {number}
-            </span>
-          </div>
-        ))}
-      </div>
-      
       {/* Menu Pills */}
-      <div className="flex-1 p-4 space-y-2 overflow-auto">
+      <div className="flex-1 px-4 pb-4 space-y-2 overflow-auto">
         {menuItems.map((item) => (
           <LCARSPillButton
             key={item.label}
             color={item.color}
-            className="w-full justify-start text-black hover:text-black font-bold"
+            className="w-full justify-start text-contrast-dark hover:text-contrast-dark font-bold"
             onClick={item.action}
           >
             <item.icon className="w-4 h-4 mr-3" />
@@ -60,9 +47,6 @@ const LCARSSidebar: React.FC<LCARSSidebarProps> = ({ className, onSettingsClick 
           </LCARSPillButton>
         ))}
       </div>
-      
-      {/* Bottom Spacer */}
-      <div className="h-4 flex-shrink-0" />
     </div>
   );
 };

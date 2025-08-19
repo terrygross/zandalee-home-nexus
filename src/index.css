@@ -1,124 +1,113 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Michroma:wght@400&family=Share+Tech+Mono:wght@400&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Import LCARS Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Michroma&display=swap');
+/* Ensure full height containers and no page scroll */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
 
-/* Zandalee Futuristic Design System */
+.theme-lcars body {
+  overflow: hidden; /* Prevent page-level scrolling */
+}
+
 @layer base {
   :root {
-    /* Core space theme colors */
-    --space-void: 220 25% 8%;
+    /* Zandalee space theme colors */
+    --space-void: 220 15% 8%;
     --space-deep: 220 20% 12%;
     --space-mid: 220 15% 18%;
-    --space-surface: 220 12% 22%;
+    --space-surface: 220 12% 25%;
     
-    /* Electric energy colors */
-    --energy-cyan: 188 100% 50%;
-    --energy-blue: 210 100% 60%;
-    --energy-pulse: 195 100% 75%;
-    --energy-glow: 180 100% 85%;
+    /* Energy colors */
+    --energy-cyan: 180 100% 70%;
+    --energy-blue: 210 100% 65%;
+    --energy-pulse: 270 100% 75%;
+    --energy-glow: 120 100% 80%;
     
-    /* UI semantic colors */
-    --text-primary: 210 20% 95%;
-    --text-secondary: 210 15% 75%;
-    --text-muted: 210 10% 55%;
-    --text-accent: 188 100% 80%;
+    /* Text colors */
+    --text-primary: 0 0% 95%;
+    --text-secondary: 0 0% 80%;
+    --text-muted: 0 0% 60%;
+    --text-accent: 180 100% 70%;
     
     /* Status colors */
-    --status-success: 142 76% 36%;
-    --status-warning: 38 92% 50%;
-    --status-error: 0 84% 60%;
-    --status-info: 210 100% 60%;
+    --status-success: 120 60% 50%;
+    --status-warning: 45 90% 60%;
+    --status-error: 0 70% 60%;
+    --status-info: 200 80% 60%;
     
     /* Glass morphism */
     --glass-bg: 220 15% 18% / 0.8;
-    --glass-border: 210 25% 35% / 0.3;
-    --glass-shadow: 220 50% 5% / 0.5;
+    --glass-border: 0 0% 100% / 0.1;
+
+    /* LCARS Colors */
+    --lcars-black: 0 0% 7%;
+    --lcars-dark-gray: 220 5% 15%;
+    --lcars-medium-gray: 220 8% 25%;
+    --lcars-light-gray: 220 10% 70%;
+    --lcars-orange: 25 100% 55%;
+    --lcars-peach: 15 85% 70%;
+    --lcars-red: 0 85% 60%;
+    --lcars-rose: 340 75% 65%;
+    --lcars-magenta: 320 85% 65%;
+    --lcars-violet: 280 75% 70%;
+    --lcars-purple: 260 70% 65%;
+    --lcars-indigo: 240 75% 70%;
+    --lcars-blue: 210 85% 65%;
+    --lcars-sky: 195 85% 70%;
+    --lcars-teal: 180 75% 60%;
+    --lcars-mint: 165 70% 65%;
+    --lcars-amber: 45 95% 60%;
+    --lcars-golden: 50 80% 65%;
     
-    /* Standard shadcn mappings */
-    --background: var(--space-void);
-    --foreground: var(--text-primary);
-    --card: var(--space-surface);
-    --card-foreground: var(--text-primary);
-    --popover: var(--space-deep);
-    --popover-foreground: var(--text-primary);
-    --primary: var(--energy-cyan);
-    --primary-foreground: var(--space-void);
-    --secondary: var(--space-mid);
-    --secondary-foreground: var(--text-secondary);
-    --muted: var(--space-mid);
-    --muted-foreground: var(--text-muted);
-    --accent: var(--energy-blue);
-    --accent-foreground: var(--text-primary);
-    --destructive: var(--status-error);
-    --destructive-foreground: var(--text-primary);
-    --border: var(--glass-border);
-    --input: var(--space-surface);
-    --ring: var(--energy-pulse);
-    --radius: 0.75rem;
+    /* Standard colors */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
   }
 
-  /* LCARS Theme Variables */
-  .theme-lcars {
-    /* LCARS Background Colors */
-    --lcars-black: 0 0% 0%;
-    --lcars-dark-gray: 0 0% 13%;
-    --lcars-medium-gray: 0 0% 20%;
-    --lcars-light-gray: 0 0% 47%;
-    
-    /* LCARS Primary Colors (TNG Era) */
-    --lcars-orange: 25 100% 50%;
-    --lcars-peach: 25 80% 65%;
-    --lcars-red: 0 100% 50%;
-    --lcars-rose: 345 80% 65%;
-    --lcars-magenta: 300 100% 50%;
-    --lcars-violet: 270 80% 65%;
-    --lcars-purple: 260 100% 50%;
-    --lcars-indigo: 240 80% 65%;
-    --lcars-blue: 220 100% 50%;
-    --lcars-sky: 200 80% 65%;
-    --lcars-teal: 180 100% 40%;
-    --lcars-mint: 160 60% 65%;
-    
-    /* LCARS Status Colors */
-    --lcars-amber: 45 100% 50%;
-    --lcars-golden: 50 80% 60%;
-    
-    /* Override main theme variables for LCARS */
-    --background: var(--lcars-black);
-    --foreground: var(--lcars-peach);
-    --card: var(--lcars-dark-gray);
-    --card-foreground: var(--lcars-peach);
-    --popover: var(--lcars-medium-gray);
-    --popover-foreground: var(--lcars-orange);
-    --primary: var(--lcars-orange);
-    --primary-foreground: var(--lcars-black);
-    --secondary: var(--lcars-blue);
-    --secondary-foreground: var(--lcars-black);
-    --muted: var(--lcars-medium-gray);
-    --muted-foreground: var(--lcars-light-gray);
-    --accent: var(--lcars-amber);
-    --accent-foreground: var(--lcars-black);
-    --destructive: var(--lcars-red);
-    --destructive-foreground: var(--lcars-peach);
-    --border: var(--lcars-orange);
-    --input: var(--lcars-dark-gray);
-    --ring: var(--lcars-orange);
-    --radius: 2rem; /* LCARS uses more rounded corners */
-    
-    /* LCARS specific semantic colors */
-    --text-primary: var(--lcars-peach);
-    --text-secondary: var(--lcars-light-gray);
-    --text-muted: var(--lcars-light-gray);
-    --text-accent: var(--lcars-amber);
-    
-    --status-success: var(--lcars-teal);
-    --status-warning: var(--lcars-amber);
-    --status-error: var(--lcars-red);
-    --status-info: var(--lcars-blue);
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
   }
 }
 
@@ -126,300 +115,34 @@
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-background text-foreground font-mono;
-    background-image: 
-      radial-gradient(circle at 20% 80%, hsl(var(--energy-cyan) / 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, hsl(var(--energy-blue) / 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 40% 40%, hsl(var(--energy-pulse) / 0.03) 0%, transparent 50%);
-  }
-
-  /* LCARS specific body styling */
-  .theme-lcars body {
-    @apply bg-background text-foreground font-lcars-sans;
-    background-image: none;
-    background-color: hsl(var(--lcars-black));
+    @apply bg-background text-foreground;
   }
 }
 
-@layer components {
-  /* Zandalee specific component variants */
-  .glass-panel {
-    @apply bg-card/80 backdrop-blur-xl border border-border/30 rounded-xl;
-    box-shadow: 
-      0 8px 32px hsl(var(--glass-shadow)),
-      inset 0 1px 0 hsl(var(--glass-border));
-  }
-
-  /* LCARS Panel Styling */
-  .theme-lcars .glass-panel {
-    @apply bg-card border-2 border-primary rounded-3xl backdrop-blur-none;
-    box-shadow: 
-      inset 0 0 20px hsl(var(--lcars-orange) / 0.1),
-      0 0 20px hsl(var(--lcars-orange) / 0.2);
-    background: linear-gradient(145deg, 
-      hsl(var(--lcars-dark-gray)), 
-      hsl(var(--lcars-medium-gray) / 0.8)
-    );
-  }
-  
-  .energy-glow {
-    @apply relative;
-  }
-  
-  .energy-glow::before {
-    content: '';
-    @apply absolute inset-0 rounded-inherit opacity-0 transition-opacity duration-300;
-    background: radial-gradient(circle, hsl(var(--energy-cyan) / 0.2) 0%, transparent 70%);
-    animation: energy-pulse 2s ease-in-out infinite alternate;
-  }
-  
-  .energy-glow:hover::before,
-  .energy-glow.active::before {
-    @apply opacity-100;
-  }
-  
-  .neon-border {
-    @apply border border-primary/50;
-    box-shadow: 
-      0 0 10px hsl(var(--primary) / 0.3),
-      inset 0 0 10px hsl(var(--primary) / 0.1);
-  }
-
-  /* LCARS specific neon border */
-  .theme-lcars .neon-border {
-    @apply border-2 border-primary;
-    box-shadow: 
-      0 0 15px hsl(var(--lcars-orange) / 0.5),
-      inset 0 0 10px hsl(var(--lcars-orange) / 0.2);
-  }
-  
-  .voice-active {
-    animation: voice-pulse 1s ease-in-out infinite;
-  }
-  
-  .status-indicator {
-    @apply w-2 h-2 rounded-full animate-pulse;
-  }
-  
-  .status-online { @apply bg-green-400; }
-  .status-processing { @apply bg-yellow-400; }
-  .status-error { @apply bg-red-400; }
-  .status-idle { @apply bg-gray-400; }
-
-  /* LCARS Status Indicators */
-  .theme-lcars .status-online { background-color: hsl(var(--lcars-teal)); }
-  .theme-lcars .status-processing { background-color: hsl(var(--lcars-amber)); }
-  .theme-lcars .status-error { background-color: hsl(var(--lcars-red)); }
-  .theme-lcars .status-idle { background-color: hsl(var(--lcars-light-gray)); }
-
-  /* LCARS Button Styles */
-  .lcars-button {
-    @apply relative overflow-hidden rounded-full px-6 py-3 text-sm font-bold uppercase tracking-wider;
-    background: linear-gradient(145deg, hsl(var(--primary)), hsl(var(--primary) / 0.8));
-    border: 2px solid hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-    transition: all 0.2s ease;
-  }
-
-  .lcars-button:hover {
-    background: linear-gradient(145deg, hsl(var(--primary) / 0.9), hsl(var(--primary) / 0.7));
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
-  }
-
-  .lcars-button:active {
-    background: hsl(var(--primary) / 0.6);
-    transform: scale(0.98);
-  }
-
-  /* LCARS Panel Header */
-  .lcars-header {
-    @apply flex items-center justify-between p-4 rounded-t-3xl;
-    background: linear-gradient(90deg, 
-      hsl(var(--primary)) 0%, 
-      hsl(var(--primary) / 0.8) 20%, 
-      transparent 20%
-    );
-    border-bottom: 2px solid hsl(var(--primary));
-  }
-
-  /* LCARS Data Display */
-  .lcars-data-display {
-    @apply font-mono text-lg tracking-wider;
-    color: hsl(var(--text-accent));
-    text-shadow: 0 0 10px hsl(var(--text-accent) / 0.5);
-  }
-
-  /* LCARS Separator */
-  .lcars-separator {
-    @apply h-px w-full;
-    background: linear-gradient(90deg, 
-      transparent 0%, 
-      hsl(var(--primary)) 50%, 
-      transparent 100%
-    );
-  }
-
-  /* LCARS Elbow Corners */
-  .rounded-lcars-elbow {
-    border-radius: 0 0 2rem 0;
-  }
-
-  .rounded-tr-lcars-elbow {
-    border-top-right-radius: 2rem;
-  }
-
-  .rounded-tl-lcars-elbow {
-    border-top-left-radius: 2rem;
-  }
-
-  .rounded-br-lcars-elbow {
-    border-bottom-right-radius: 2rem;
-  }
-
-  .rounded-bl-lcars-elbow {
-    border-bottom-left-radius: 2rem;
-  }
-
-  .rounded-lcars {
-    border-radius: 2rem;
-  }
-
-  /* LCARS Pill Notches */
-  .lcars-pill-left-notch {
-    border-top-left-radius: 0.25rem;
-    border-bottom-left-radius: 0.25rem;
-    border-top-right-radius: 2rem;
-    border-bottom-right-radius: 2rem;
-  }
-
-  .lcars-pill-right-notch {
-    border-top-left-radius: 2rem;
-    border-bottom-left-radius: 2rem;
-    border-top-right-radius: 0.25rem;
-    border-bottom-right-radius: 0.25rem;
-  }
-
-  /* LCARS Marquee Animation */
-  .theme-lcars .animate-marquee {
-    animation: marquee 30s linear infinite;
-  }
-
-  /* LCARS Text Contrast Fixes */
-  .theme-lcars .text-white {
-    color: white !important;
-  }
-
-  .theme-lcars .text-black {
-    color: black !important;
-  }
+/* Glass Panel Styles */
+.glass-panel {
+  @apply backdrop-blur-sm border border-glass-border;
+  background: hsl(var(--glass-bg));
 }
 
-@layer utilities {
-  .text-gradient {
-    background: linear-gradient(135deg, hsl(var(--energy-cyan)), hsl(var(--energy-blue)));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* LCARS Text Gradient */
-  .theme-lcars .text-gradient {
-    background: linear-gradient(135deg, hsl(var(--lcars-orange)), hsl(var(--lcars-amber)));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  .glow-text {
-    text-shadow: 0 0 10px hsl(var(--energy-cyan) / 0.5);
-  }
-
-  /* LCARS Glow Text */
-  .theme-lcars .glow-text {
-    text-shadow: 0 0 10px hsl(var(--lcars-orange) / 0.8);
-  }
-
-  /* LCARS specific utilities */
-  .lcars-panel-corner {
-    @apply relative overflow-hidden;
-  }
-
-  .lcars-panel-corner::before {
-    content: '';
-    @apply absolute top-0 left-0 w-8 h-8 rounded-br-full;
-    background: hsl(var(--primary));
-  }
-
-  /* LCARS Text Glow Effects */
-  .theme-lcars .font-lcars-mono {
-    text-shadow: 0 0 8px currentColor;
-  }
-
-  /* LCARS Font Utilities */
-  .font-lcars-sans { font-family: 'Michroma', 'Orbitron', sans-serif; }
-  .font-lcars-mono { font-family: 'Orbitron', monospace; }
+/* Neon Border Effects */
+.neon-border {
+  box-shadow: 
+    0 0 5px hsl(var(--energy-cyan) / 0.3),
+    0 0 10px hsl(var(--energy-cyan) / 0.2),
+    inset 0 0 5px hsl(var(--energy-cyan) / 0.1);
 }
 
-/* Keyframe animations */
-@keyframes energy-pulse {
-  0% { opacity: 0.3; transform: scale(1); }
-  100% { opacity: 0.8; transform: scale(1.05); }
+.neon-glow {
+  text-shadow: 0 0 10px currentColor;
 }
 
-@keyframes voice-pulse {
-  0%, 100% { box-shadow: 0 0 10px hsl(var(--energy-cyan) / 0.3); }
-  50% { box-shadow: 0 0 20px hsl(var(--energy-cyan) / 0.6), 0 0 30px hsl(var(--energy-pulse) / 0.4); }
+/* Utility classes for text contrast */
+.text-contrast-dark {
+  @apply text-black font-bold;
 }
 
-/* LCARS Voice Pulse Animation */
-.theme-lcars .voice-active {
-  animation: lcars-voice-pulse 1s ease-in-out infinite;
-}
-
-@keyframes lcars-voice-pulse {
-  0%, 100% { box-shadow: 0 0 10px hsl(var(--lcars-orange) / 0.3); }
-  50% { box-shadow: 0 0 25px hsl(var(--lcars-orange) / 0.7), 0 0 40px hsl(var(--lcars-amber) / 0.4); }
-}
-
-@keyframes data-flow {
-  0% { transform: translateX(-100%); opacity: 0; }
-  50% { opacity: 1; }
-  100% { transform: translateX(100%); opacity: 0; }
-}
-
-@keyframes marquee {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
-
-/* Scrollbars */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-space-deep;
-}
-
-.theme-lcars ::-webkit-scrollbar-track {
-  background: hsl(var(--lcars-dark-gray));
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-primary/30 rounded-full;
-}
-
-.theme-lcars ::-webkit-scrollbar-thumb {
-  background: hsl(var(--lcars-orange) / 0.5);
-  border-radius: 0;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-primary/50;
-}
-
-.theme-lcars ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--lcars-orange) / 0.8);
+.text-contrast-light {
+  @apply text-white;
 }

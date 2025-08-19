@@ -14,36 +14,36 @@ interface LCARSLayoutProps {
 
 const LCARSLayout: React.FC<LCARSLayoutProps> = ({ children, className, onSettingsClick }) => {
   return (
-    <div className={cn("min-h-screen bg-lcars-black font-lcars-sans text-white flex flex-col", className)}>
-      {/* Top Ticker */}
-      <div className="flex-shrink-0 z-20">
+    <div className={cn("h-screen bg-lcars-black font-lcars-sans text-white flex flex-col overflow-hidden", className)}>
+      {/* Top Ticker - Fixed Height */}
+      <div className="flex-shrink-0 z-20 h-14">
         <LCARSTicker />
       </div>
       
-      {/* Main Content Grid */}
-      <div className="flex-1 flex min-h-0">
+      {/* Main Content Grid - Calculated Height */}
+      <div className="flex-1 flex min-h-0" style={{ height: 'calc(100vh - 7.5rem)' }}>
         {/* Left Sidebar */}
-        <div className="flex-shrink-0 z-10">
+        <div className="flex-shrink-0 z-10 w-72 md:w-80">
           <LCARSSidebar onSettingsClick={onSettingsClick} />
         </div>
         
         {/* Central Viewport */}
-        <main className="flex-1 p-6 min-w-0 relative">
-          <div className="h-full bg-lcars-dark-gray/30 rounded-lg border border-lcars-orange/40 p-6 overflow-hidden">
-            <div className="h-full overflow-auto">
+        <main className="flex-1 p-4 md:p-6 min-w-0 relative overflow-hidden">
+          <div className="h-full bg-lcars-dark-gray/30 rounded-lg border border-lcars-orange/40 p-4 md:p-6 overflow-hidden">
+            <div className="h-full overflow-hidden">
               {children}
             </div>
           </div>
         </main>
         
-        {/* Right Rail */}
-        <div className="flex-shrink-0 z-10">
+        {/* Right Rail - Hidden on smaller screens */}
+        <div className="flex-shrink-0 z-10 w-48 hidden xl:flex">
           <LCARSRightRail />
         </div>
       </div>
       
-      {/* Bottom Status Bar */}
-      <div className="flex-shrink-0 z-20">
+      {/* Bottom Status Bar - Fixed Height */}
+      <div className="flex-shrink-0 z-20 h-16">
         <LCARSFooterBar />
       </div>
     </div>

@@ -28,7 +28,7 @@ const LCARSPanel: React.FC<LCARSPanelProps> = ({
   return (
     <div 
       className={cn(
-        "bg-lcars-dark-gray/30 border-2 rounded-lg backdrop-blur-none relative",
+        "bg-lcars-dark-gray/30 border-2 rounded-lg backdrop-blur-none relative overflow-hidden",
         colorClasses[color],
         className
       )}
@@ -46,7 +46,7 @@ const LCARSPanel: React.FC<LCARSPanelProps> = ({
       {title && (
         <div 
           className={cn(
-            "px-4 py-2 border-b-2 font-bold uppercase tracking-wider text-sm text-black rounded-t-lg",
+            "px-4 py-2 border-b-2 font-bold uppercase tracking-wider text-sm text-contrast-dark rounded-t-lg overflow-hidden",
             colorClasses[color]
           )}
           style={{
@@ -60,7 +60,7 @@ const LCARSPanel: React.FC<LCARSPanelProps> = ({
           {title}
         </div>
       )}
-      <div className="p-4">
+      <div className="p-4 h-full overflow-hidden">
         {children}
       </div>
     </div>

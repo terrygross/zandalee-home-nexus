@@ -40,9 +40,9 @@ const Index = () => {
     return (
       <>
         <LCARSLayout onSettingsClick={handleSettingsClick}>
-          <div className="h-full flex flex-col space-y-4">
-            {/* Main Chat Interface */}
-            <div className="flex-1 min-h-0">
+          <div className="h-full flex flex-col space-y-4 overflow-hidden">
+            {/* Main Chat Interface - Always visible and takes priority */}
+            <div className="flex-1 min-h-0 overflow-hidden">
               <LCARSPanel title="COMMUNICATION INTERFACE" color="orange" className="h-full">
                 <div className="h-full flex flex-col overflow-hidden">
                   <div className="flex-1 min-h-0 overflow-hidden">
@@ -52,8 +52,8 @@ const Index = () => {
               </LCARSPanel>
             </div>
             
-            {/* Secondary Panels Row */}
-            <div className="h-48 grid grid-cols-3 gap-4 flex-shrink-0">
+            {/* Secondary Panels Row - Hidden on smaller screens, responsive height */}
+            <div className="h-40 md:h-48 lg:h-56 grid-cols-3 gap-4 flex-shrink-0 hidden lg:grid">
               <LCARSPanel title="AVATAR STATUS" color="blue" className="h-full">
                 <div className="h-full overflow-hidden">
                   <AvatarPanel />
