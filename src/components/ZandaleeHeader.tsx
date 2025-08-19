@@ -1,12 +1,58 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Brain, Cpu, Activity, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SettingsDrawer } from "./SettingsDrawer";
+import LCARSHeader from "./lcars/LCARSHeader";
 
 const ZandaleeHeader = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [uiStyle, setUIStyle] = useState<string>("zandalee");
 
+  // Load UI style from API or local storage
+  useEffect(() => {
+    const loadUIStyle = async () => {
+      try {
+        const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:8759';
+        const response = await fetch(`${API_BASE}/config/ui`);
+        if (response.ok) {
+          const data = await response.json();
+          const style = data.config?.ui_style || "zandalee";
+          setUIStyle(style);
+          
+          // Apply theme class to document
+          const root = document.documentElement;
+          root.classList.remove('theme-zandalee', 'theme-lcars');
+          if (style === 'lcars') {
+            root.classList.add('theme-lcars');
+          } else {
+            root.classList.add('theme-zandalee');
+          }
+        }
+      } catch (error) {
+        console.log('Could not load UI style, using default');
+        // Apply default theme
+        document.documentElement.classList.add('theme-zandalee');
+      }
+    };
+
+    loadUIStyle();
+  }, []);
+
+  // If LCARS theme is active, render LCARS variant
+  if (uiStyle === 'lcars') {
+    return (
+      <>
+        <LCARSHeader onSettingsClick={() => setIsSettingsOpen(true)} />
+        <SettingsDrawer 
+          isOpen={isSettingsOpen} 
+          onClose={() => setIsSettingsOpen(false)} 
+        />
+      </>
+    );
+  }
+
+  // Default Zandalee header
   return (
     <div className="glass-panel p-6">
       <div className="flex items-center justify-between">

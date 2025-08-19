@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -44,6 +43,7 @@ interface LLMConfig {
 
 interface UIConfig {
   theme: string;
+  ui_style: string;
   font_size: number;
   zoom_level: number;
   panels: {
@@ -91,6 +91,27 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ isOpen, onClose 
     }
   }, [isOpen]);
 
+  // Apply theme when UI config changes
+  useEffect(() => {
+    if (uiConfig?.ui_style) {
+      applyTheme(uiConfig.ui_style);
+    }
+  }, [uiConfig?.ui_style]);
+
+  const applyTheme = (theme: string) => {
+    const root = document.documentElement;
+    
+    // Remove existing theme classes
+    root.classList.remove('theme-zandalee', 'theme-lcars');
+    
+    // Add new theme class
+    if (theme === 'lcars') {
+      root.classList.add('theme-lcars');
+    } else {
+      root.classList.add('theme-zandalee');
+    }
+  };
+
   const loadAllConfigs = async () => {
     setLoading(true);
     try {
@@ -113,7 +134,12 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ isOpen, onClose 
 
       if (uiRes.ok) {
         const uiData = await uiRes.json();
-        setUIConfig(uiData.config);
+        const config = uiData.config;
+        // Ensure ui_style exists, default to 'zandalee'
+        if (!config.ui_style) {
+          config.ui_style = 'zandalee';
+        }
+        setUIConfig(config);
       }
 
       if (avatarRes.ok) {
@@ -407,7 +433,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ isOpen, onClose 
               </Card>
             </TabsContent>
 
-            {/* UI Settings */}
+            {/* UI Settings - Enhanced with LCARS theme support */}
             <TabsContent value="ui" className="space-y-4">
               <Card>
                 <CardHeader>
@@ -415,19 +441,50 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ isOpen, onClose 
                   <CardDescription>Customize the appearance and behavior of the UI</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="theme">Theme</Label>
-                    <Select value={uiConfig.theme} onValueChange={(value) => setUIConfig({...uiConfig, theme: value})}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="light">Light</SelectItem>
-                        <SelectItem value="dark">Dark</SelectItem>
-                        <SelectItem value="system">System</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="theme">Color Theme</Label>
+                      <Select value={uiConfig.theme} onValueChange={(value) => setUIConfig({...uiConfig, theme: value})}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="light">Light</SelectItem>
+                          <SelectItem value="dark">Dark</SelectItem>
+                          <SelectItem value="system">System</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="ui_style">UI Style</Label>
+                      <Select 
+                        value={uiConfig.ui_style} 
+                        onValueChange={(value) => setUIConfig({...uiConfig, ui_style: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="zandalee">Zandalee (Default)</SelectItem>
+                          <SelectItem value="lcars">LCARS (Star Trek)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
+
+                  {uiConfig.ui_style === 'lcars' && (
+                    <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Palette className="h-4 w-4 text-accent" />
+                        <Label className="text-accent font-semibold">LCARS Theme Active</Label>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        The Library Computer Access/Retrieval System interface from Star Trek: The Next Generation era. 
+                        Features rounded panels, bold colors, and asymmetric layouts.
+                      </p>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
