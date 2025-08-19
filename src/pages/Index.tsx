@@ -59,9 +59,9 @@ const Index = () => {
           isConfigured={isConfigured()}
         >
           <div className="h-full flex space-x-4 overflow-hidden">
-            {/* Main Chat Interface - Now takes full width minus left sidebar */}
+            {/* Main Chat Interface - Made taller by using more of available height */}
             <div className="flex-1 min-h-0 overflow-hidden">
-              <LCARSPanel title="COMMUNICATION INTERFACE" color="orange" className="h-full">
+              <LCARSPanel title="COMMUNICATION INTERFACE" color="orange" className="h-[calc(100vh-12rem)]">
                 <div className="h-full flex flex-col overflow-hidden">
                   <div className="flex-1 min-h-0 overflow-hidden">
                     <ChatInterface 
@@ -73,9 +73,9 @@ const Index = () => {
               </LCARSPanel>
             </div>
             
-            {/* Memory Core Panel - Right side */}
+            {/* Memory Core Panel - Made taller to match chat height */}
             <div className="w-80 flex-shrink-0 hidden lg:block overflow-hidden">
-              <LCARSPanel color="teal" className="h-full">
+              <LCARSPanel color="teal" className="h-[calc(100vh-12rem)]">
                 <div className="h-full overflow-hidden">
                   <MemoryManager />
                 </div>
