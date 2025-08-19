@@ -36,7 +36,7 @@ const LCARSTicker: React.FC<LCARSTickerProps> = ({
   return (
     <div className={cn("h-14 bg-lcars-orange flex items-center px-8 border-b-2 border-lcars-orange/80", className)}>
       {/* Left - LCARS Status */}
-      <div className="flex items-center space-x-6 flex-shrink-0">
+      <div className="flex items-center space-x-4 flex-shrink-0">
         <div className="w-8 h-8 bg-lcars-black rounded-full flex items-center justify-center border-2 border-lcars-black">
           <div className="w-4 h-4 bg-lcars-orange rounded-full" />
         </div>
