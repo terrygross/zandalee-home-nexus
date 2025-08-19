@@ -212,31 +212,10 @@ const AvatarPanel = () => {
   };
 
   return (
-    <div 
-      className="h-full bg-lcars-black rounded-lg border-2 border-lcars-teal flex flex-col overflow-hidden"
-      style={{
-        background: `linear-gradient(145deg, 
-          hsl(var(--lcars-dark-gray) / 0.4), 
-          hsl(var(--lcars-medium-gray) / 0.2)
-        )`,
-        boxShadow: `
-          inset 0 0 20px hsl(var(--lcars-teal) / 0.1),
-          0 0 10px hsl(var(--lcars-teal) / 0.1)
-        `
-      }}
-    >
-      {/* LCARS Header */}
-      <div 
-        className="px-4 py-2 border-b-2 border-lcars-teal font-bold uppercase tracking-wider text-sm text-white rounded-t-lg overflow-hidden flex items-center justify-between flex-shrink-0"
-        style={{
-          background: `linear-gradient(90deg, 
-            hsl(var(--lcars-teal)) 0%, 
-            hsl(var(--lcars-teal) / 0.8) 30%, 
-            transparent 30%
-          )`
-        }}
-      >
-        <span className="text-black">AVATAR STATUS</span>
+    <div className="h-full bg-lcars-black rounded-lg border-2 border-lcars-teal flex flex-col overflow-hidden">
+      {/* LCARS Header - Pure black background */}
+      <div className="px-4 py-2 border-b-2 border-lcars-teal font-bold uppercase tracking-wider text-sm text-black bg-lcars-teal rounded-t-lg overflow-hidden flex items-center justify-between flex-shrink-0">
+        <span>AVATAR STATUS</span>
         <div className="flex text-[10px] border border-lcars-teal/30 rounded overflow-hidden bg-lcars-black">
           <button
             onClick={() => toggleViewMode('fill')}
@@ -261,7 +240,7 @@ const AvatarPanel = () => {
         </div>
       </div>
       
-      {/* Main Content - Pure black background */}
+      {/* Main Content - Pure black background, no nested containers */}
       <div className="flex-1 flex flex-col p-4 min-h-0 bg-lcars-black">
         {/* Active Avatar Display */}
         <div className="h-32 rounded border border-lcars-teal/30 bg-lcars-black mb-4 flex-shrink-0 overflow-hidden">
@@ -285,11 +264,11 @@ const AvatarPanel = () => {
 
         {/* Upload Section - LCARS Style */}
         <div className="space-y-3 mb-4 flex-shrink-0">
-          <Input
+          <input
             placeholder="AVATAR NAME..."
             value={avatarName}
             onChange={(e) => setAvatarName(e.target.value)}
-            className="h-8 text-xs bg-lcars-black border-lcars-teal/50 text-white placeholder:text-lcars-light-gray/60 font-lcars-mono uppercase rounded"
+            className="w-full h-8 px-3 text-xs bg-lcars-black border border-lcars-teal/50 text-white placeholder:text-lcars-light-gray/60 font-lcars-mono uppercase rounded focus:border-lcars-teal focus:outline-none"
             disabled={isUploading}
           />
           
@@ -304,7 +283,7 @@ const AvatarPanel = () => {
           </LCARSButton>
         </div>
 
-        {/* Avatar List */}
+        {/* Avatar List - Pure black background */}
         <div className="flex-1 min-h-0 bg-lcars-black">
           <div className="h-full space-y-2 overflow-y-auto">
             {avatars.slice(0, 4).map((avatar) => (

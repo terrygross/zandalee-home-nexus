@@ -58,10 +58,13 @@ const Index = () => {
           isConfigured={isConfigured()}
         >
           <div className="h-full flex space-x-4 overflow-hidden bg-lcars-black">
-            {/* Main Chat Interface */}
+            {/* Main Chat Interface - Pure black background */}
             <div className="flex-1 min-h-0 overflow-hidden">
-              <LCARSPanel title="COMMUNICATION INTERFACE" color="orange" className="h-full bg-lcars-black">
-                <div className="h-full flex flex-col overflow-hidden bg-lcars-black">
+              <div className="h-full bg-lcars-black rounded-lg border-2 border-lcars-orange overflow-hidden">
+                <div className="px-4 py-2 border-b-2 border-lcars-orange font-bold uppercase tracking-wider text-sm text-black bg-lcars-orange rounded-t-lg overflow-hidden">
+                  COMMUNICATION INTERFACE
+                </div>
+                <div className="h-full flex flex-col overflow-hidden bg-lcars-black p-4" style={{ height: 'calc(100% - 3rem)' }}>
                   <div className="flex-1 min-h-0 overflow-hidden bg-lcars-black">
                     <ChatInterface 
                       directLLMMode={directLLMMode}
@@ -69,16 +72,12 @@ const Index = () => {
                     />
                   </div>
                 </div>
-              </LCARSPanel>
+              </div>
             </div>
             
-            {/* Memory Core Panel */}
+            {/* Memory Core Panel - Pure black background */}
             <div className="w-80 flex-shrink-0 hidden lg:block overflow-hidden">
-              <LCARSPanel color="teal" className="h-full bg-lcars-black">
-                <div className="h-full overflow-hidden bg-lcars-black">
-                  <MemoryManager />
-                </div>
-              </LCARSPanel>
+              <MemoryManager />
             </div>
           </div>
         </LCARSLayout>
