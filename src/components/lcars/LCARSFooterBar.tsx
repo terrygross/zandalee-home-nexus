@@ -6,13 +6,13 @@ import LCARSPillButton from "./LCARSPillButton";
 const LCARSFooterBar: React.FC = () => {
   return (
     <div className="h-16 bg-lcars-black border-t-2 border-lcars-orange/40 flex items-center px-6 space-x-4 overflow-hidden">
-      <LCARSPillButton color="orange" tag="01" className="text-contrast-dark hover:text-contrast-dark font-bold flex-shrink-0">
+      <LCARSPillButton color="orange" tag="01" className="text-contrast-dark hover:text-contrast-dark font-bold flex-shrink-0 h-8 text-xs px-4">
         LCARS
       </LCARSPillButton>
-      <LCARSPillButton color="blue" tag="02" className="text-contrast-dark hover:text-contrast-dark font-bold flex-shrink-0">
+      <LCARSPillButton color="blue" tag="02" className="text-contrast-dark hover:text-contrast-dark font-bold flex-shrink-0 h-8 text-xs px-4">
         MODE SELECT
       </LCARSPillButton>
-      <LCARSPillButton color="amber" tag="03" className="text-contrast-dark hover:text-contrast-dark font-bold flex-shrink-0">
+      <LCARSPillButton color="amber" tag="03" className="text-contrast-dark hover:text-contrast-dark font-bold flex-shrink-0 h-8 text-xs px-4">
         RESET
       </LCARSPillButton>
       
