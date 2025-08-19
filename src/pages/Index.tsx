@@ -58,10 +58,10 @@ const Index = () => {
           activeProvider={activeProvider}
           isConfigured={isConfigured()}
         >
-          <div className="h-full flex space-x-4 overflow-hidden pt-4">
+          <div className="h-full flex space-x-4 overflow-hidden">
             {/* Main Chat Interface - Aligned with sidebar content */}
             <div className="flex-1 min-h-0 overflow-hidden">
-              <LCARSPanel title="COMMUNICATION INTERFACE" color="orange" className="h-[calc(100vh-16rem)]">
+              <LCARSPanel title="COMMUNICATION INTERFACE" color="orange" className="h-full">
                 <div className="h-full flex flex-col overflow-hidden">
                   <div className="flex-1 min-h-0 overflow-hidden">
                     <ChatInterface 
@@ -75,7 +75,7 @@ const Index = () => {
             
             {/* Memory Core Panel - Aligned with sidebar content */}
             <div className="w-80 flex-shrink-0 hidden lg:block overflow-hidden">
-              <LCARSPanel color="teal" className="h-[calc(100vh-16rem)]">
+              <LCARSPanel color="teal" className="h-full">
                 <div className="h-full overflow-hidden">
                   <MemoryManager />
                 </div>
