@@ -38,7 +38,7 @@ const LCARSTicker: React.FC<LCARSTickerProps> = ({
         <div className="w-8 h-8 bg-lcars-black rounded-full flex items-center justify-center border-2 border-lcars-black">
           <div className="w-4 h-4 bg-lcars-orange rounded-full" />
         </div>
-        <span className="font-lcars-sans font-bold text-contrast-dark text-sm uppercase tracking-wider">
+        <span className="font-lcars-sans font-bold text-contrast-dark text-xs uppercase tracking-wider">
           LCARS READY - COMMUNICATION INTERFACE ACTIVE
         </span>
       </div>
