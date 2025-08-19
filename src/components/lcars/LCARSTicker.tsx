@@ -40,14 +40,14 @@ const LCARSTicker: React.FC<LCARSTickerProps> = ({
         <div className="w-8 h-8 bg-lcars-black rounded-full flex items-center justify-center border-2 border-lcars-black">
           <div className="w-4 h-4 bg-lcars-orange rounded-full" />
         </div>
-        <span className="font-lcars-sans font-bold text-contrast-dark text-[9px] uppercase tracking-wider">
+        <span className="font-lcars-sans font-bold text-contrast-dark text-[10px] uppercase tracking-wider">
           LCARS READY - COMMUNICATION INTERFACE ACTIVE
         </span>
       </div>
       
       {/* Center - Communication Interface Controls */}
-      <div className="flex-1 flex items-center justify-center">
-        <div className="flex items-center space-x-10">
+      <div className="flex-1 flex items-center justify-center pl-12">
+        <div className="flex items-center space-x-8">
           <div className="flex items-center space-x-3">
             <Switch
               id="direct-llm"
@@ -92,7 +92,7 @@ const LCARSTicker: React.FC<LCARSTickerProps> = ({
       </div>
       
       {/* Right - Time, Date and Settings */}
-      <div className="flex items-center space-x-8 text-contrast-dark font-lcars-mono text-sm font-bold flex-shrink-0">
+      <div className="flex items-center space-x-6 text-contrast-dark font-lcars-mono text-sm font-bold flex-shrink-0">
         <span>STARDATE {stardate}</span>
         <span>{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
         <button 
