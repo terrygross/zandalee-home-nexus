@@ -212,27 +212,15 @@ const AvatarPanel = () => {
   };
 
   return (
-    <div 
-      className="h-full bg-lcars-black rounded-lg border-2 border-lcars-teal flex flex-col overflow-hidden"
-      style={{
-        background: `linear-gradient(145deg, 
-          hsl(var(--lcars-dark-gray) / 0.4), 
-          hsl(var(--lcars-medium-gray) / 0.2)
-        )`,
-        boxShadow: `
-          inset 0 0 20px hsl(var(--lcars-teal) / 0.1),
-          0 0 10px hsl(var(--lcars-teal) / 0.1)
-        `
-      }}
-    >
+    <div className="h-full bg-lcars-black">
       {/* LCARS Header */}
       <div 
-        className="px-4 py-2 border-b-2 border-lcars-teal font-bold uppercase tracking-wider text-sm text-white rounded-t-lg overflow-hidden flex items-center justify-between flex-shrink-0"
+        className="px-4 py-2 border-b-2 border-lcars-teal font-bold uppercase tracking-wider text-sm text-white rounded-t-lg overflow-hidden flex items-center justify-between flex-shrink-0 bg-lcars-black"
         style={{
           background: `linear-gradient(90deg, 
             hsl(var(--lcars-teal)) 0%, 
             hsl(var(--lcars-teal) / 0.8) 30%, 
-            transparent 30%
+            hsl(var(--lcars-black)) 30%
           )`
         }}
       >
@@ -261,8 +249,8 @@ const AvatarPanel = () => {
         </div>
       </div>
       
-      {/* Main Content - Pure black background */}
-      <div className="flex-1 flex flex-col p-4 min-h-0 bg-lcars-black">
+      {/* Main Content - Pure black background, no nested containers */}
+      <div className="flex-1 flex flex-col p-4 min-h-0 bg-lcars-black" style={{ height: 'calc(100% - 3rem)' }}>
         {/* Active Avatar Display */}
         <div className="h-32 rounded border border-lcars-teal/30 bg-lcars-black mb-4 flex-shrink-0 overflow-hidden">
           {activeAvatar ? (
@@ -274,10 +262,10 @@ const AvatarPanel = () => {
               }`}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
+            <div className="w-full h-full flex items-center justify-center bg-lcars-black">
               <div className="text-center text-lcars-teal">
                 <User className="w-12 h-12 mx-auto mb-1" />
-                <div className="text-xs text-lcars-light-gray">NO ACTIVE AVATAR</div>
+                <div className="text-xs text-lcars-light-gray font-lcars-mono uppercase">NO ACTIVE AVATAR</div>
               </div>
             </div>
           )}
@@ -289,7 +277,7 @@ const AvatarPanel = () => {
             placeholder="AVATAR NAME..."
             value={avatarName}
             onChange={(e) => setAvatarName(e.target.value)}
-            className="h-8 text-xs bg-lcars-black border-lcars-teal/50 text-white placeholder:text-lcars-light-gray/60 font-lcars-mono uppercase rounded"
+            className="h-8 text-xs bg-lcars-black border-lcars-teal/50 text-lcars-light-gray placeholder:text-lcars-light-gray/60 font-lcars-mono uppercase rounded focus:border-lcars-teal focus:ring-1 focus:ring-lcars-teal"
             disabled={isUploading}
           />
           
@@ -297,16 +285,16 @@ const AvatarPanel = () => {
             onClick={triggerFileInput}
             disabled={isUploading || !avatarName.trim()}
             color="blue"
-            className="w-full h-10 text-xs"
+            className="w-full h-10 text-xs font-lcars-sans"
           >
             <Upload className="w-4 h-4 mr-2" />
             {isUploading ? 'UPLOADING...' : 'UPLOAD AVATAR'}
           </LCARSButton>
         </div>
 
-        {/* Avatar List */}
+        {/* Avatar List - Pure black background */}
         <div className="flex-1 min-h-0 bg-lcars-black">
-          <div className="h-full space-y-2 overflow-y-auto">
+          <div className="h-full space-y-2 overflow-y-auto bg-lcars-black">
             {avatars.slice(0, 4).map((avatar) => (
               <div
                 key={avatar.id}
@@ -322,7 +310,7 @@ const AvatarPanel = () => {
                   className="w-8 h-8 rounded object-cover flex-shrink-0 border border-lcars-teal/30"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs text-white truncate font-lcars-mono uppercase">{avatar.name}</div>
+                  <div className="text-xs text-lcars-light-gray truncate font-lcars-mono uppercase">{avatar.name}</div>
                 </div>
                 <div className="flex items-center gap-1">
                   {avatar.is_active ? (
@@ -331,7 +319,7 @@ const AvatarPanel = () => {
                     <LCARSPillButton
                       onClick={() => selectAvatar(avatar.id)}
                       color="teal"
-                      className="h-6 px-2 text-[9px]"
+                      className="h-6 px-2 text-[9px] font-lcars-sans"
                     >
                       SEL
                     </LCARSPillButton>
@@ -347,7 +335,7 @@ const AvatarPanel = () => {
               </div>
             ))}
             {avatars.length > 4 && (
-              <div className="text-center text-xs text-lcars-light-gray/60 font-lcars-mono pt-2">
+              <div className="text-center text-xs text-lcars-light-gray/60 font-lcars-mono pt-2 uppercase">
                 +{avatars.length - 4} MORE AVATARS
               </div>
             )}
