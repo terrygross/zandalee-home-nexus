@@ -46,7 +46,17 @@ const Index = () => {
   if (uiStyle === "lcars") {
     return (
       <>
-        <LCARSLayout onSettingsClick={handleSettingsClick}>
+        <LCARSLayout 
+          onSettingsClick={handleSettingsClick}
+          directLLMMode={directLLMMode}
+          onDirectLLMChange={setDirectLLMMode}
+          speakBackEnabled={speakBackEnabled}
+          onSpeakBackChange={setSpeakBackEnabled}
+          isConnected={isConnected}
+          isSpeaking={isSpeaking}
+          activeProvider={activeProvider}
+          isConfigured={isConfigured()}
+        >
           <div className="h-full flex space-x-4 overflow-hidden">
             {/* Main Chat Interface - Centered and Primary */}
             <div className="flex-1 min-h-0 overflow-hidden">

@@ -10,14 +10,43 @@ interface LCARSLayoutProps {
   children: React.ReactNode;
   className?: string;
   onSettingsClick?: () => void;
+  directLLMMode?: boolean;
+  onDirectLLMChange?: (enabled: boolean) => void;
+  speakBackEnabled?: boolean;
+  onSpeakBackChange?: (enabled: boolean) => void;
+  isConnected?: boolean;
+  isSpeaking?: boolean;
+  activeProvider?: string;
+  isConfigured?: boolean;
 }
 
-const LCARSLayout: React.FC<LCARSLayoutProps> = ({ children, className, onSettingsClick }) => {
+const LCARSLayout: React.FC<LCARSLayoutProps> = ({ 
+  children, 
+  className, 
+  onSettingsClick,
+  directLLMMode,
+  onDirectLLMChange,
+  speakBackEnabled,
+  onSpeakBackChange,
+  isConnected,
+  isSpeaking,
+  activeProvider,
+  isConfigured
+}) => {
   return (
     <div className={cn("h-screen bg-lcars-black font-lcars-sans text-white flex flex-col overflow-hidden", className)}>
       {/* Top Ticker - Fixed Height */}
       <div className="flex-shrink-0 z-20 h-14">
-        <LCARSTicker />
+        <LCARSTicker 
+          directLLMMode={directLLMMode}
+          onDirectLLMChange={onDirectLLMChange}
+          speakBackEnabled={speakBackEnabled}
+          onSpeakBackChange={onSpeakBackChange}
+          isConnected={isConnected}
+          isSpeaking={isSpeaking}
+          activeProvider={activeProvider}
+          isConfigured={isConfigured}
+        />
       </div>
       
       {/* Main Content Grid - Calculated Height */}
