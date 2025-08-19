@@ -1,7 +1,6 @@
-
 import { Brain, Cpu, Activity, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import SettingsDrawer from "./SettingsDrawer";
+import { SettingsDrawer } from "./SettingsDrawer";
 
 const ZandaleeHeader = () => {
   return (
