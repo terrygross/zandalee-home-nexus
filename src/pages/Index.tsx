@@ -18,70 +18,70 @@ const Index = () => {
     setIsMounted(true);
   }, []);
 
-  const handleVoiceTranscript = (transcript: string) => {
-    console.log('Voice transcript:', transcript);
-  };
-
   return (
-    <div className="h-screen bg-space-deep text-text-primary flex flex-col">
-      {/* Header - Compact fixed height */}
-      <div className="flex-shrink-0 h-16">
+    <div className="h-screen w-screen bg-space-deep text-text-primary flex flex-col overflow-hidden">
+      {/* Header - Fixed 60px */}
+      <header className="h-15 flex-shrink-0">
         <ZandaleeHeader />
-      </div>
+      </header>
       
-      {/* Main Content - Flexible height */}
-      <div className="flex-1 flex min-h-0">
-        {/* Left Sidebar - Fixed width */}
-        <div className="w-64 bg-space-surface/20 border-r border-energy-cyan/30 flex flex-col">
-          {/* Avatar Panel - 60% */}
-          <div className="h-3/5 border-b border-energy-cyan/20">
-            <AvatarPanel />
+      {/* Main Content - Takes remaining height */}
+      <main className="flex-1 flex overflow-hidden">
+        {/* Left Sidebar - Fixed 240px width */}
+        <aside className="w-60 flex-shrink-0 bg-space-surface/20 border-r border-energy-cyan/30 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col h-full">
+            {/* Avatar Panel - 60% of sidebar height */}
+            <div className="flex-[3] border-b border-energy-cyan/20 overflow-hidden">
+              <AvatarPanel />
+            </div>
+            
+            {/* Memory Manager - 40% of sidebar height */}
+            <div className="flex-[2] overflow-hidden">
+              <MemoryManager />
+            </div>
           </div>
-          
-          {/* Memory Manager - 40% */}
-          <div className="h-2/5">
-            <MemoryManager />
-          </div>
-        </div>
+        </aside>
 
-        {/* Center Content - Chat takes remaining space */}
-        <div className="flex-1 min-w-0">
+        {/* Center Content - Chat takes remaining width */}
+        <section className="flex-1 overflow-hidden">
           <ChatInterface />
-        </div>
+        </section>
 
-        {/* Right Sidebar - Compact fixed width */}
-        <div className="w-56 bg-space-surface/20 border-l border-energy-cyan/30 flex flex-col">
-          {/* Audio Controls */}
-          <div className="flex-shrink-0 h-16 p-2">
-            <AudioControls />
+        {/* Right Sidebar - Fixed 200px width */}
+        <aside className="w-50 flex-shrink-0 bg-space-surface/20 border-l border-energy-cyan/30 flex flex-col overflow-hidden">
+          <div className="flex flex-col h-full">
+            {/* Audio Controls - Fixed height */}
+            <div className="h-12 flex-shrink-0 p-1">
+              <AudioControls />
+            </div>
+            
+            {/* Camera Settings - Fixed height */}
+            <div className="h-16 flex-shrink-0 p-1">
+              <CameraSettings />
+            </div>
+            
+            {/* Mic Settings - Fixed height */}
+            <div className="h-16 flex-shrink-0 p-1">
+              <MicSettings />
+            </div>
+            
+            {/* Screen Share Panel - Fixed height */}
+            <div className="h-20 flex-shrink-0 p-1">
+              <ScreenSharePanel />
+            </div>
+            
+            {/* Voice Metrics - Takes remaining space */}
+            <div className="flex-1 p-1 overflow-hidden">
+              <VoiceMetrics />
+            </div>
           </div>
-          
-          {/* Camera Settings */}
-          <div className="flex-shrink-0 h-20 p-2">
-            <CameraSettings />
-          </div>
-          
-          {/* Mic Settings */}
-          <div className="flex-shrink-0 h-20 p-2">
-            <MicSettings />
-          </div>
-          
-          {/* Screen Share Panel */}
-          <div className="flex-shrink-0 h-24 p-2">
-            <ScreenSharePanel />
-          </div>
-          
-          {/* Voice Metrics - Takes remaining space */}
-          <div className="flex-1 min-h-0 p-2">
-            <VoiceMetrics />
-          </div>
-        </div>
-      </div>
+        </aside>
+      </main>
 
-      {/* Bottom Status Bar - Compact fixed height */}
-      <div className="flex-shrink-0 h-8">
+      {/* Bottom Status Bar - Fixed 28px */}
+      <footer className="h-7 flex-shrink-0">
         <StatusBar />
-      </div>
+      </footer>
     </div>
   );
 };
