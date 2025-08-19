@@ -40,8 +40,8 @@ const Index = () => {
     return (
       <>
         <LCARSLayout onSettingsClick={handleSettingsClick}>
-          <div className="h-full flex flex-col space-y-4 overflow-hidden">
-            {/* Main Chat Interface - Always visible and takes priority */}
+          <div className="h-full flex space-x-4 overflow-hidden">
+            {/* Main Chat Interface - Centered and Primary */}
             <div className="flex-1 min-h-0 overflow-hidden">
               <LCARSPanel title="COMMUNICATION INTERFACE" color="orange" className="h-full">
                 <div className="h-full flex flex-col overflow-hidden">
@@ -52,21 +52,21 @@ const Index = () => {
               </LCARSPanel>
             </div>
             
-            {/* Secondary Panels Row - Hidden on smaller screens, responsive height */}
-            <div className="h-40 md:h-48 lg:h-56 grid-cols-3 gap-4 flex-shrink-0 hidden lg:grid">
-              <LCARSPanel title="AVATAR STATUS" color="blue" className="h-full">
+            {/* Right Side Panels - Hidden on smaller screens */}
+            <div className="w-80 flex-shrink-0 hidden lg:flex flex-col space-y-4 overflow-hidden">
+              <LCARSPanel title="AVATAR STATUS" color="blue" className="h-1/3">
                 <div className="h-full overflow-hidden">
                   <AvatarPanel />
                 </div>
               </LCARSPanel>
               
-              <LCARSPanel title="MEMORY CORE" color="teal" className="h-full">
+              <LCARSPanel title="MEMORY CORE" color="teal" className="h-1/3">
                 <div className="h-full overflow-hidden">
                   <MemoryManager />
                 </div>
               </LCARSPanel>
               
-              <LCARSPanel title="SYSTEM STATUS" color="amber" className="h-full">
+              <LCARSPanel title="SYSTEM STATUS" color="amber" className="h-1/3">
                 <div className="h-full overflow-auto space-y-2">
                   <div className="space-y-2">
                     <AudioControls />
