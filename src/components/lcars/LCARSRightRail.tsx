@@ -28,9 +28,9 @@ const LCARSRightRail: React.FC<LCARSRightRailProps> = ({ className }) => {
             </span>
             <div className="flex-1">
               <LCARSVBar 
+                value={Math.random() * 100}
                 height={20 + (index * 8)} 
                 color={index % 2 === 0 ? "teal" : "amber"}
-                animated 
               />
             </div>
           </div>
