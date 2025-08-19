@@ -23,7 +23,7 @@ const LCARSReadout: React.FC<LCARSReadoutProps> = ({
   };
 
   return (
-    <div className={cn("space-y-1", className)}>
+    <div className={cn("space-y-1 p-2 bg-lcars-dark-gray/20 rounded border border-lcars-blue/20", className)}>
       <div className="text-xs font-lcars-sans uppercase tracking-wider text-lcars-light-gray">
         {label}
       </div>

@@ -14,22 +14,22 @@ interface LCARSLayoutProps {
 
 const LCARSLayout: React.FC<LCARSLayoutProps> = ({ children, className, onSettingsClick }) => {
   return (
-    <div className={cn("min-h-screen bg-lcars-black font-lcars-sans text-lcars-peach flex flex-col overflow-hidden", className)}>
+    <div className={cn("min-h-screen bg-lcars-black font-lcars-sans text-white flex flex-col", className)}>
       {/* Top Ticker */}
-      <div className="flex-shrink-0">
+      <div className="flex-shrink-0 z-20">
         <LCARSTicker />
       </div>
       
       {/* Main Content Grid */}
-      <div className="flex-1 flex min-h-0 overflow-hidden">
+      <div className="flex-1 flex min-h-0">
         {/* Left Sidebar */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 z-10">
           <LCARSSidebar onSettingsClick={onSettingsClick} />
         </div>
         
         {/* Central Viewport */}
-        <main className="flex-1 p-4 min-w-0 overflow-hidden">
-          <div className="h-full bg-lcars-dark-gray/50 rounded-lcars border-2 border-lcars-orange/30 p-4 overflow-hidden">
+        <main className="flex-1 p-6 min-w-0 relative">
+          <div className="h-full bg-lcars-dark-gray/30 rounded-lg border border-lcars-orange/40 p-6 overflow-hidden">
             <div className="h-full overflow-auto">
               {children}
             </div>
@@ -37,13 +37,13 @@ const LCARSLayout: React.FC<LCARSLayoutProps> = ({ children, className, onSettin
         </main>
         
         {/* Right Rail */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 z-10">
           <LCARSRightRail />
         </div>
       </div>
       
       {/* Bottom Status Bar */}
-      <div className="flex-shrink-0">
+      <div className="flex-shrink-0 z-20">
         <LCARSFooterBar />
       </div>
     </div>

@@ -9,7 +9,7 @@ interface LCARSRightRailProps {
 }
 
 const LCARSRightRail: React.FC<LCARSRightRailProps> = ({ className }) => {
-  const railNumbers = ["25", "920", "5", "62", "56", "381", "44"];
+  const railNumbers = ["25", "920", "5", "62", "56"];
   const readouts = [
     { label: "CPU", value: "87%", status: "success" as const },
     { label: "MEM", value: "42%", status: "normal" as const },
@@ -18,18 +18,21 @@ const LCARSRightRail: React.FC<LCARSRightRailProps> = ({ className }) => {
   ];
 
   return (
-    <div className={cn("w-48 bg-lcars-black flex flex-col h-full", className)}>
+    <div className={cn("w-48 bg-lcars-black flex flex-col h-full border-l border-lcars-blue/20", className)}>
+      {/* Top Spacer */}
+      <div className="h-4 flex-shrink-0" />
+      
       {/* Numeric Rail with readouts */}
-      <div className="p-3 space-y-4 flex-1 overflow-auto">
+      <div className="p-4 space-y-4 flex-1 overflow-auto">
         {railNumbers.map((number, index) => (
           <div key={index} className="flex items-center space-x-3">
-            <span className="font-lcars-mono text-white text-xl font-bold tracking-wider w-12 text-right">
+            <span className="font-lcars-mono text-white text-lg font-bold tracking-wider w-12 text-right">
               {number}
             </span>
             <div className="flex-1">
               <LCARSVBar 
                 value={Math.random() * 100}
-                height={20 + (index * 8)} 
+                height={16 + (index * 6)} 
                 color={index % 2 === 0 ? "teal" : "amber"}
               />
             </div>
@@ -37,7 +40,7 @@ const LCARSRightRail: React.FC<LCARSRightRailProps> = ({ className }) => {
         ))}
         
         {/* System Readouts */}
-        <div className="space-y-3 mt-6 pt-6 border-t border-lcars-orange/30">
+        <div className="space-y-4 mt-8 pt-6 border-t border-lcars-blue/30">
           {readouts.map((readout, index) => (
             <LCARSReadout
               key={index}
@@ -49,8 +52,8 @@ const LCARSRightRail: React.FC<LCARSRightRailProps> = ({ className }) => {
         </div>
       </div>
       
-      {/* Bottom Elbow */}
-      <div className="h-16 bg-lcars-blue rounded-tl-lcars-elbow flex-shrink-0" />
+      {/* Bottom Spacer */}
+      <div className="h-4 flex-shrink-0" />
     </div>
   );
 };

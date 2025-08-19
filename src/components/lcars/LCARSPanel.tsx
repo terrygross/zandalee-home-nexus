@@ -25,60 +25,42 @@ const LCARSPanel: React.FC<LCARSPanelProps> = ({
     teal: "border-lcars-teal"
   };
 
-  const getCornerStyles = () => {
-    switch (corner) {
-      case "top-left":
-        return "rounded-tl-3xl rounded-tr-lg rounded-bl-lg rounded-br-lg";
-      case "top-right":
-        return "rounded-tl-lg rounded-tr-3xl rounded-bl-lg rounded-br-lg";
-      case "bottom-left":
-        return "rounded-tl-lg rounded-tr-lg rounded-bl-3xl rounded-br-lg";
-      case "bottom-right":
-        return "rounded-tl-lg rounded-tr-lg rounded-bl-lg rounded-br-3xl";
-      default:
-        return "rounded-2xl";
-    }
-  };
-
   return (
     <div 
       className={cn(
-        "bg-card border-2 backdrop-blur-none relative",
+        "bg-lcars-dark-gray/30 border-2 rounded-lg backdrop-blur-none relative",
         colorClasses[color],
-        getCornerStyles(),
         className
       )}
       style={{
         background: `linear-gradient(145deg, 
-          hsl(var(--lcars-dark-gray)), 
-          hsl(var(--lcars-medium-gray) / 0.8)
+          hsl(var(--lcars-dark-gray) / 0.4), 
+          hsl(var(--lcars-medium-gray) / 0.2)
         )`,
         boxShadow: `
           inset 0 0 20px hsl(var(--lcars-${color}) / 0.1),
-          0 0 20px hsl(var(--lcars-${color}) / 0.2)
+          0 0 10px hsl(var(--lcars-${color}) / 0.1)
         `
       }}
     >
       {title && (
         <div 
           className={cn(
-            "px-6 py-3 border-b-2 font-bold uppercase tracking-wider text-sm",
-            colorClasses[color],
-            corner.includes("top") ? "rounded-t-2xl" : ""
+            "px-4 py-2 border-b-2 font-bold uppercase tracking-wider text-sm text-black rounded-t-lg",
+            colorClasses[color]
           )}
           style={{
             background: `linear-gradient(90deg, 
               hsl(var(--lcars-${color})) 0%, 
-              hsl(var(--lcars-${color}) / 0.8) 20%, 
-              transparent 20%
-            )`,
-            color: "black"
+              hsl(var(--lcars-${color}) / 0.8) 30%, 
+              transparent 30%
+            )`
           }}
         >
           {title}
         </div>
       )}
-      <div className="p-6">
+      <div className="p-4">
         {children}
       </div>
     </div>

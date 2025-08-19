@@ -11,10 +11,10 @@ const LCARSTicker: React.FC<LCARSTickerProps> = ({ className }) => {
   const stardate = `${currentTime.getFullYear()}.${String(currentTime.getMonth() + 1).padStart(2, '0')}.${String(currentTime.getDate()).padStart(2, '0')}`;
 
   return (
-    <div className={cn("h-12 bg-lcars-orange flex items-center px-6", className)}>
+    <div className={cn("h-14 bg-lcars-orange flex items-center px-6 border-b-2 border-lcars-orange/80", className)}>
       {/* Left - LCARS Status */}
       <div className="flex items-center space-x-4">
-        <div className="w-8 h-8 bg-lcars-black rounded-full flex items-center justify-center">
+        <div className="w-8 h-8 bg-lcars-black rounded-full flex items-center justify-center border-2 border-lcars-black">
           <div className="w-4 h-4 bg-lcars-orange rounded-full" />
         </div>
         <span className="font-lcars-sans font-bold text-black text-sm uppercase tracking-wider">
