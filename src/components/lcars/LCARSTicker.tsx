@@ -39,17 +39,12 @@ const LCARSTicker: React.FC<LCARSTickerProps> = ({
           <div className="w-4 h-4 bg-lcars-orange rounded-full" />
         </div>
         <span className="font-lcars-sans font-bold text-contrast-dark text-sm uppercase tracking-wider">
-          LCARS READY
+          LCARS READY - COMMUNICATION INTERFACE ACTIVE
         </span>
       </div>
       
       {/* Center - Communication Interface Controls */}
       <div className="flex-1 flex items-center justify-center space-x-8">
-        <div>
-          <h3 className="font-lcars-sans font-bold text-contrast-dark text-sm uppercase tracking-wider">Communication Interface</h3>
-          <p className="text-xs text-contrast-dark/80">Text and voice communication with Zandalee</p>
-        </div>
-        
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-2">
             <Switch
