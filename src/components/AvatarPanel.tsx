@@ -1,11 +1,10 @@
-
 import { useState, useRef, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Upload, User, X, Trash2, Check } from "lucide-react";
+import { Upload, User, Check, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useZandaleeAPI } from "@/hooks/useZandaleeAPI";
+import LCARSButton from "@/components/lcars/LCARSButton";
+import LCARSPillButton from "@/components/lcars/LCARSPillButton";
 
 type ViewMode = 'fill' | 'fit';
 
@@ -27,7 +26,6 @@ const AvatarPanel = () => {
   const { toast } = useToast();
   const zandaleeAPI = useZandaleeAPI();
 
-  // Load view mode from localStorage and fetch avatars on mount
   useEffect(() => {
     const savedViewMode = localStorage.getItem('zandalee-avatar-view-mode') as ViewMode;
     if (savedViewMode) {
@@ -75,7 +73,6 @@ const AvatarPanel = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
         title: "Invalid File",
@@ -85,7 +82,6 @@ const AvatarPanel = () => {
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "File Too Large",
@@ -127,7 +123,6 @@ const AvatarPanel = () => {
         setAvatarName('');
         await loadAvatars();
         
-        // Clear file input
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
@@ -217,13 +212,32 @@ const AvatarPanel = () => {
   };
 
   return (
-    <div className="h-full bg-lcars-black rounded border-2 border-lcars-teal flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between p-3 pb-2 flex-shrink-0">
-        <div className="text-lcars-light-gray font-lcars-sans text-xs uppercase tracking-wider font-bold">
-          AVATAR STATUS
-        </div>
-        <div className="flex text-[10px] border border-lcars-teal/30 rounded overflow-hidden">
+    <div 
+      className="h-full bg-lcars-black rounded-lg border-2 border-lcars-teal flex flex-col overflow-hidden"
+      style={{
+        background: `linear-gradient(145deg, 
+          hsl(var(--lcars-dark-gray) / 0.4), 
+          hsl(var(--lcars-medium-gray) / 0.2)
+        )`,
+        boxShadow: `
+          inset 0 0 20px hsl(var(--lcars-teal) / 0.1),
+          0 0 10px hsl(var(--lcars-teal) / 0.1)
+        `
+      }}
+    >
+      {/* LCARS Header */}
+      <div 
+        className="px-4 py-2 border-b-2 border-lcars-teal font-bold uppercase tracking-wider text-sm text-white rounded-t-lg overflow-hidden flex items-center justify-between flex-shrink-0"
+        style={{
+          background: `linear-gradient(90deg, 
+            hsl(var(--lcars-teal)) 0%, 
+            hsl(var(--lcars-teal) / 0.8) 30%, 
+            transparent 30%
+          )`
+        }}
+      >
+        <span className="text-black">AVATAR STATUS</span>
+        <div className="flex text-[10px] border border-lcars-teal/30 rounded overflow-hidden bg-lcars-black">
           <button
             onClick={() => toggleViewMode('fill')}
             className={`px-2 py-1 transition-colors ${
@@ -247,10 +261,10 @@ const AvatarPanel = () => {
         </div>
       </div>
       
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col p-3 pt-2 min-h-0">
+      {/* Main Content - Pure black background */}
+      <div className="flex-1 flex flex-col p-4 min-h-0 bg-lcars-black">
         {/* Active Avatar Display */}
-        <div className="h-32 rounded border border-lcars-teal/30 bg-lcars-black mb-3 flex-shrink-0 overflow-hidden">
+        <div className="h-32 rounded border border-lcars-teal/30 bg-lcars-black mb-4 flex-shrink-0 overflow-hidden">
           {activeAvatar ? (
             <img
               src={activeAvatar.photo_url}
@@ -269,75 +283,71 @@ const AvatarPanel = () => {
           )}
         </div>
 
-        {/* Upload Section */}
-        <div className="space-y-2 mb-3 flex-shrink-0">
+        {/* Upload Section - LCARS Style */}
+        <div className="space-y-3 mb-4 flex-shrink-0">
           <Input
             placeholder="AVATAR NAME..."
             value={avatarName}
             onChange={(e) => setAvatarName(e.target.value)}
-            className="h-7 text-xs bg-lcars-black border-lcars-teal/30 text-white placeholder:text-lcars-light-gray/60 font-lcars-mono uppercase"
+            className="h-8 text-xs bg-lcars-black border-lcars-teal/50 text-white placeholder:text-lcars-light-gray/60 font-lcars-mono uppercase rounded"
             disabled={isUploading}
           />
           
-          <Button
+          <LCARSButton
             onClick={triggerFileInput}
             disabled={isUploading || !avatarName.trim()}
-            className="w-full h-7 bg-lcars-blue/20 hover:bg-lcars-blue/30 border border-lcars-blue/30 text-xs font-lcars-sans uppercase tracking-wider"
-            variant="outline"
+            color="blue"
+            className="w-full h-10 text-xs"
           >
-            <Upload className="w-3 h-3 text-lcars-blue mr-2" />
-            <span className="text-white">
-              {isUploading ? 'UPLOADING...' : 'UPLOAD AVATAR'}
-            </span>
-          </Button>
+            <Upload className="w-4 h-4 mr-2" />
+            {isUploading ? 'UPLOADING...' : 'UPLOAD AVATAR'}
+          </LCARSButton>
         </div>
 
         {/* Avatar List */}
-        <div className="flex-1 min-h-0">
-          <div className="h-full space-y-1">
+        <div className="flex-1 min-h-0 bg-lcars-black">
+          <div className="h-full space-y-2 overflow-y-auto">
             {avatars.slice(0, 4).map((avatar) => (
               <div
                 key={avatar.id}
-                className={`flex items-center gap-2 p-2 rounded border transition-colors ${
+                className={`flex items-center gap-3 p-2 rounded border transition-colors bg-lcars-black ${
                   avatar.is_active 
-                    ? 'border-lcars-teal/50 bg-lcars-teal/10' 
-                    : 'border-lcars-orange/20 bg-lcars-black hover:bg-lcars-black'
+                    ? 'border-lcars-teal/50' 
+                    : 'border-lcars-orange/30 hover:border-lcars-orange/50'
                 }`}
               >
                 <img
                   src={avatar.photo_url}
                   alt={avatar.name}
-                  className="w-6 h-6 rounded object-cover flex-shrink-0"
+                  className="w-8 h-8 rounded object-cover flex-shrink-0 border border-lcars-teal/30"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="text-xs text-white truncate font-lcars-mono uppercase">{avatar.name}</div>
                 </div>
                 <div className="flex items-center gap-1">
                   {avatar.is_active ? (
-                    <Check className="w-3 h-3 text-lcars-teal" />
+                    <Check className="w-4 h-4 text-lcars-teal" />
                   ) : (
-                    <Button
+                    <LCARSPillButton
                       onClick={() => selectAvatar(avatar.id)}
-                      variant="ghost"
-                      size="sm"
-                      className="h-5 px-1 hover:bg-lcars-teal/20 text-[9px] font-lcars-sans uppercase"
+                      color="teal"
+                      className="h-6 px-2 text-[9px]"
                     >
-                      <span className="text-lcars-teal">SEL</span>
-                    </Button>
+                      SEL
+                    </LCARSPillButton>
                   )}
-                  <Button
+                  <LCARSPillButton
                     onClick={() => deleteAvatar(avatar.id, avatar.name)}
-                    variant="ghost"
-                    size="sm"
-                    className="h-5 w-5 p-0 hover:bg-lcars-red/20"
+                    color="red"
+                    className="h-6 w-6 p-0 ml-1"
                   >
-                    <Trash2 className="w-2.5 h-2.5 text-lcars-red" />
-                  </Button>
+                    <Trash2 className="w-3 h-3" />
+                  </LCARSPillButton>
                 </div>
               </div>
             ))}
             {avatars.length > 4 && (
-              <div className="text-center text-xs text-lcars-light-gray/60 font-lcars-mono pt-1">
+              <div className="text-center text-xs text-lcars-light-gray/60 font-lcars-mono pt-2">
                 +{avatars.length - 4} MORE AVATARS
               </div>
             )}
