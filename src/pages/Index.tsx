@@ -58,7 +58,7 @@ const Index = () => {
           activeProvider={activeProvider}
           isConfigured={isConfigured()}
         >
-          <div className="h-full flex space-x-4 overflow-hidden">
+          <div className="h-full flex space-x-4 overflow-hidden p-4">
             {/* Main Chat Interface - Aligned with sidebar content */}
             <div className="flex-1 min-h-0 overflow-hidden">
               <LCARSPanel title="COMMUNICATION INTERFACE" color="orange" className="h-full">
