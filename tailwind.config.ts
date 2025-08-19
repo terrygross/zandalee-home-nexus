@@ -47,6 +47,26 @@ export default {
 				// Glass morphism
 				'glass-bg': 'hsl(var(--glass-bg))',
 				'glass-border': 'hsl(var(--glass-border))',
+
+				// LCARS Colors
+				'lcars-black': 'hsl(var(--lcars-black))',
+				'lcars-dark-gray': 'hsl(var(--lcars-dark-gray))',
+				'lcars-medium-gray': 'hsl(var(--lcars-medium-gray))',
+				'lcars-light-gray': 'hsl(var(--lcars-light-gray))',
+				'lcars-orange': 'hsl(var(--lcars-orange))',
+				'lcars-peach': 'hsl(var(--lcars-peach))',
+				'lcars-red': 'hsl(var(--lcars-red))',
+				'lcars-rose': 'hsl(var(--lcars-rose))',
+				'lcars-magenta': 'hsl(var(--lcars-magenta))',
+				'lcars-violet': 'hsl(var(--lcars-violet))',
+				'lcars-purple': 'hsl(var(--lcars-purple))',
+				'lcars-indigo': 'hsl(var(--lcars-indigo))',
+				'lcars-blue': 'hsl(var(--lcars-blue))',
+				'lcars-sky': 'hsl(var(--lcars-sky))',
+				'lcars-teal': 'hsl(var(--lcars-teal))',
+				'lcars-mint': 'hsl(var(--lcars-mint))',
+				'lcars-amber': 'hsl(var(--lcars-amber))',
+				'lcars-golden': 'hsl(var(--lcars-golden))',
 				
 				// Standard shadcn colors
 				border: 'hsl(var(--border))',
