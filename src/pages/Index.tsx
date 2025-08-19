@@ -61,7 +61,7 @@ const Index = () => {
           <div className="h-full flex space-x-4 overflow-hidden">
             {/* Main Chat Interface - Now takes full width minus left sidebar */}
             <div className="flex-1 min-h-0 overflow-hidden">
-              <LCARSPanel title="COMMUNICATION INTERFACE" color="orange" className="h-full border-0">
+              <LCARSPanel title="COMMUNICATION INTERFACE" color="orange" className="h-full">
                 <div className="h-full flex flex-col overflow-hidden">
                   <div className="flex-1 min-h-0 overflow-hidden">
                     <ChatInterface 
@@ -75,7 +75,7 @@ const Index = () => {
             
             {/* Memory Core Panel - Right side */}
             <div className="w-80 flex-shrink-0 hidden lg:block overflow-hidden">
-              <LCARSPanel color="teal" className="h-full border-0">
+              <LCARSPanel color="teal" className="h-full">
                 <div className="h-full overflow-hidden">
                   <MemoryManager />
                 </div>

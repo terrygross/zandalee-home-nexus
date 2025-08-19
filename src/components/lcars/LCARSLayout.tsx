@@ -65,7 +65,7 @@ const LCARSLayout: React.FC<LCARSLayoutProps> = ({
         
         {/* Central Viewport - Now takes full remaining width */}
         <main className="flex-1 p-4 md:p-6 min-w-0 relative overflow-hidden">
-          <div className="h-full bg-lcars-dark-gray/30 rounded-lg border border-lcars-orange/40 p-4 md:p-6 overflow-hidden">
+          <div className="h-full bg-lcars-dark-gray/30 rounded-lg p-4 md:p-6 overflow-hidden">
             <div className="h-full overflow-hidden">
               {children}
             </div>
