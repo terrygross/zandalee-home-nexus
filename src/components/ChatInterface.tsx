@@ -230,11 +230,12 @@ const ChatInterface = () => {
 
   return (
     <div className="glass-panel h-full flex flex-col">
+      {/* Top Controls - Moved from bottom */}
       <div className="p-4 border-b border-border/30 flex-shrink-0">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-lg font-semibold text-text-primary">Chat Interface</h3>
-            <p className="text-xs text-text-secondary">Communicate with Zandalee via text or voice</p>
+            <h3 className="text-lg font-semibold text-text-primary">Communication Interface</h3>
+            <p className="text-xs text-text-secondary">Text and voice communication with Zandalee</p>
           </div>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
@@ -280,9 +281,44 @@ const ChatInterface = () => {
             </div>
           </div>
         </div>
+
+        {/* Input Area - Moved to top */}
+        <div className="space-y-2">
+          <div className="flex space-x-2">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="Type a message or command..."
+              className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted"
+              disabled={isProcessing || (!isConnected && !directLLMMode) || (directLLMMode && !isConfigured())}
+            />
+            <VoiceInput
+              onTranscript={handleVoiceTranscript}
+              disabled={isProcessing || (!isConnected && !directLLMMode) || (directLLMMode && !isConfigured())}
+            />
+            <Button
+              onClick={handleSend}
+              disabled={!input.trim() || isProcessing || (!isConnected && !directLLMMode) || (directLLMMode && !isConfigured())}
+              className="bg-energy-cyan/20 hover:bg-energy-cyan/30 text-energy-cyan border border-energy-cyan/30 neon-border"
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          <div className="flex justify-between items-center text-xs text-text-muted">
+            <span>
+              {directLLMMode 
+                ? `Direct mode: ${activeProvider.toUpperCase()} • Configure API key in settings ⚙️`
+                : `Backend mode • Click ⭐ Save to save responses as memories • Click mic for voice input`
+              }
+            </span>
+            <span>Press Enter to send</span>
+          </div>
+        </div>
       </div>
 
-      {/* Scrollable Messages Area */}
+      {/* Scrollable Messages Area - Now has more space */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
         {messages.map((message) => (
           <MessageBubble key={message.id} message={message} />
@@ -308,41 +344,6 @@ const ChatInterface = () => {
         )}
         
         <div ref={messagesEndRef} />
-      </div>
-
-      {/* Fixed Input Area */}
-      <div className="p-4 border-t border-border/30 flex-shrink-0">
-        <div className="flex space-x-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Type a message or command..."
-            className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted"
-            disabled={isProcessing || (!isConnected && !directLLMMode) || (directLLMMode && !isConfigured())}
-          />
-          <VoiceInput
-            onTranscript={handleVoiceTranscript}
-            disabled={isProcessing || (!isConnected && !directLLMMode) || (directLLMMode && !isConfigured())}
-          />
-          <Button
-            onClick={handleSend}
-            disabled={!input.trim() || isProcessing || (!isConnected && !directLLMMode) || (directLLMMode && !isConfigured())}
-            className="bg-energy-cyan/20 hover:bg-energy-cyan/30 text-energy-cyan border border-energy-cyan/30 neon-border"
-          >
-            <Send className="w-4 h-4" />
-          </Button>
-        </div>
-        
-        <div className="flex justify-between items-center mt-2 text-xs text-text-muted">
-          <span>
-            {directLLMMode 
-              ? `Direct mode: ${activeProvider.toUpperCase()} • Configure API key in settings ⚙️`
-              : `Backend mode • Click ⭐ Save to save responses as memories • Click mic for voice input`
-            }
-          </span>
-          <span>Press Enter to send</span>
-        </div>
       </div>
     </div>
   );
