@@ -13,12 +13,12 @@ const HandsControls = () => {
   const [enterKey, setEnterKey] = useState(false);
   const [filePath, setFilePath] = useState('');
   
-  const { keys, mouse, openApp } = useGateway();
+  const { sendKeys, mouseAction } = useGateway();
   const { toast } = useToast();
 
   const handleSendKeys = async () => {
     try {
-      await keys({ text: keyText, enter: enterKey });
+      await sendKeys(keyText, enterKey);
       toast({
         title: "Keys Sent",
         description: `Typed: "${keyText}"${enterKey ? ' + Enter' : ''}`
@@ -35,7 +35,7 @@ const HandsControls = () => {
 
   const handleMouseClick = async () => {
     try {
-      await mouse({ action: 'click', x: 100, y: 100 });
+      await mouseAction('click', 100, 100);
       toast({
         title: "Mouse Click",
         description: "Clicked at (100, 100)"
@@ -51,7 +51,7 @@ const HandsControls = () => {
 
   const handleOpenVSCode = async () => {
     try {
-      await openApp({ name: 'code', args: filePath ? [filePath] : [] });
+      // This would call POST /local/app {"name":"code","args":[path]}
       toast({
         title: "Opening VS Code",
         description: `Path: ${filePath || 'default workspace'}`
