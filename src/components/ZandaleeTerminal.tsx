@@ -23,9 +23,10 @@ export const ZandaleeTerminal = () => {
       <StatusBar />
       
       <div className="flex-1 flex flex-col min-h-0 px-4 py-2">
-        <div className="flex-shrink-0 mb-4">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Zandalee Terminal</h1>
-          <div className="flex items-center gap-2">
+        {/* Inline header with title and status */}
+        <div className="flex-shrink-0 mb-3">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Zandalee Terminal</h1>
             <Badge variant={isHealthy ? "default" : "destructive"}>
               {isHealthy ? "Gateway Connected" : "Gateway Offline"}
             </Badge>
