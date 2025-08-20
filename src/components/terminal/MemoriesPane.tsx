@@ -74,7 +74,14 @@ export const MemoriesPane = () => {
     setLoading(true);
     try {
       const results = await memorySearch(searchQuery, 20);
-      setMemories(Array.isArray(results) ? results : results.results || []);
+      // Fix: Handle both array and object responses properly
+      if (Array.isArray(results)) {
+        setMemories(results);
+      } else if (results && typeof results === 'object' && 'results' in results) {
+        setMemories((results as any).results || []);
+      } else {
+        setMemories([]);
+      }
     } catch (error: any) {
       toast({
         title: 'Search Error',
@@ -130,8 +137,8 @@ export const MemoriesPane = () => {
         importance: memoryImportance[0],
         relevance: memoryRelevance[0],
         tags: memoryTags.split(',').map(tag => tag.trim()).filter(Boolean),
-        emotion: memoryEmotion || null,
-        photo_path: memoryPhoto,
+        emotion: memoryEmotion || undefined,
+        photo_path: memoryPhoto || undefined,
         source: 'manual'
       };
 
@@ -171,10 +178,10 @@ export const MemoriesPane = () => {
     
     setLoading(true);
     try {
-      const entry: DiaryEntry = {
+      const entry = {
         text: diaryText,
-        emotion: diaryEmotion || null,
-        photo_path: diaryPhoto
+        emotion: diaryEmotion || undefined,
+        photo_path: diaryPhoto || undefined
       };
 
       const result = await diaryAppend(entry);
@@ -343,7 +350,7 @@ export const MemoriesPane = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {emotions.map((emotion) => (
-                          <SelectItem key={emotion.value} value={emotion.value}>
+                          <SelectItem key={emotion.value || 'none'} value={emotion.value}>
                             {emotion.label}
                           </SelectItem>
                         ))}
@@ -443,7 +450,7 @@ export const MemoriesPane = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {emotions.map((emotion) => (
-                        <SelectItem key={emotion.value} value={emotion.value}>
+                        <SelectItem key={emotion.value || 'none'} value={emotion.value}>
                           {emotion.label}
                         </SelectItem>
                       ))}
