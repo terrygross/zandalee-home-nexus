@@ -432,7 +432,7 @@ export const ChatPane = () => {
   };
 
   return (
-    <div className="h-full flex flex-col p-4 gap-4">
+    <div className="h-full flex gap-4 p-4 overflow-hidden">
       {/* Chat Section */}
       <Card className="flex-1 flex flex-col min-h-0">
         <CardHeader className="flex-shrink-0">
@@ -527,8 +527,8 @@ export const ChatPane = () => {
         </CardContent>
       </Card>
 
-      {/* Memory & Diary Side Panel - fixed height */}
-      <Card className="h-96 flex flex-col">
+      {/* Memory & Diary Side Panel - fixed height management */}
+      <Card className="w-80 flex flex-col h-full">
         <CardHeader className="pb-3 px-6 pt-6 flex-shrink-0">
           <CardTitle className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
@@ -539,7 +539,7 @@ export const ChatPane = () => {
           </CardTitle>
         </CardHeader>
         
-        <CardContent className="flex-1 flex flex-col p-6 pt-0 min-h-0">
+        <CardContent className="flex-1 flex flex-col p-6 pt-0 pb-6 min-h-0">
           <Tabs defaultValue="memories" className="flex-1 flex flex-col min-h-0">
             <TabsList className="grid w-full grid-cols-2 h-8 mb-2 flex-shrink-0">
               <TabsTrigger value="memories" className="text-xs">Memories</TabsTrigger>
@@ -566,9 +566,9 @@ export const ChatPane = () => {
                 </Button>
               </div>
 
-              {/* Memory List - constrained height */}
-              <div className="flex-1 min-h-0 mb-2">
-                <ScrollArea className="h-32">
+              {/* Memory List with fixed height */}
+              <div className="flex-1 min-h-0 mb-2 flex flex-col">
+                <ScrollArea className="flex-1 h-64">
                   <div className="space-y-2 pr-2">
                     {memories.length === 0 ? (
                       <div className="text-center text-muted-foreground text-xs py-4">
@@ -623,7 +623,7 @@ export const ChatPane = () => {
                 </ScrollArea>
               </div>
 
-              {/* Add Memory Form - guaranteed space at bottom */}
+              {/* Add Memory Form - fixed at bottom with guaranteed space */}
               <div className="border rounded-md p-2 flex-shrink-0 bg-background">
                 <div className="text-xs font-medium mb-2">Add Memory</div>
                 
@@ -631,7 +631,7 @@ export const ChatPane = () => {
                   placeholder="What should I remember?"
                   value={newMemory.text}
                   onChange={(e) => setNewMemory({ ...newMemory, text: e.target.value })}
-                  className="h-12 text-xs mb-2 resize-none"
+                  className="h-16 text-xs mb-2 resize-none"
                 />
                 
                 {/* Image Upload */}
@@ -770,9 +770,9 @@ export const ChatPane = () => {
                 </Button>
               </div>
 
-              {/* Diary List - constrained height */}
-              <div className="flex-1 min-h-0 mb-2">
-                <ScrollArea className="h-32">
+              {/* Diary List with fixed height */}
+              <div className="flex-1 min-h-0 mb-2 flex flex-col">
+                <ScrollArea className="flex-1 h-64">
                   <div className="space-y-2 pr-2">
                     {diaryEntries.length === 0 ? (
                       <div className="text-center text-muted-foreground text-xs py-4">
@@ -818,7 +818,7 @@ export const ChatPane = () => {
                 </ScrollArea>
               </div>
 
-              {/* Add Diary Form - guaranteed space at bottom */}
+              {/* Add Diary Form - fixed at bottom with guaranteed space */}
               <div className="border rounded-md p-2 flex-shrink-0 bg-background">
                 <div className="text-xs font-medium mb-2">Add Diary Entry</div>
                 
@@ -826,7 +826,7 @@ export const ChatPane = () => {
                   placeholder="What happened today?"
                   value={newDiary.text}
                   onChange={(e) => setNewDiary({ ...newDiary, text: e.target.value })}
-                  className="h-12 text-xs mb-2 resize-none"
+                  className="h-16 text-xs mb-2 resize-none"
                 />
                 
                 {/* Image Upload */}
