@@ -527,8 +527,8 @@ export const ChatPane = () => {
         </CardContent>
       </Card>
 
-      {/* Memory & Diary Side Panel - with extra bottom padding */}
-      <Card className="w-80 flex flex-col min-h-0">
+      {/* Memory & Diary Side Panel - fixed height management */}
+      <Card className="w-80 flex flex-col h-full">
         <CardHeader className="pb-3 px-6 pt-6 flex-shrink-0">
           <CardTitle className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
@@ -539,7 +539,7 @@ export const ChatPane = () => {
           </CardTitle>
         </CardHeader>
         
-        <CardContent className="flex-1 flex flex-col p-6 pt-0 pb-8 min-h-0 overflow-hidden">
+        <CardContent className="flex-1 flex flex-col p-6 pt-0 pb-6 min-h-0">
           <Tabs defaultValue="memories" className="flex-1 flex flex-col min-h-0">
             <TabsList className="grid w-full grid-cols-2 h-8 mb-2 flex-shrink-0">
               <TabsTrigger value="memories" className="text-xs">Memories</TabsTrigger>
@@ -566,63 +566,65 @@ export const ChatPane = () => {
                 </Button>
               </div>
 
-              {/* Memory List with ScrollArea - reduced height to leave more room for form */}
-              <ScrollArea className="flex-1 min-h-0 mb-2" style={{ maxHeight: 'calc(100% - 260px)' }}>
-                <div className="space-y-2 pr-2">
-                  {memories.length === 0 ? (
-                    <div className="text-center text-muted-foreground text-xs py-4">
-                      {isLoading ? "Loading..." : "No memories found"}
-                    </div>
-                  ) : (
-                    memories.map((memory) => (
-                      <div
-                        key={memory.id}
-                        className="border rounded-md p-2"
-                      >
-                        <div className="text-xs mb-1 line-clamp-2">
-                          {memory.text}
-                        </div>
-                        {memory.image_path && (
-                          <div className="mb-1">
-                            <div className="flex items-center gap-1 text-[10px] text-primary">
-                              <Image className="w-3 h-3" />
-                              <span>Photo attached</span>
+              {/* Memory List with fixed height */}
+              <div className="flex-1 min-h-0 mb-2 flex flex-col">
+                <ScrollArea className="flex-1 h-64">
+                  <div className="space-y-2 pr-2">
+                    {memories.length === 0 ? (
+                      <div className="text-center text-muted-foreground text-xs py-4">
+                        {isLoading ? "Loading..." : "No memories found"}
+                      </div>
+                    ) : (
+                      memories.map((memory) => (
+                        <div
+                          key={memory.id}
+                          className="border rounded-md p-2"
+                        >
+                          <div className="text-xs mb-1 line-clamp-2">
+                            {memory.text}
+                          </div>
+                          {memory.image_path && (
+                            <div className="mb-1">
+                              <div className="flex items-center gap-1 text-[10px] text-primary">
+                                <Image className="w-3 h-3" />
+                                <span>Photo attached</span>
+                              </div>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between">
+                            <div className="flex gap-1 items-center">
+                              {memory.tags && memory.tags.split(',').slice(0, 2).map((tag) => (
+                                <Badge
+                                  key={tag}
+                                  variant="outline"
+                                  className="text-[10px] h-4 px-1"
+                                >
+                                  {tag.trim()}
+                                </Badge>
+                              ))}
+                              {memory.emotion && memory.emotion !== "none" && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-[10px] h-4 px-1"
+                                >
+                                  <Heart className="w-2 h-2 mr-1" />
+                                  {getEmotionEmoji(memory.emotion)}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground">
+                              {memory.kind}
                             </div>
                           </div>
-                        )}
-                        <div className="flex items-center justify-between">
-                          <div className="flex gap-1 items-center">
-                            {memory.tags && memory.tags.split(',').slice(0, 2).map((tag) => (
-                              <Badge
-                                key={tag}
-                                variant="outline"
-                                className="text-[10px] h-4 px-1"
-                              >
-                                {tag.trim()}
-                              </Badge>
-                            ))}
-                            {memory.emotion && memory.emotion !== "none" && (
-                              <Badge
-                                variant="outline"
-                                className="text-[10px] h-4 px-1"
-                              >
-                                <Heart className="w-2 h-2 mr-1" />
-                                {getEmotionEmoji(memory.emotion)}
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">
-                            {memory.kind}
-                          </div>
                         </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </ScrollArea>
+                      ))
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
 
-              {/* Add Memory Form - guaranteed space at bottom */}
-              <div className="border rounded-md p-2 flex-shrink-0">
+              {/* Add Memory Form - fixed at bottom with guaranteed space */}
+              <div className="border rounded-md p-2 flex-shrink-0 bg-background">
                 <div className="text-xs font-medium mb-2">Add Memory</div>
                 
                 <Textarea
@@ -768,54 +770,56 @@ export const ChatPane = () => {
                 </Button>
               </div>
 
-              {/* Diary List with ScrollArea - reduced height to leave more room for form */}
-              <ScrollArea className="flex-1 min-h-0 mb-2" style={{ maxHeight: 'calc(100% - 200px)' }}>
-                <div className="space-y-2 pr-2">
-                  {diaryEntries.length === 0 ? (
-                    <div className="text-center text-muted-foreground text-xs py-4">
-                      {isLoading ? "Loading..." : "No diary entries found"}
-                    </div>
-                  ) : (
-                    diaryEntries.map((entry) => (
-                      <div
-                        key={entry.id}
-                        className="border rounded-md p-2"
-                      >
-                        <div className="text-xs mb-1">
-                          {entry.text}
-                        </div>
-                        {entry.photo_url && (
-                          <div className="mb-1">
-                            <div className="flex items-center gap-1 text-[10px] text-primary">
-                              <Image className="w-3 h-3" />
-                              <span>Photo attached</span>
+              {/* Diary List with fixed height */}
+              <div className="flex-1 min-h-0 mb-2 flex flex-col">
+                <ScrollArea className="flex-1 h-64">
+                  <div className="space-y-2 pr-2">
+                    {diaryEntries.length === 0 ? (
+                      <div className="text-center text-muted-foreground text-xs py-4">
+                        {isLoading ? "Loading..." : "No diary entries found"}
+                      </div>
+                    ) : (
+                      diaryEntries.map((entry) => (
+                        <div
+                          key={entry.id}
+                          className="border rounded-md p-2"
+                        >
+                          <div className="text-xs mb-1">
+                            {entry.text}
+                          </div>
+                          {entry.photo_url && (
+                            <div className="mb-1">
+                              <div className="flex items-center gap-1 text-[10px] text-primary">
+                                <Image className="w-3 h-3" />
+                                <span>Photo attached</span>
+                              </div>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between">
+                            <div className="flex gap-1 items-center">
+                              {entry.emotion_tag && entry.emotion_tag !== "none" && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-[10px] h-4 px-1"
+                                >
+                                  <Heart className="w-2 h-2 mr-1" />
+                                  {getEmotionEmoji(entry.emotion_tag)}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground">
+                              {new Date(entry.created_at).toLocaleDateString()}
                             </div>
                           </div>
-                        )}
-                        <div className="flex items-center justify-between">
-                          <div className="flex gap-1 items-center">
-                            {entry.emotion_tag && entry.emotion_tag !== "none" && (
-                              <Badge
-                                variant="outline"
-                                className="text-[10px] h-4 px-1"
-                              >
-                                <Heart className="w-2 h-2 mr-1" />
-                                {getEmotionEmoji(entry.emotion_tag)}
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">
-                            {new Date(entry.created_at).toLocaleDateString()}
-                          </div>
                         </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </ScrollArea>
+                      ))
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
 
-              {/* Add Diary Form - guaranteed space at bottom */}
-              <div className="border rounded-md p-2 flex-shrink-0">
+              {/* Add Diary Form - fixed at bottom with guaranteed space */}
+              <div className="border rounded-md p-2 flex-shrink-0 bg-background">
                 <div className="text-xs font-medium mb-2">Add Diary Entry</div>
                 
                 <Textarea
