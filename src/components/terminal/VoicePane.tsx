@@ -9,6 +9,7 @@ import { useGateway } from '@/hooks/useGateway';
 export const VoicePane = () => {
   const [selectedVoice, setSelectedVoice] = useState('');
   const [availableVoices, setAvailableVoices] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const { voices } = useGateway();
 
@@ -18,9 +19,15 @@ export const VoicePane = () => {
 
   const loadVoices = async () => {
     try {
+      setLoading(true);
+      console.log('Loading voices...');
       const voiceList = await voices();
+      console.log('Raw voice list:', voiceList);
+      
       // Filter out any empty or invalid voices
       const validVoices = voiceList.filter(voice => voice && voice.trim() !== '');
+      console.log('Valid voices:', validVoices);
+      
       setAvailableVoices(validVoices);
       const saved = localStorage.getItem('selected_voice');
       if (saved && validVoices.includes(saved)) {
@@ -29,6 +36,8 @@ export const VoicePane = () => {
     } catch (error) {
       console.error('Failed to load voices:', error);
       setAvailableVoices([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,18 +55,31 @@ export const VoicePane = () => {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="voice">Voice</Label>
-            <Select value={selectedVoice} onValueChange={handleVoiceChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a voice" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableVoices.map((voice, index) => (
-                  <SelectItem key={`voice-${index}-${voice}`} value={voice}>
-                    {voice}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {loading ? (
+              <div className="text-sm text-muted-foreground">Loading voices...</div>
+            ) : availableVoices.length > 0 ? (
+              <Select value={selectedVoice} onValueChange={handleVoiceChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a voice" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableVoices.map((voice, index) => (
+                    <SelectItem key={`voice-${index}-${voice}`} value={voice}>
+                      {voice}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="space-y-2">
+                <div className="text-sm text-muted-foreground">No voices available. Enter manually:</div>
+                <Input
+                  value={selectedVoice}
+                  onChange={(e) => handleVoiceChange(e.target.value)}
+                  placeholder="Enter voice name"
+                />
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
