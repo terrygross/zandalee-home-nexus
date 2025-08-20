@@ -46,7 +46,7 @@ export const SettingsPane = () => {
       const validVoices = voiceList.filter(voice => voice && voice.trim() !== '');
       setAvailableVoices(validVoices);
       const saved = localStorage.getItem('selected_voice');
-      if (saved) {
+      if (saved && saved.trim() !== '') {
         setSelectedVoice(saved);
       }
     } catch (error) {
@@ -169,7 +169,7 @@ export const SettingsPane = () => {
           <div className="space-y-2">
             <Label htmlFor="model">Model</Label>
             {validModels.length > 0 ? (
-              <Select value={model} onValueChange={setModel}>
+              <Select value={model || undefined} onValueChange={setModel}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a model" />
                 </SelectTrigger>
@@ -213,7 +213,7 @@ export const SettingsPane = () => {
           <div className="space-y-2">
             <Label htmlFor="voice">Voice</Label>
             {availableVoices.length > 0 ? (
-              <Select value={selectedVoice} onValueChange={handleVoiceChange}>
+              <Select value={selectedVoice || undefined} onValueChange={handleVoiceChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a voice" />
                 </SelectTrigger>
