@@ -527,7 +527,7 @@ export const ChatPane = () => {
         </CardContent>
       </Card>
 
-      {/* Memory & Diary Side Panel - with proper bottom padding */}
+      {/* Memory & Diary Side Panel - with extra bottom padding */}
       <Card className="w-80 flex flex-col min-h-0">
         <CardHeader className="pb-3 px-6 pt-6 flex-shrink-0">
           <CardTitle className="flex items-center justify-between text-sm">
@@ -539,7 +539,7 @@ export const ChatPane = () => {
           </CardTitle>
         </CardHeader>
         
-        <CardContent className="flex-1 flex flex-col p-6 pt-0 pb-6 min-h-0 overflow-hidden">
+        <CardContent className="flex-1 flex flex-col p-6 pt-0 pb-8 min-h-0 overflow-hidden">
           <Tabs defaultValue="memories" className="flex-1 flex flex-col min-h-0">
             <TabsList className="grid w-full grid-cols-2 h-8 mb-2 flex-shrink-0">
               <TabsTrigger value="memories" className="text-xs">Memories</TabsTrigger>
@@ -566,8 +566,8 @@ export const ChatPane = () => {
                 </Button>
               </div>
 
-              {/* Memory List with ScrollArea - adjusted height to leave room for form */}
-              <ScrollArea className="flex-1 min-h-0 mb-2" style={{ maxHeight: 'calc(100% - 220px)' }}>
+              {/* Memory List with ScrollArea - reduced height to leave more room for form */}
+              <ScrollArea className="flex-1 min-h-0 mb-2" style={{ maxHeight: 'calc(100% - 260px)' }}>
                 <div className="space-y-2 pr-2">
                   {memories.length === 0 ? (
                     <div className="text-center text-muted-foreground text-xs py-4">
@@ -621,8 +621,8 @@ export const ChatPane = () => {
                 </div>
               </ScrollArea>
 
-              {/* Add Memory Form - with proper spacing */}
-              <div className="border rounded-md p-2 flex-shrink-0 mt-auto">
+              {/* Add Memory Form - guaranteed space at bottom */}
+              <div className="border rounded-md p-2 flex-shrink-0">
                 <div className="text-xs font-medium mb-2">Add Memory</div>
                 
                 <Textarea
@@ -768,8 +768,8 @@ export const ChatPane = () => {
                 </Button>
               </div>
 
-              {/* Diary List with ScrollArea - adjusted height to leave room for form */}
-              <ScrollArea className="flex-1 min-h-0 mb-2" style={{ maxHeight: 'calc(100% - 160px)' }}>
+              {/* Diary List with ScrollArea - reduced height to leave more room for form */}
+              <ScrollArea className="flex-1 min-h-0 mb-2" style={{ maxHeight: 'calc(100% - 200px)' }}>
                 <div className="space-y-2 pr-2">
                   {diaryEntries.length === 0 ? (
                     <div className="text-center text-muted-foreground text-xs py-4">
@@ -814,8 +814,8 @@ export const ChatPane = () => {
                 </div>
               </ScrollArea>
 
-              {/* Add Diary Form - with proper spacing */}
-              <div className="border rounded-md p-2 flex-shrink-0 mt-auto">
+              {/* Add Diary Form - guaranteed space at bottom */}
+              <div className="border rounded-md p-2 flex-shrink-0">
                 <div className="text-xs font-medium mb-2">Add Diary Entry</div>
                 
                 <Textarea
