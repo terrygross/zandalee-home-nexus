@@ -1,892 +1,146 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, User, Bot, Star, Search, Plus, Brain, BookOpen, Upload, Image, Heart } from 'lucide-react';
+import { Send, Loader2 } from 'lucide-react';
 import { useGateway } from '@/hooks/useGateway';
 import { useToast } from '@/hooks/use-toast';
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant';
-  content: string;
+  text: string;
+  sender: 'user' | 'assistant';
   timestamp: Date;
 }
-
-interface MemoryItem {
-  id: string;
-  text: string;
-  kind: string;
-  tags: string;
-  importance: number;
-  relevance: number;
-  image_path?: string;
-  emotion?: string;
-  created_at: string;
-  source: string;
-  trust: string;
-}
-
-interface DiaryEntryItem {
-  id: string;
-  text: string;
-  photo_url?: string;
-  emotion_tag?: string;
-  created_at: string;
-}
-
-const EMOTION_OPTIONS = [
-  { value: "none", label: "None" },
-  { value: "happy", label: "😊 Happy" },
-  { value: "proud", label: "🌟 Proud" },
-  { value: "excited", label: "🎉 Excited" },
-  { value: "calm", label: "😌 Calm" },
-  { value: "sad", label: "😢 Sad" },
-  { value: "worried", label: "😟 Worried" },
-  { value: "angry", label: "😠 Angry" },
-  { value: "relief", label: "😮‍💨 Relief" }
-];
 
 export const ChatPane = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [speakBackEnabled, setSpeakBackEnabled] = useState(false);
-  
-  // Memory & Diary state
-  const [memories, setMemories] = useState<MemoryItem[]>([]);
-  const [diaryEntries, setDiaryEntries] = useState<DiaryEntryItem[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [diarySearchQuery, setDiarySearchQuery] = useState("");
-  const [newMemory, setNewMemory] = useState({
-    text: "",
-    kind: "semantic",
-    tags: "",
-    importance: 0.5,
-    relevance: 0.5,
-    image: "",
-    emotion: "none"
-  });
-  const [newDiary, setNewDiary] = useState({
-    text: "",
-    photo_url: "",
-    emotion_tag: "none"
-  });
   const [isLoading, setIsLoading] = useState(false);
-  const [uploadingMemory, setUploadingMemory] = useState(false);
-  const [uploadingDiary, setUploadingDiary] = useState(false);
-  
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  
-  const { chat, speak, memoryLearn, memorySearch, isHealthy, getConfig } = useGateway();
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  const { chat } = useGateway();
   const { toast } = useToast();
 
-  const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
-
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
   };
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  useEffect(() => {
-    loadMemories();
-    loadDiary();
-  }, []);
-
-  const loadMemories = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`${API_BASE}/memory/search?limit=20`);
-      const result = await response.json();
-      if (result.ok) {
-        setMemories(result.items || []);
-      }
-    } catch (error) {
-      console.error('Failed to load memories:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const loadDiary = async () => {
-    try {
-      const response = await fetch(`${API_BASE}/diary/list?limit=20`);
-      const result = await response.json();
-      if (result.ok) {
-        setDiaryEntries(result.items || []);
-      }
-    } catch (error) {
-      console.error('Failed to load diary:', error);
-    }
-  };
-
-  const handleMemorySearch = async () => {
-    if (!searchQuery.trim()) {
-      loadMemories();
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      const results = await memorySearch(searchQuery, 20);
-      setMemories(results || []);
-    } catch (error) {
-      console.error('Search failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDiarySearch = async () => {
-    if (!diarySearchQuery.trim()) {
-      loadDiary();
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      const response = await fetch(`${API_BASE}/diary/search?q=${encodeURIComponent(diarySearchQuery)}&limit=20`);
-      const result = await response.json();
-      if (result.ok) {
-        setDiaryEntries(result.items || []);
-      }
-    } catch (error) {
-      console.error('Diary search failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleImageUpload = async (file: File, isForDiary: boolean = false) => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    if (isForDiary) {
-      setUploadingDiary(true);
-    } else {
-      setUploadingMemory(true);
-    }
-
-    try {
-      const response = await fetch(`${API_BASE}/files/upload`, {
-        method: 'POST',
-        body: formData
-      });
-      
-      const result = await response.json();
-      if (result.ok) {
-        if (isForDiary) {
-          setNewDiary({ ...newDiary, photo_url: result.url });
-        } else {
-          setNewMemory({ ...newMemory, image: result.path });
-        }
-        toast({
-          title: "Image Uploaded",
-          description: "Photo attached successfully",
-        });
-      } else {
-        throw new Error(result.error || 'Upload failed');
-      }
-    } catch (error) {
-      console.error('Upload failed:', error);
-      toast({
-        title: "Upload Failed",
-        description: error instanceof Error ? error.message : "Could not upload image",
-        variant: "destructive"
-      });
-    } finally {
-      if (isForDiary) {
-        setUploadingDiary(false);
-      } else {
-        setUploadingMemory(false);
-      }
-    }
-  };
-
-  const handleAddMemory = async () => {
-    if (!newMemory.text.trim()) {
-      toast({
-        title: "Invalid Memory",
-        description: "Memory text cannot be empty",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      const tags = newMemory.tags.split(',').map(tag => tag.trim()).filter(Boolean);
-      
-      await memoryLearn({
-        text: newMemory.text,
-        kind: newMemory.kind as 'semantic' | 'episodic' | 'procedural' | 'working',
-        tags: tags,
-        importance: newMemory.importance,
-        relevance: newMemory.relevance,
-        source: 'chat'
-      });
-
-      // Reset form
-      setNewMemory({
-        text: "",
-        kind: "semantic",
-        tags: "",
-        importance: 0.5,
-        relevance: 0.5,
-        image: "",
-        emotion: "none"
-      });
-
-      // Reload memories
-      await loadMemories();
-
-      toast({
-        title: "Memory Added",
-        description: "New memory has been stored",
-      });
-    } catch (error) {
-      console.error('Failed to add memory:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add memory",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleAddDiary = async () => {
-    if (!newDiary.text.trim()) {
-      toast({
-        title: "Invalid Entry",
-        description: "Diary text cannot be empty",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      
-      const response = await fetch(`${API_BASE}/diary/append`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: newDiary.text,
-          photo_url: newDiary.photo_url || null,
-          emotion_tag: newDiary.emotion_tag === "none" ? null : newDiary.emotion_tag
-        })
-      });
-
-      const result = await response.json();
-      if (result.ok) {
-        // Reset form
-        setNewDiary({
-          text: "",
-          photo_url: "",
-          emotion_tag: "none"
-        });
-
-        // Reload diary
-        await loadDiary();
-
-        toast({
-          title: "Diary Entry Added",
-          description: "New diary entry has been saved",
-        });
-      } else {
-        throw new Error(result.error || 'Failed to add diary entry');
-      }
-    } catch (error) {
-      console.error('Failed to add diary entry:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add diary entry",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const getEmotionEmoji = (emotion: string) => {
-    const found = EMOTION_OPTIONS.find(opt => opt.value === emotion);
-    return found ? found.label : emotion;
-  };
-
   const handleSend = async () => {
-    if (!input.trim() || isProcessing || !isHealthy) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      role: 'user',
-      content: input,
+      text: input.trim(),
+      sender: 'user',
       timestamp: new Date()
     };
 
     setMessages(prev => [...prev, userMessage]);
-    const currentInput = input;
     setInput('');
-    setIsProcessing(true);
+    setIsLoading(true);
 
     try {
-      const config = await getConfig();
-      const chatMessages = messages.map(msg => ({
-        role: msg.role as 'user' | 'assistant',
-        content: msg.content
-      }));
+      const response = await chat(userMessage.text);
       
-      chatMessages.push({ role: 'user', content: currentInput });
-
-      const response = await chat({
-        model: config.model,
-        messages: chatMessages,
-        stream: false,
-        max_tokens: 512,
-        options: {
-          temperature: 0.2,
-          num_ctx: 8192
-        }
-      });
-
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: response,
+        text: response.response || 'No response received',
+        sender: 'assistant',
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-
-      // Speak back if enabled
-      if (speakBackEnabled) {
-        try {
-          const selectedVoice = localStorage.getItem('selected_voice');
-          await speak({
-            text: response,
-            voice: selectedVoice || undefined,
-            rate: 0,
-            volume: 100
-          });
-        } catch (error) {
-          console.warn('TTS failed:', error);
-        }
-      }
-
     } catch (error: any) {
       toast({
         title: 'Chat Error',
         description: error.message || 'Failed to send message',
         variant: 'destructive'
       });
-
-      const errorMessage: Message = {
-        id: (Date.now() + 2).toString(),
-        role: 'assistant',
-        content: `Error: ${error.message || 'Unknown error occurred'}`,
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorMessage]);
     } finally {
-      setIsProcessing(false);
+      setIsLoading(false);
     }
   };
 
-  const handleSaveAsMemory = async (content: string) => {
-    try {
-      await memoryLearn({
-        text: content,
-        kind: 'semantic',
-        importance: 0.5,
-        relevance: 0.8,
-        tags: ['chat'],
-        source: 'chat'
-      });
-      
-      toast({
-        title: 'Memory Saved',
-        description: 'Message saved to memory successfully'
-      });
-      
-      // Refresh memories list
-      await loadMemories();
-    } catch (error: any) {
-      toast({
-        title: 'Memory Error',
-        description: error.message || 'Failed to save memory',
-        variant: 'destructive'
-      });
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
     }
   };
 
   return (
-    <div className="h-full flex gap-4 p-4 overflow-hidden">
-      {/* Chat Section */}
-      <Card className="flex-1 flex flex-col min-h-0">
-        <CardHeader className="flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <CardTitle>Chat</CardTitle>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="speak-back"
-                checked={speakBackEnabled}
-                onCheckedChange={setSpeakBackEnabled}
-              />
-              <Label htmlFor="speak-back">Speak Back</Label>
-            </div>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="flex-1 flex flex-col min-h-0 p-6">
-          {/* Messages area with proper flex and overflow */}
-          <div className="flex-1 overflow-y-auto space-y-4 mb-4 min-h-0">
-            {messages.map((message) => (
-              <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`flex items-start space-x-2 max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
-                  }`}>
-                    {message.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-                  </div>
-                  
-                  <div className={`rounded-lg p-3 ${
-                    message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary'
-                  }`}>
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs opacity-70">
-                        {message.timestamp.toLocaleTimeString()}
-                      </span>
-                      
-                      {message.role === 'assistant' && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleSaveAsMemory(message.content)}
-                          className="h-6 px-2"
-                        >
-                          <Star className="w-3 h-3 mr-1" />
-                          Save
-                        </Button>
-                      )}
-                    </div>
+    <Card className="h-full flex flex-col">
+      <CardHeader className="flex-shrink-0 pt-2 pb-2">
+        <CardTitle>Chat with Zandalee</CardTitle>
+      </CardHeader>
+      <CardContent className="flex-1 flex flex-col space-y-2 p-4 pb-2 min-h-0">
+        <ScrollArea ref={scrollAreaRef} className="flex-1 min-h-0">
+          <div className="space-y-4 pr-4">
+            {messages.length === 0 ? (
+              <div className="text-center text-muted-foreground py-8">
+                Start a conversation with Zandalee
+              </div>
+            ) : (
+              messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-lg px-3 py-2 ${
+                      message.sender === 'user'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    <p className="text-sm">{message.text}</p>
+                    <p className="text-xs opacity-70 mt-1">
+                      {message.timestamp.toLocaleTimeString()}
+                    </p>
                   </div>
                 </div>
-              </div>
-            ))}
-            
-            {isProcessing && (
+              ))
+            )}
+            {isLoading && (
               <div className="flex justify-start">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
-                    <Bot className="w-4 h-4" />
-                  </div>
-                  <div className="bg-secondary rounded-lg p-3">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-foreground rounded-full animate-pulse" />
-                      <div className="w-2 h-2 bg-foreground rounded-full animate-pulse delay-150" />
-                      <div className="w-2 h-2 bg-foreground rounded-full animate-pulse delay-300" />
-                    </div>
-                  </div>
+                <div className="bg-muted text-muted-foreground rounded-lg px-3 py-2 flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">Zandalee is thinking...</span>
                 </div>
               </div>
             )}
-            
-            <div ref={messagesEndRef} />
           </div>
-          
-          {/* Input area - fixed at bottom with proper spacing */}
-          <div className="flex-shrink-0 flex space-x-2">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Type a message..."
-              disabled={isProcessing || !isHealthy}
-              className="flex-1"
-            />
-            <Button
-              onClick={handleSend}
-              disabled={!input.trim() || isProcessing || !isHealthy}
-            >
+        </ScrollArea>
+
+        <div className="flex space-x-2 flex-shrink-0">
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Type your message..."
+            disabled={isLoading}
+          />
+          <Button onClick={handleSend} disabled={isLoading || !input.trim()}>
+            {isLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
               <Send className="w-4 h-4" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Memory & Diary Side Panel - fixed height management */}
-      <Card className="w-80 flex flex-col h-full">
-        <CardHeader className="pb-3 px-6 pt-6 flex-shrink-0">
-          <CardTitle className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-2">
-              <Brain className="w-4 h-4 text-primary" />
-              <span>Memory & Diary</span>
-            </div>
-            <span className="text-xs text-muted-foreground">{memories.length} memories, {diaryEntries.length} entries</span>
-          </CardTitle>
-        </CardHeader>
-        
-        <CardContent className="flex-1 flex flex-col p-6 pt-0 pb-6 min-h-0">
-          <Tabs defaultValue="memories" className="flex-1 flex flex-col min-h-0">
-            <TabsList className="grid w-full grid-cols-2 h-8 mb-2 flex-shrink-0">
-              <TabsTrigger value="memories" className="text-xs">Memories</TabsTrigger>
-              <TabsTrigger value="diary" className="text-xs">Diary</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="memories" className="flex-1 flex flex-col min-h-0 mt-0">
-              {/* Search */}
-              <div className="flex gap-1 mb-2 flex-shrink-0">
-                <Input
-                  placeholder="Search memories..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleMemorySearch()}
-                  className="h-8 text-xs"
-                />
-                <Button
-                  onClick={handleMemorySearch}
-                  size="sm"
-                  className="h-8 w-8 p-0"
-                  disabled={isLoading}
-                >
-                  <Search className="w-3 h-3" />
-                </Button>
-              </div>
-
-              {/* Memory List with fixed height */}
-              <div className="flex-1 min-h-0 mb-2 flex flex-col">
-                <ScrollArea className="flex-1 h-64">
-                  <div className="space-y-2 pr-2">
-                    {memories.length === 0 ? (
-                      <div className="text-center text-muted-foreground text-xs py-4">
-                        {isLoading ? "Loading..." : "No memories found"}
-                      </div>
-                    ) : (
-                      memories.map((memory) => (
-                        <div
-                          key={memory.id}
-                          className="border rounded-md p-2"
-                        >
-                          <div className="text-xs mb-1 line-clamp-2">
-                            {memory.text}
-                          </div>
-                          {memory.image_path && (
-                            <div className="mb-1">
-                              <div className="flex items-center gap-1 text-[10px] text-primary">
-                                <Image className="w-3 h-3" />
-                                <span>Photo attached</span>
-                              </div>
-                            </div>
-                          )}
-                          <div className="flex items-center justify-between">
-                            <div className="flex gap-1 items-center">
-                              {memory.tags && memory.tags.split(',').slice(0, 2).map((tag) => (
-                                <Badge
-                                  key={tag}
-                                  variant="outline"
-                                  className="text-[10px] h-4 px-1"
-                                >
-                                  {tag.trim()}
-                                </Badge>
-                              ))}
-                              {memory.emotion && memory.emotion !== "none" && (
-                                <Badge
-                                  variant="outline"
-                                  className="text-[10px] h-4 px-1"
-                                >
-                                  <Heart className="w-2 h-2 mr-1" />
-                                  {getEmotionEmoji(memory.emotion)}
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="text-[10px] text-muted-foreground">
-                              {memory.kind}
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </ScrollArea>
-              </div>
-
-              {/* Add Memory Form - fixed at bottom with guaranteed space */}
-              <div className="border rounded-md p-2 flex-shrink-0 bg-background">
-                <div className="text-xs font-medium mb-2">Add Memory</div>
-                
-                <Textarea
-                  placeholder="What should I remember?"
-                  value={newMemory.text}
-                  onChange={(e) => setNewMemory({ ...newMemory, text: e.target.value })}
-                  className="h-16 text-xs mb-2 resize-none"
-                />
-                
-                {/* Image Upload */}
-                <div className="mb-2">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0])}
-                      className="hidden"
-                      id="memory-image-upload"
-                    />
-                    <label
-                      htmlFor="memory-image-upload"
-                      className="flex items-center gap-1 text-xs cursor-pointer text-primary hover:text-primary/80"
-                    >
-                      <Upload className="w-3 h-3" />
-                      {uploadingMemory ? "Uploading..." : "Add Photo"}
-                    </label>
-                    {newMemory.image && (
-                      <div className="flex items-center gap-1 text-[10px] text-green-600">
-                        <Image className="w-3 h-3" />
-                        <span>Photo attached</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-2 mb-2">
-                  <div>
-                    <div className="text-[10px] text-muted-foreground mb-1">Kind</div>
-                    <Select
-                      value={newMemory.kind}
-                      onValueChange={(value) => setNewMemory({ ...newMemory, kind: value })}
-                    >
-                      <SelectTrigger className="h-6 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="semantic">Semantic</SelectItem>
-                        <SelectItem value="episodic">Episodic</SelectItem>
-                        <SelectItem value="procedural">Procedural</SelectItem>
-                        <SelectItem value="working">Working</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <div className="text-[10px] text-muted-foreground mb-1">Emotion</div>
-                    <Select
-                      value={newMemory.emotion}
-                      onValueChange={(value) => setNewMemory({ ...newMemory, emotion: value })}
-                    >
-                      <SelectTrigger className="h-6 text-xs">
-                        <SelectValue placeholder="None" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {EMOTION_OPTIONS.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="mb-2">
-                  <div className="text-[10px] text-muted-foreground mb-1">Tags</div>
-                  <Input
-                    placeholder="tag1, tag2"
-                    value={newMemory.tags}
-                    onChange={(e) => setNewMemory({ ...newMemory, tags: e.target.value })}
-                    className="h-6 text-xs"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-2 mb-2">
-                  <div>
-                    <div className="text-[10px] text-muted-foreground mb-1">
-                      Importance: {newMemory.importance.toFixed(1)}
-                    </div>
-                    <Slider
-                      value={[newMemory.importance]}
-                      onValueChange={([value]) => setNewMemory({ ...newMemory, importance: value })}
-                      max={1}
-                      min={0}
-                      step={0.1}
-                      className="h-4"
-                    />
-                  </div>
-                  
-                  <div>
-                    <div className="text-[10px] text-muted-foreground mb-1">
-                      Relevance: {newMemory.relevance.toFixed(1)}
-                    </div>
-                    <Slider
-                      value={[newMemory.relevance]}
-                      onValueChange={([value]) => setNewMemory({ ...newMemory, relevance: value })}
-                      max={1}
-                      min={0}
-                      step={0.1}
-                      className="h-4"
-                    />
-                  </div>
-                </div>
-                
-                <Button
-                  onClick={handleAddMemory}
-                  className="w-full h-6 text-xs"
-                  disabled={isLoading || uploadingMemory}
-                >
-                  <Plus className="w-3 h-3 mr-1" />
-                  Save Memory
-                </Button>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="diary" className="flex-1 flex flex-col min-h-0 mt-0">
-              {/* Search */}
-              <div className="flex gap-1 mb-2 flex-shrink-0">
-                <Input
-                  placeholder="Search diary entries..."
-                  value={diarySearchQuery}
-                  onChange={(e) => setDiarySearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleDiarySearch()}
-                  className="h-8 text-xs"
-                />
-                <Button
-                  onClick={handleDiarySearch}
-                  size="sm"
-                  className="h-8 w-8 p-0"
-                  disabled={isLoading}
-                >
-                  <Search className="w-3 h-3" />
-                </Button>
-              </div>
-
-              {/* Diary List with fixed height */}
-              <div className="flex-1 min-h-0 mb-2 flex flex-col">
-                <ScrollArea className="flex-1 h-64">
-                  <div className="space-y-2 pr-2">
-                    {diaryEntries.length === 0 ? (
-                      <div className="text-center text-muted-foreground text-xs py-4">
-                        {isLoading ? "Loading..." : "No diary entries found"}
-                      </div>
-                    ) : (
-                      diaryEntries.map((entry) => (
-                        <div
-                          key={entry.id}
-                          className="border rounded-md p-2"
-                        >
-                          <div className="text-xs mb-1">
-                            {entry.text}
-                          </div>
-                          {entry.photo_url && (
-                            <div className="mb-1">
-                              <div className="flex items-center gap-1 text-[10px] text-primary">
-                                <Image className="w-3 h-3" />
-                                <span>Photo attached</span>
-                              </div>
-                            </div>
-                          )}
-                          <div className="flex items-center justify-between">
-                            <div className="flex gap-1 items-center">
-                              {entry.emotion_tag && entry.emotion_tag !== "none" && (
-                                <Badge
-                                  variant="outline"
-                                  className="text-[10px] h-4 px-1"
-                                >
-                                  <Heart className="w-2 h-2 mr-1" />
-                                  {getEmotionEmoji(entry.emotion_tag)}
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="text-[10px] text-muted-foreground">
-                              {new Date(entry.created_at).toLocaleDateString()}
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </ScrollArea>
-              </div>
-
-              {/* Add Diary Form - fixed at bottom with guaranteed space */}
-              <div className="border rounded-md p-2 flex-shrink-0 bg-background">
-                <div className="text-xs font-medium mb-2">Add Diary Entry</div>
-                
-                <Textarea
-                  placeholder="What happened today?"
-                  value={newDiary.text}
-                  onChange={(e) => setNewDiary({ ...newDiary, text: e.target.value })}
-                  className="h-16 text-xs mb-2 resize-none"
-                />
-                
-                {/* Image Upload */}
-                <div className="mb-2">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], true)}
-                      className="hidden"
-                      id="diary-image-upload"
-                    />
-                    <label
-                      htmlFor="diary-image-upload"
-                      className="flex items-center gap-1 text-xs cursor-pointer text-primary hover:text-primary/80"
-                    >
-                      <Upload className="w-3 h-3" />
-                      {uploadingDiary ? "Uploading..." : "Add Photo"}
-                    </label>
-                    {newDiary.photo_url && (
-                      <div className="flex items-center gap-1 text-[10px] text-green-600">
-                        <Image className="w-3 h-3" />
-                        <span>Photo attached</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="mb-2">
-                  <div className="text-[10px] text-muted-foreground mb-1">Emotion</div>
-                  <Select
-                    value={newDiary.emotion_tag}
-                    onValueChange={(value) => setNewDiary({ ...newDiary, emotion_tag: value })}
-                  >
-                    <SelectTrigger className="h-6 text-xs">
-                      <SelectValue placeholder="None" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {EMOTION_OPTIONS.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <Button
-                  onClick={handleAddDiary}
-                  className="w-full h-6 text-xs"
-                  disabled={isLoading || uploadingDiary}
-                >
-                  <BookOpen className="w-3 h-3 mr-1" />
-                  Save Entry
-                </Button>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-    </div>
+            )}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
