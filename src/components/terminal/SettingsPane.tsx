@@ -105,8 +105,10 @@ export const SettingsPane = () => {
   };
 
   const handleVoiceChange = (voice: string) => {
-    setSelectedVoice(voice);
-    localStorage.setItem('selected_voice', voice);
+    if (voice && voice.trim() !== '') {
+      setSelectedVoice(voice);
+      localStorage.setItem('selected_voice', voice);
+    }
   };
 
   const getTestStatusBadge = () => {
@@ -126,6 +128,9 @@ export const SettingsPane = () => {
 
   // Filter out empty strings and null/undefined values from available models
   const validModels = availableModels.filter(modelName => modelName && modelName.trim() !== '');
+  
+  // Filter out empty strings and null/undefined values from available voices
+  const validVoices = availableVoices.filter(voice => voice && voice.trim() !== '');
 
   return (
     <div className="space-y-6">
@@ -169,7 +174,7 @@ export const SettingsPane = () => {
           <div className="space-y-2">
             <Label htmlFor="model">Model</Label>
             {validModels.length > 0 ? (
-              <Select value={model || undefined} onValueChange={setModel}>
+              <Select value={model && model.trim() !== '' ? model : undefined} onValueChange={setModel}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a model" />
                 </SelectTrigger>
@@ -212,14 +217,14 @@ export const SettingsPane = () => {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="voice">Voice</Label>
-            {availableVoices.length > 0 ? (
-              <Select value={selectedVoice || undefined} onValueChange={handleVoiceChange}>
+            {validVoices.length > 0 ? (
+              <Select value={selectedVoice && selectedVoice.trim() !== '' ? selectedVoice : undefined} onValueChange={handleVoiceChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a voice" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableVoices.map((voice, index) => (
-                    <SelectItem key={index} value={voice}>
+                  {validVoices.map((voice, index) => (
+                    <SelectItem key={`voice-${index}`} value={voice}>
                       {voice}
                     </SelectItem>
                   ))}
