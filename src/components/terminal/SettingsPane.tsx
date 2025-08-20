@@ -42,9 +42,16 @@ export const SettingsPane = () => {
   const loadVoices = async () => {
     try {
       const voiceList = await voices();
-      // Filter out empty strings and null/undefined values
-      const validVoices = voiceList.filter(voice => voice && voice.trim() !== '');
+      console.log('Raw voice list:', voiceList);
+      // Filter out empty strings, null, undefined, and non-string values
+      const validVoices = voiceList.filter(voice => 
+        voice && 
+        typeof voice === 'string' && 
+        voice.trim() !== ''
+      );
+      console.log('Filtered voices:', validVoices);
       setAvailableVoices(validVoices);
+      
       const saved = localStorage.getItem('selected_voice');
       if (saved && saved.trim() !== '') {
         setSelectedVoice(saved);
@@ -126,11 +133,22 @@ export const SettingsPane = () => {
     }
   };
 
-  // Filter out empty strings and null/undefined values from available models
-  const validModels = availableModels.filter(modelName => modelName && modelName.trim() !== '');
+  // Double filter and log available models to catch any empty strings
+  console.log('Raw availableModels:', availableModels);
+  const validModels = availableModels.filter(modelName => 
+    modelName && 
+    typeof modelName === 'string' && 
+    modelName.trim() !== ''
+  );
+  console.log('Filtered validModels:', validModels);
   
-  // Filter out empty strings and null/undefined values from available voices
-  const validVoices = availableVoices.filter(voice => voice && voice.trim() !== '');
+  // Double filter voices as well
+  const validVoices = availableVoices.filter(voice => 
+    voice && 
+    typeof voice === 'string' && 
+    voice.trim() !== ''
+  );
+  console.log('Final validVoices for rendering:', validVoices);
 
   return (
     <div className="space-y-6">
@@ -174,16 +192,32 @@ export const SettingsPane = () => {
           <div className="space-y-2">
             <Label htmlFor="model">Model</Label>
             {validModels.length > 0 ? (
-              <Select value={model && model.trim() !== '' ? model : undefined} onValueChange={setModel}>
+              <Select 
+                value={model && model.trim() !== '' ? model : undefined} 
+                onValueChange={(value) => {
+                  console.log('Model selection changed to:', value);
+                  if (value && value.trim() !== '') {
+                    setModel(value);
+                  }
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a model" />
                 </SelectTrigger>
                 <SelectContent>
-                  {validModels.map((modelName) => (
-                    <SelectItem key={modelName} value={modelName}>
-                      {modelName}
-                    </SelectItem>
-                  ))}
+                  {validModels.map((modelName) => {
+                    console.log('Rendering model SelectItem with value:', modelName);
+                    // Additional safety check before rendering
+                    if (!modelName || typeof modelName !== 'string' || modelName.trim() === '') {
+                      console.error('Attempted to render SelectItem with invalid model value:', modelName);
+                      return null;
+                    }
+                    return (
+                      <SelectItem key={modelName} value={modelName}>
+                        {modelName}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             ) : (
@@ -218,16 +252,32 @@ export const SettingsPane = () => {
           <div className="space-y-2">
             <Label htmlFor="voice">Voice</Label>
             {validVoices.length > 0 ? (
-              <Select value={selectedVoice && selectedVoice.trim() !== '' ? selectedVoice : undefined} onValueChange={handleVoiceChange}>
+              <Select 
+                value={selectedVoice && selectedVoice.trim() !== '' ? selectedVoice : undefined} 
+                onValueChange={(value) => {
+                  console.log('Voice selection changed to:', value);
+                  if (value && value.trim() !== '') {
+                    handleVoiceChange(value);
+                  }
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a voice" />
                 </SelectTrigger>
                 <SelectContent>
-                  {validVoices.map((voice, index) => (
-                    <SelectItem key={`voice-${index}`} value={voice}>
-                      {voice}
-                    </SelectItem>
-                  ))}
+                  {validVoices.map((voice, index) => {
+                    console.log('Rendering voice SelectItem with value:', voice);
+                    // Additional safety check before rendering
+                    if (!voice || typeof voice !== 'string' || voice.trim() === '') {
+                      console.error('Attempted to render SelectItem with invalid voice value:', voice);
+                      return null;
+                    }
+                    return (
+                      <SelectItem key={`voice-${index}-${voice}`} value={voice}>
+                        {voice}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             ) : (
