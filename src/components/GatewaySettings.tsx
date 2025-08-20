@@ -28,8 +28,8 @@ const GatewaySettings = () => {
       setModel(config.model || 'qwen2.5-coder:32b');
     } catch (error) {
       toast({
-        title: "Config Load Failed",
-        description: "Using defaults",
+        title: "CONFIG LOAD FAILED",
+        description: "USING DEFAULTS",
         variant: "destructive"
       });
     }
@@ -40,13 +40,13 @@ const GatewaySettings = () => {
     try {
       await setConfig({ base, apiKey, model });
       toast({
-        title: "Settings Saved",
-        description: "Gateway configuration updated"
+        title: "SETTINGS SAVED",
+        description: "GATEWAY CONFIGURATION UPDATED"
       });
     } catch (error) {
       toast({
-        title: "Save Failed",
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: "SAVE FAILED",
+        description: error instanceof Error ? error.message.toUpperCase() : 'UNKNOWN ERROR',
         variant: "destructive"
       });
     } finally {
@@ -57,11 +57,11 @@ const GatewaySettings = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Gateway Configuration</CardTitle>
+        <CardTitle>GATEWAY CONFIGURATION</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <Label htmlFor="base">Salad Base URL</Label>
+          <Label htmlFor="base" className="text-lcars">SALAD BASE URL</Label>
           <Input
             id="base"
             value={base}
@@ -71,7 +71,7 @@ const GatewaySettings = () => {
         </div>
         
         <div>
-          <Label htmlFor="apiKey">Salad API Key</Label>
+          <Label htmlFor="apiKey" className="text-lcars">SALAD API KEY</Label>
           <Input
             id="apiKey"
             type="password"
@@ -82,7 +82,7 @@ const GatewaySettings = () => {
         </div>
         
         <div>
-          <Label htmlFor="model">Model</Label>
+          <Label htmlFor="model" className="text-lcars">MODEL</Label>
           <Input
             id="model"
             value={model}
@@ -92,7 +92,7 @@ const GatewaySettings = () => {
         </div>
         
         <Button onClick={saveConfig} disabled={loading}>
-          {loading ? 'Saving...' : 'Save Configuration'}
+          {loading ? 'SAVING...' : 'SAVE CONFIGURATION'}
         </Button>
       </CardContent>
     </Card>

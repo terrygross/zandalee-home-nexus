@@ -15,24 +15,24 @@ export const MicWizardPane = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Mic className="w-5 h-5" />
-            Microphone Calibration
+            MICROPHONE CALIBRATION
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-muted-foreground">
-            The Mic Wizard will test all available microphones and help you choose the best one for voice interaction.
+          <p className="text-muted-foreground font-lcars">
+            THE MIC WIZARD WILL TEST ALL AVAILABLE MICROPHONES AND HELP YOU CHOOSE THE BEST ONE FOR VOICE INTERACTION.
           </p>
           
           <div className="flex items-center gap-2">
             <Badge variant="secondary">
               <Settings className="w-3 h-3 mr-1" />
-              Automatic calibration
+              AUTOMATIC CALIBRATION
             </Badge>
             <Badge variant="outline">
-              SNR testing
+              SNR TESTING
             </Badge>
             <Badge variant="outline">
-              Voice quality analysis
+              VOICE QUALITY ANALYSIS
             </Badge>
           </div>
 
@@ -42,14 +42,14 @@ export const MicWizardPane = () => {
             className="w-full"
           >
             <Play className="w-4 h-4 mr-2" />
-            Start Mic Wizard
+            START MIC WIZARD
           </Button>
 
-          <div className="text-sm text-muted-foreground space-y-1">
-            <p>• Tests all available input devices</p>
-            <p>• Measures signal-to-noise ratio</p>
-            <p>• Analyzes voice clarity and timing</p>
-            <p>• Automatically saves best configuration</p>
+          <div className="text-sm text-muted-foreground space-y-1 font-lcars">
+            <p>• TESTS ALL AVAILABLE INPUT DEVICES</p>
+            <p>• MEASURES SIGNAL-TO-NOISE RATIO</p>
+            <p>• ANALYZES VOICE CLARITY AND TIMING</p>
+            <p>• AUTOMATICALLY SAVES BEST CONFIGURATION</p>
           </div>
         </CardContent>
       </Card>

@@ -26,9 +26,9 @@ export const ZandaleeTerminal = () => {
         {/* Inline header with title and status */}
         <div className="flex-shrink-0 mb-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Zandalee Terminal</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground text-lcars-display">ZANDALEE TERMINAL</h1>
             <Badge variant={isHealthy ? "default" : "destructive"}>
-              {isHealthy ? "Gateway Connected" : "Gateway Offline"}
+              {isHealthy ? "GATEWAY CONNECTED" : "GATEWAY OFFLINE"}
             </Badge>
           </div>
         </div>
@@ -37,31 +37,31 @@ export const ZandaleeTerminal = () => {
           <TabsList className="flex-shrink-0 grid w-full grid-cols-7 mb-4 h-auto min-h-[2.5rem] overflow-x-auto">
             <TabsTrigger value="chat" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
               <MessageCircle className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">Chat</span>
+              <span className="hidden sm:inline truncate">CHAT</span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
               <Settings className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">Settings</span>
+              <span className="hidden sm:inline truncate">SETTINGS</span>
             </TabsTrigger>
             <TabsTrigger value="voice" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
               <Volume2 className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">Voice</span>
+              <span className="hidden sm:inline truncate">VOICE</span>
             </TabsTrigger>
             <TabsTrigger value="memories" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
               <Brain className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">Memories</span>
+              <span className="hidden sm:inline truncate">MEMORIES</span>
             </TabsTrigger>
             <TabsTrigger value="mic" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
               <Mic className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">Mic</span>
+              <span className="hidden sm:inline truncate">MIC</span>
             </TabsTrigger>
             <TabsTrigger value="hands" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
               <Hand className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">Hands</span>
+              <span className="hidden sm:inline truncate">HANDS</span>
             </TabsTrigger>
             <TabsTrigger value="docs" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
               <FileText className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">Docs</span>
+              <span className="hidden sm:inline truncate">DOCS</span>
             </TabsTrigger>
           </TabsList>
 

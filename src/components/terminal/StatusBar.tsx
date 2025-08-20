@@ -41,21 +41,21 @@ export const StatusBar = () => {
   };
 
   const getStatusText = () => {
-    if (!isHealthy) return 'Gateway Offline';
-    if (modelStatus === 'ready') return `Model Ready (${currentModel})`;
-    if (modelStatus === 'missing') return 'Gateway OK, Model Missing';
-    return 'Checking Status...';
+    if (!isHealthy) return 'GATEWAY OFFLINE';
+    if (modelStatus === 'ready') return `MODEL READY (${currentModel.toUpperCase()})`;
+    if (modelStatus === 'missing') return 'GATEWAY OK, MODEL MISSING';
+    return 'CHECKING STATUS...';
   };
 
   return (
-    <div className="border-b bg-card p-4">
+    <div className="border-b bg-card p-4 lcars-panel">
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${
-              isHealthy ? 'bg-green-500 animate-pulse' : 'bg-red-500'
-            }`} />
-            <span className="text-sm text-muted-foreground">Gateway Status</span>
+            <div className={`w-2 h-2 ${
+              isHealthy ? 'bg-lcars-green animate-lcars-pulse' : 'bg-lcars-red'
+            }`} style={{ clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)' }} />
+            <span className="text-sm text-muted-foreground text-lcars">GATEWAY STATUS</span>
           </div>
         </div>
         

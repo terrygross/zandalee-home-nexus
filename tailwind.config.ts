@@ -20,35 +20,26 @@ export default {
 		},
 		extend: {
 			colors: {
-				// Zandalee space theme
-				'space-void': 'hsl(var(--space-void))',
-				'space-deep': 'hsl(var(--space-deep))',
-				'space-mid': 'hsl(var(--space-mid))',
-				'space-surface': 'hsl(var(--space-surface))',
+				// LCARS theme colors
+				'lcars-orange': 'hsl(var(--lcars-orange))',
+				'lcars-blue': 'hsl(var(--lcars-blue))',
+				'lcars-red': 'hsl(var(--lcars-red))',
+				'lcars-yellow': 'hsl(var(--lcars-yellow))',
+				'lcars-purple': 'hsl(var(--lcars-purple))',
+				'lcars-green': 'hsl(var(--lcars-green))',
+				'lcars-pink': 'hsl(var(--lcars-pink))',
 				
-				// Energy colors
-				'energy-cyan': 'hsl(var(--energy-cyan))',
-				'energy-blue': 'hsl(var(--energy-blue))',
-				'energy-pulse': 'hsl(var(--energy-pulse))',
-				'energy-glow': 'hsl(var(--energy-glow))',
+				'lcars-bg-primary': 'hsl(var(--lcars-bg-primary))',
+				'lcars-bg-secondary': 'hsl(var(--lcars-bg-secondary))',
+				'lcars-bg-tertiary': 'hsl(var(--lcars-bg-tertiary))',
+				'lcars-bg-panel': 'hsl(var(--lcars-bg-panel))',
 				
-				// Text colors
-				'text-primary': 'hsl(var(--text-primary))',
-				'text-secondary': 'hsl(var(--text-secondary))',
-				'text-muted': 'hsl(var(--text-muted))',
-				'text-accent': 'hsl(var(--text-accent))',
+				'lcars-text-primary': 'hsl(var(--lcars-text-primary))',
+				'lcars-text-secondary': 'hsl(var(--lcars-text-secondary))',
+				'lcars-text-muted': 'hsl(var(--lcars-text-muted))',
+				'lcars-text-accent': 'hsl(var(--lcars-text-accent))',
 				
-				// Status colors
-				'status-success': 'hsl(var(--status-success))',
-				'status-warning': 'hsl(var(--status-warning))',
-				'status-error': 'hsl(var(--status-error))',
-				'status-info': 'hsl(var(--status-info))',
-				
-				// Glass morphism
-				'glass-bg': 'hsl(var(--glass-bg))',
-				'glass-border': 'hsl(var(--glass-border))',
-				
-				// Standard shadcn colors
+				// Standard shadcn colors mapped to LCARS
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
@@ -105,29 +96,19 @@ export default {
 						height: '0'
 					}
 				},
-				'energy-pulse': {
-					'0%': { opacity: '0.3', transform: 'scale(1)' },
-					'100%': { opacity: '0.8', transform: 'scale(1.05)' }
-				},
-				'voice-pulse': {
-					'0%, 100%': { boxShadow: '0 0 10px hsl(var(--energy-cyan) / 0.3)' },
-					'50%': { boxShadow: '0 0 20px hsl(var(--energy-cyan) / 0.6), 0 0 30px hsl(var(--energy-pulse) / 0.4)' }
-				},
-				'data-flow': {
-					'0%': { transform: 'translateX(-100%)', opacity: '0' },
-					'50%': { opacity: '1' },
-					'100%': { transform: 'translateX(100%)', opacity: '0' }
+				'lcars-pulse': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.7' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'energy-pulse': 'energy-pulse 2s ease-in-out infinite alternate',
-				'voice-pulse': 'voice-pulse 1s ease-in-out infinite',
-				'data-flow': 'data-flow 3s ease-in-out infinite'
+				'lcars-pulse': 'lcars-pulse 2s ease-in-out infinite'
 			},
 			fontFamily: {
-				'mono': ['JetBrains Mono', 'Consolas', 'Monaco', 'monospace'],
+				'lcars': ['Orbitron', 'monospace'],
+				'mono': ['Orbitron', 'JetBrains Mono', 'Consolas', 'Monaco', 'monospace'],
 			}
 		}
 	},
