@@ -18,11 +18,11 @@ export const ZandaleeTerminal = () => {
   const { isHealthy } = useGateway();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background">
       <StatusBar />
       
-      <div className="container mx-auto p-4">
-        <div className="mb-6">
+      <div className="flex-1 flex flex-col container mx-auto p-4 max-w-full">
+        <div className="mb-6 flex-shrink-0">
           <h1 className="text-3xl font-bold text-foreground mb-2">Zandalee Terminal</h1>
           <div className="flex items-center gap-2">
             <Badge variant={isHealthy ? "default" : "destructive"}>
@@ -31,56 +31,56 @@ export const ZandaleeTerminal = () => {
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="chat" className="flex items-center gap-2">
-              <MessageCircle className="h-4 w-4" />
-              Chat
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col w-full">
+          <TabsList className="grid w-full grid-cols-6 mb-6 overflow-x-auto min-w-0">
+            <TabsTrigger value="chat" className="flex items-center gap-2 min-w-0">
+              <MessageCircle className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">Chat</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Settings
+            <TabsTrigger value="settings" className="flex items-center gap-2 min-w-0">
+              <Settings className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">Settings</span>
             </TabsTrigger>
-            <TabsTrigger value="memories" className="flex items-center gap-2">
-              <Brain className="h-4 w-4" />
-              Memories
+            <TabsTrigger value="memories" className="flex items-center gap-2 min-w-0">
+              <Brain className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">Memories</span>
             </TabsTrigger>
-            <TabsTrigger value="mic" className="flex items-center gap-2">
-              <Mic className="h-4 w-4" />
-              Mic Wizard
+            <TabsTrigger value="mic" className="flex items-center gap-2 min-w-0">
+              <Mic className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">Mic Wizard</span>
             </TabsTrigger>
-            <TabsTrigger value="hands" className="flex items-center gap-2">
-              <Hand className="h-4 w-4" />
-              Hands
+            <TabsTrigger value="hands" className="flex items-center gap-2 min-w-0">
+              <Hand className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">Hands</span>
             </TabsTrigger>
-            <TabsTrigger value="docs" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Docs
+            <TabsTrigger value="docs" className="flex items-center gap-2 min-w-0">
+              <FileText className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">Docs</span>
             </TabsTrigger>
           </TabsList>
 
-          <div className="mt-6">
-            <TabsContent value="chat">
+          <div className="flex-1 min-h-0">
+            <TabsContent value="chat" className="h-full m-0">
               <ChatPane />
             </TabsContent>
             
-            <TabsContent value="settings">
+            <TabsContent value="settings" className="h-full m-0 overflow-y-auto">
               <SettingsPane />
             </TabsContent>
             
-            <TabsContent value="memories">
+            <TabsContent value="memories" className="h-full m-0">
               <MemoriesPane />
             </TabsContent>
             
-            <TabsContent value="mic">
+            <TabsContent value="mic" className="h-full m-0">
               <MicWizardPane />
             </TabsContent>
             
-            <TabsContent value="hands">
+            <TabsContent value="hands" className="h-full m-0">
               <HandsPane />
             </TabsContent>
             
-            <TabsContent value="docs">
+            <TabsContent value="docs" className="h-full m-0">
               <DocsPane />
             </TabsContent>
           </div>
