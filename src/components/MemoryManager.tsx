@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Search, Plus, Brain, BookOpen, Upload, Image, Heart } from "lucide-react";
 import { useZandaleeAPI } from "@/hooks/useZandaleeAPI";
 import { useToast } from "@/hooks/use-toast";
@@ -341,7 +341,7 @@ const MemoryManager = () => {
 
   return (
     <Card className="glass-panel h-full flex flex-col">
-      <CardHeader className="pb-1 px-3 pt-2 flex-shrink-0">
+      <CardHeader className="pb-2 px-3 pt-2 flex-shrink-0">
         <CardTitle className="flex items-center justify-between text-text-primary text-xs">
           <div className="flex items-center gap-2">
             <Brain className="w-4 h-4 text-energy-cyan" />
@@ -351,16 +351,16 @@ const MemoryManager = () => {
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="flex-1 flex flex-col p-3 pt-1 min-h-0 overflow-hidden">
+      <CardContent className="flex-1 flex flex-col p-3 pt-1 min-h-0 pb-2">
         <Tabs defaultValue="memories" className="flex-1 flex flex-col min-h-0">
           <TabsList className="grid w-full grid-cols-2 h-8 mb-2 flex-shrink-0">
             <TabsTrigger value="memories" className="text-xs">Memories</TabsTrigger>
             <TabsTrigger value="diary" className="text-xs">Diary</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="memories" className="flex-1 flex flex-col min-h-0 mt-0">
+          <TabsContent value="memories" className="flex-1 flex flex-col min-h-0 mt-0 space-y-2">
             {/* Search */}
-            <div className="flex gap-1 mb-2 flex-shrink-0">
+            <div className="flex gap-1 flex-shrink-0">
               <Input
                 placeholder="Search memories..."
                 value={searchQuery}
@@ -378,60 +378,64 @@ const MemoryManager = () => {
               </Button>
             </div>
 
-            {/* Memory List */}
-            <div className="flex-1 min-h-0 overflow-y-auto space-y-2 mb-2">
-              {memories.length === 0 ? (
-                <div className="text-center text-text-muted text-xs py-4">
-                  {isLoading ? "Loading..." : "No memories found"}
-                </div>
-              ) : (
-                memories.map((memory) => (
-                  <div
-                    key={memory.id}
-                    className="bg-space-surface/40 border border-energy-cyan/20 rounded-md p-2"
-                  >
-                    <div className="text-xs text-text-primary mb-1 line-clamp-2">
-                      {memory.text}
+            {/* Memory List - Constrained height with scrolling */}
+            <div className="flex-1 min-h-0">
+              <ScrollArea className="h-full">
+                <div className="space-y-2 pr-2 pb-2">
+                  {memories.length === 0 ? (
+                    <div className="text-center text-text-muted text-xs py-4">
+                      {isLoading ? "Loading..." : "No memories found"}
                     </div>
-                    {memory.image_path && (
-                      <div className="mb-1">
-                        <div className="flex items-center gap-1 text-[10px] text-energy-blue">
-                          <Image className="w-3 h-3" />
-                          <span>Photo attached</span>
+                  ) : (
+                    memories.map((memory) => (
+                      <div
+                        key={memory.id}
+                        className="bg-space-surface/40 border border-energy-cyan/20 rounded-md p-2"
+                      >
+                        <div className="text-xs text-text-primary mb-1 line-clamp-2">
+                          {memory.text}
+                        </div>
+                        {memory.image_path && (
+                          <div className="mb-1">
+                            <div className="flex items-center gap-1 text-[10px] text-energy-blue">
+                              <Image className="w-3 h-3" />
+                              <span>Photo attached</span>
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between">
+                          <div className="flex gap-1 items-center">
+                            {memory.tags && memory.tags.split(',').slice(0, 2).map((tag) => (
+                              <Badge
+                                key={tag}
+                                variant="outline"
+                                className="text-[10px] h-4 px-1 border-energy-blue/30"
+                              >
+                                {tag.trim()}
+                              </Badge>
+                            ))}
+                            {memory.emotion && memory.emotion !== "none" && (
+                              <Badge
+                                variant="outline"
+                                className="text-[10px] h-4 px-1 border-energy-purple/30"
+                              >
+                                <Heart className="w-2 h-2 mr-1" />
+                                {getEmotionEmoji(memory.emotion)}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-[10px] text-text-muted">
+                            {memory.kind}
+                          </div>
                         </div>
                       </div>
-                    )}
-                    <div className="flex items-center justify-between">
-                      <div className="flex gap-1 items-center">
-                        {memory.tags && memory.tags.split(',').slice(0, 2).map((tag) => (
-                          <Badge
-                            key={tag}
-                            variant="outline"
-                            className="text-[10px] h-4 px-1 border-energy-blue/30"
-                          >
-                            {tag.trim()}
-                          </Badge>
-                        ))}
-                        {memory.emotion && memory.emotion !== "none" && (
-                          <Badge
-                            variant="outline"
-                            className="text-[10px] h-4 px-1 border-energy-purple/30"
-                          >
-                            <Heart className="w-2 h-2 mr-1" />
-                            {getEmotionEmoji(memory.emotion)}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="text-[10px] text-text-muted">
-                        {memory.kind}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
             </div>
 
-            {/* Add Memory Form */}
+            {/* Add Memory Form - Fixed at bottom with proper spacing */}
             <div className="bg-space-surface/20 border border-energy-cyan/30 rounded-md p-2 flex-shrink-0">
               <div className="text-xs text-energy-cyan mb-2 font-medium">Add Memory</div>
               
@@ -439,7 +443,7 @@ const MemoryManager = () => {
                 placeholder="What should I remember?"
                 value={newMemory.text}
                 onChange={(e) => setNewMemory({ ...newMemory, text: e.target.value })}
-                className="h-16 text-xs mb-2 bg-space-surface/60 border-energy-cyan/30 resize-none"
+                className="h-12 text-xs mb-2 bg-space-surface/60 border-energy-cyan/30 resize-none"
               />
               
               {/* Image Upload */}
@@ -558,9 +562,9 @@ const MemoryManager = () => {
             </div>
           </TabsContent>
           
-          <TabsContent value="diary" className="flex-1 flex flex-col min-h-0 mt-0">
+          <TabsContent value="diary" className="flex-1 flex flex-col min-h-0 mt-0 space-y-2">
             {/* Search */}
-            <div className="flex gap-1 mb-2 flex-shrink-0">
+            <div className="flex gap-1 flex-shrink-0">
               <Input
                 placeholder="Search diary entries..."
                 value={diarySearchQuery}
@@ -578,51 +582,55 @@ const MemoryManager = () => {
               </Button>
             </div>
 
-            {/* Diary List */}
-            <div className="flex-1 min-h-0 overflow-y-auto space-y-2 mb-2">
-              {diaryEntries.length === 0 ? (
-                <div className="text-center text-text-muted text-xs py-4">
-                  {isLoading ? "Loading..." : "No diary entries found"}
-                </div>
-              ) : (
-                diaryEntries.map((entry) => (
-                  <div
-                    key={entry.id}
-                    className="bg-space-surface/40 border border-energy-cyan/20 rounded-md p-2"
-                  >
-                    <div className="text-xs text-text-primary mb-1">
-                      {entry.text}
+            {/* Diary List - Constrained height with scrolling */}
+            <div className="flex-1 min-h-0">
+              <ScrollArea className="h-full">
+                <div className="space-y-2 pr-2 pb-2">
+                  {diaryEntries.length === 0 ? (
+                    <div className="text-center text-text-muted text-xs py-4">
+                      {isLoading ? "Loading..." : "No diary entries found"}
                     </div>
-                    {entry.photo_url && (
-                      <div className="mb-1">
-                        <div className="flex items-center gap-1 text-[10px] text-energy-blue">
-                          <Image className="w-3 h-3" />
-                          <span>Photo attached</span>
+                  ) : (
+                    diaryEntries.map((entry) => (
+                      <div
+                        key={entry.id}
+                        className="bg-space-surface/40 border border-energy-cyan/20 rounded-md p-2"
+                      >
+                        <div className="text-xs text-text-primary mb-1">
+                          {entry.text}
+                        </div>
+                        {entry.photo_url && (
+                          <div className="mb-1">
+                            <div className="flex items-center gap-1 text-[10px] text-energy-blue">
+                              <Image className="w-3 h-3" />
+                              <span>Photo attached</span>
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between">
+                          <div className="flex gap-1 items-center">
+                            {entry.emotion_tag && entry.emotion_tag !== "none" && (
+                              <Badge
+                                variant="outline"
+                                className="text-[10px] h-4 px-1 border-energy-purple/30"
+                              >
+                                <Heart className="w-2 h-2 mr-1" />
+                                {getEmotionEmoji(entry.emotion_tag)}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-[10px] text-text-muted">
+                            {new Date(entry.created_at).toLocaleDateString()}
+                          </div>
                         </div>
                       </div>
-                    )}
-                    <div className="flex items-center justify-between">
-                      <div className="flex gap-1 items-center">
-                        {entry.emotion_tag && entry.emotion_tag !== "none" && (
-                          <Badge
-                            variant="outline"
-                            className="text-[10px] h-4 px-1 border-energy-purple/30"
-                          >
-                            <Heart className="w-2 h-2 mr-1" />
-                            {getEmotionEmoji(entry.emotion_tag)}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="text-[10px] text-text-muted">
-                        {new Date(entry.created_at).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
             </div>
 
-            {/* Add Diary Form */}
+            {/* Add Diary Form - Fixed at bottom with proper spacing */}
             <div className="bg-space-surface/20 border border-energy-cyan/30 rounded-md p-2 flex-shrink-0">
               <div className="text-xs text-energy-cyan mb-2 font-medium">Add Diary Entry</div>
               
@@ -630,7 +638,7 @@ const MemoryManager = () => {
                 placeholder="What happened today?"
                 value={newDiary.text}
                 onChange={(e) => setNewDiary({ ...newDiary, text: e.target.value })}
-                className="h-16 text-xs mb-2 bg-space-surface/60 border-energy-cyan/30 resize-none"
+                className="h-12 text-xs mb-2 bg-space-surface/60 border-energy-cyan/30 resize-none"
               />
               
               {/* Image Upload */}

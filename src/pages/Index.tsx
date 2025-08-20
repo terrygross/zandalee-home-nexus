@@ -30,15 +30,15 @@ const Index = () => {
       
       {/* Main Content Area - constrained to remaining viewport height */}
       <div className="flex-1 flex overflow-hidden" style={{ height: 'calc(100vh - 80px)' }}>
-        {/* Left Sidebar - Split 50/50 between Avatar and Memory */}
+        {/* Left Sidebar - Adjusted proportions for better space allocation */}
         <div className="w-80 bg-space-surface/20 border-r border-energy-cyan/30 flex flex-col">
-          {/* Avatar Panel - Top half */}
-          <div className="h-1/2 p-2">
+          {/* Avatar Panel - Reduced to 35% */}
+          <div className="h-[35%] p-2">
             <AvatarPanel />
           </div>
           
-          {/* Memory Manager - Bottom half */}
-          <div className="h-1/2 p-2 pt-0">
+          {/* Memory Manager - Increased to 65% */}
+          <div className="h-[65%] p-2 pt-0">
             <MemoryManager />
           </div>
         </div>
