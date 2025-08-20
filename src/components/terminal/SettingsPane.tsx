@@ -18,7 +18,7 @@ export const SettingsPane = () => {
   const [loading, setLoading] = useState(false);
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'green' | 'amber' | 'red'>('idle');
   const [selectedVoice, setSelectedVoice] = useState('');
-  const [availableVoices, setAvailableVoices] = useState<any[]>([]);
+  const [availableVoices, setAvailableVoices] = useState<string[]>([]);
 
   const { getConfig, setConfig, health, getTags, voices, availableModels } = useGateway();
   const { toast } = useToast();
@@ -49,6 +49,7 @@ export const SettingsPane = () => {
       }
     } catch (error) {
       console.error('Failed to load voices:', error);
+      setAvailableVoices([]);
     }
   };
 
@@ -212,8 +213,8 @@ export const SettingsPane = () => {
               </SelectTrigger>
               <SelectContent>
                 {availableVoices.map((voice, index) => (
-                  <SelectItem key={index} value={voice.name}>
-                    {voice.name} {voice.language && `(${voice.language})`}
+                  <SelectItem key={index} value={voice}>
+                    {voice}
                   </SelectItem>
                 ))}
               </SelectContent>

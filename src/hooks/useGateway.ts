@@ -150,10 +150,11 @@ export const useGateway = () => {
     return data.message?.content || 'No response';
   };
 
-  const voices = async (): Promise<Voice[]> => {
+  const voices = async (): Promise<string[]> => {
     const response = await fetch(`${API_BASE}/local/voices`);
     await handleResponse(response);
-    return response.json();
+    const data = await response.json();
+    return data.voices || [];
   };
 
   const speak = async (body: { text: string; voice?: string; rate?: number; volume?: number }): Promise<void> => {

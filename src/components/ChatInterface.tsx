@@ -43,7 +43,7 @@ const ChatInterface = () => {
     isHealthy,
     chat: gatewayChat,
     speak,
-    learnMemory
+    memoryLearn
   } = useGateway();
 
   const { sendMessage: sendDirectMessage, activeProvider, isConfigured } = useDirectLLM();
@@ -112,7 +112,16 @@ const ChatInterface = () => {
           }));
         
         chatMessages.push({ role: 'user', content: currentInput });
-        responseContent = await gatewayChat(chatMessages);
+        
+        responseContent = await gatewayChat({
+          messages: chatMessages,
+          stream: false,
+          max_tokens: 512,
+          options: {
+            temperature: 0.2,
+            num_ctx: 8192
+          }
+        });
       }
 
       const assistantMessage: Message = {
@@ -126,7 +135,7 @@ const ChatInterface = () => {
       // Trigger TTS if enabled and using gateway
       if (speakBackEnabled && !useDirectLLMMode) {
         try {
-          await speak(responseContent);
+          await speak({ text: responseContent });
         } catch (error) {
           console.warn('TTS failed:', error);
         }
@@ -165,7 +174,14 @@ const ChatInterface = () => {
     }
 
     try {
-      await learnMemory(messageContent, 'semantic');
+      await memoryLearn({
+        text: messageContent,
+        kind: 'semantic',
+        importance: 0.5,
+        relevance: 0.8,
+        tags: ['chat'],
+        source: 'chat'
+      });
       toast({
         title: "Memory Saved",
         description: "Message has been saved to your memory bank",
