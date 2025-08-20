@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MessageCircle, Settings, Mic, Hand, FileText, Brain, Volume2 } from 'lucide-react';
 import { useGateway } from '@/hooks/useGateway';
@@ -26,7 +25,7 @@ export const ZandaleeTerminal = () => {
         {/* Inline header with title and status */}
         <div className="flex-shrink-0 mb-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground text-lcars-display">ZANDALEE TERMINAL</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-lcars-text-accent text-lcars-display">ZANDALEE TERMINAL</h1>
             <Badge variant={isHealthy ? "default" : "destructive"}>
               {isHealthy ? "GATEWAY CONNECTED" : "GATEWAY OFFLINE"}
             </Badge>
@@ -34,32 +33,32 @@ export const ZandaleeTerminal = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="flex-shrink-0 grid w-full grid-cols-7 mb-4 h-auto min-h-[2.5rem] overflow-x-auto">
-            <TabsTrigger value="chat" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
+          <TabsList className="flex-shrink-0 grid w-full grid-cols-7 mb-4 h-auto min-h-[3rem] overflow-x-auto gap-2">
+            <TabsTrigger value="chat" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-purple">
               <MessageCircle className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
               <span className="hidden sm:inline truncate">CHAT</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
+            <TabsTrigger value="settings" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-blue">
               <Settings className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
               <span className="hidden sm:inline truncate">SETTINGS</span>
             </TabsTrigger>
-            <TabsTrigger value="voice" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
+            <TabsTrigger value="voice" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-orange">
               <Volume2 className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
               <span className="hidden sm:inline truncate">VOICE</span>
             </TabsTrigger>
-            <TabsTrigger value="memories" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
+            <TabsTrigger value="memories" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-yellow">
               <Brain className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
               <span className="hidden sm:inline truncate">MEMORIES</span>
             </TabsTrigger>
-            <TabsTrigger value="mic" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
+            <TabsTrigger value="mic" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-pink">
               <Mic className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
               <span className="hidden sm:inline truncate">MIC</span>
             </TabsTrigger>
-            <TabsTrigger value="hands" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
+            <TabsTrigger value="hands" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-cyan">
               <Hand className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
               <span className="hidden sm:inline truncate">HANDS</span>
             </TabsTrigger>
-            <TabsTrigger value="docs" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
+            <TabsTrigger value="docs" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-violet">
               <FileText className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
               <span className="hidden sm:inline truncate">DOCS</span>
             </TabsTrigger>

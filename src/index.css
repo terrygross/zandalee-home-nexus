@@ -3,39 +3,31 @@
 @tailwind components;
 @tailwind utilities;
 
-/* LCARS Design System */
+/* LCARS Design System - Authentic Colors */
 @layer base {
   :root {
-    /* LCARS Core Colors */
-    --lcars-orange: 17 100% 58%;
-    --lcars-blue: 199 89% 48%;
-    --lcars-red: 355 85% 63%;
-    --lcars-yellow: 51 100% 50%;
-    --lcars-purple: 296 100% 75%;
-    --lcars-green: 120 100% 25%;
-    --lcars-pink: 320 100% 75%;
+    /* LCARS Authentic Colors from reference images */
+    --lcars-orange: 17 100% 58%;        /* Primary orange/amber */
+    --lcars-blue: 199 89% 48%;          /* Primary blue */
+    --lcars-red: 355 85% 63%;           /* Alert red */
+    --lcars-yellow: 51 100% 50%;        /* Warning yellow */
+    --lcars-purple: 296 100% 75%;       /* Purple/magenta */
+    --lcars-green: 120 100% 25%;        /* Success green */
+    --lcars-pink: 320 100% 75%;         /* Pink accent */
+    --lcars-cyan: 180 100% 50%;         /* Cyan accent */
+    --lcars-violet: 270 100% 75%;       /* Violet accent */
     
     /* LCARS Backgrounds */
-    --lcars-bg-primary: 240 10% 8%;
-    --lcars-bg-secondary: 240 8% 12%;
-    --lcars-bg-tertiary: 240 6% 15%;
-    --lcars-bg-panel: 240 8% 10%;
+    --lcars-bg-primary: 240 10% 8%;     /* Deep space black */
+    --lcars-bg-secondary: 240 8% 12%;   /* Panel background */
+    --lcars-bg-tertiary: 240 6% 15%;    /* Card background */
+    --lcars-bg-panel: 240 8% 10%;       /* Main panel */
     
     /* LCARS Text */
-    --lcars-text-primary: 199 89% 85%;
-    --lcars-text-secondary: 199 50% 70%;
-    --lcars-text-muted: 199 30% 50%;
-    --lcars-text-accent: 17 100% 70%;
-    
-    /* LCARS Status */
-    --lcars-status-online: 120 100% 40%;
-    --lcars-status-warning: 51 100% 50%;
-    --lcars-status-error: 355 85% 63%;
-    --lcars-status-info: 199 89% 48%;
-    
-    /* LCARS Borders */
-    --lcars-border: 199 50% 30%;
-    --lcars-border-accent: 17 100% 58%;
+    --lcars-text-primary: 199 89% 85%;  /* Light blue text */
+    --lcars-text-secondary: 199 50% 70%; /* Medium blue text */
+    --lcars-text-muted: 199 30% 50%;    /* Dim blue text */
+    --lcars-text-accent: 17 100% 70%;   /* Orange accent text */
     
     /* Map to shadcn variables */
     --background: var(--lcars-bg-primary);
@@ -52,9 +44,9 @@
     --muted-foreground: var(--lcars-text-muted);
     --accent: var(--lcars-blue);
     --accent-foreground: var(--lcars-text-primary);
-    --destructive: var(--lcars-status-error);
+    --destructive: var(--lcars-red);
     --destructive-foreground: var(--lcars-text-primary);
-    --border: var(--lcars-border);
+    --border: 199 50% 30%;
     --input: var(--lcars-bg-tertiary);
     --ring: var(--lcars-orange);
     --radius: 0rem;
@@ -68,67 +60,96 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Orbitron', 'JetBrains Mono', monospace;
-    background-image: 
-      linear-gradient(45deg, hsl(var(--lcars-bg-primary)) 0%, hsl(var(--lcars-bg-secondary)) 100%);
+    font-family: 'Orbitron', 'Courier Prime', monospace;
+    background: linear-gradient(45deg, hsl(var(--lcars-bg-primary)) 0%, hsl(var(--lcars-bg-secondary)) 100%);
   }
 }
 
 @layer components {
-  /* LCARS Panel Styling */
+  /* LCARS Panel with authentic rounded corners */
   .lcars-panel {
     @apply bg-card border-l-4 border-primary;
-    clip-path: polygon(20px 0%, 100% 0%, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0% 100%, 0% 20px);
+    border-radius: 20px 0px 0px 20px;
+    position: relative;
   }
   
+  /* LCARS Button - authentic pill shape with rounded ends */
   .lcars-button {
-    @apply bg-primary text-primary-foreground font-bold;
-    clip-path: polygon(15px 0%, 100% 0%, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0% 100%, 0% 15px);
+    @apply font-bold text-black;
+    border-radius: 25px;
+    position: relative;
     transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
   }
   
   .lcars-button:hover {
-    @apply bg-accent;
     transform: scale(1.02);
+    filter: brightness(1.1);
   }
   
+  /* LCARS Tab - rounded rectangle shape */
   .lcars-tab {
-    @apply bg-secondary text-secondary-foreground border-l-4 border-muted-foreground;
-    clip-path: polygon(10px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 10px);
+    @apply font-bold text-black border-none;
+    border-radius: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
   }
   
   .lcars-tab[data-state="active"] {
-    @apply bg-primary text-primary-foreground border-primary;
+    @apply bg-lcars-blue text-black;
   }
   
+  /* LCARS Input - rounded rectangle */
   .lcars-input {
-    @apply bg-input border-l-4 border-accent text-foreground;
-    clip-path: polygon(10px 0%, 100% 0%, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0% 100%, 0% 10px);
+    @apply bg-input text-foreground border-2 border-lcars-blue;
+    border-radius: 15px;
+    padding: 8px 16px;
   }
   
+  .lcars-input:focus {
+    @apply border-lcars-orange ring-2 ring-lcars-orange ring-opacity-50;
+  }
+  
+  /* LCARS Badge - pill shaped */
   .lcars-badge {
-    @apply font-bold tracking-wider;
-    clip-path: polygon(8px 0%, 100% 0%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0% 100%, 0% 8px);
+    @apply font-bold tracking-wider text-black;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
   }
   
+  /* LCARS Card - rounded corner panel */
   .lcars-card {
-    @apply bg-card border-l-4 border-accent;
-    clip-path: polygon(15px 0%, 100% 0%, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0% 100%, 0% 15px);
+    @apply bg-card;
+    border-radius: 20px;
+    border: 2px solid hsl(var(--lcars-blue));
   }
 }
 
 @layer utilities {
   .text-lcars {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Orbitron', 'Courier Prime', monospace;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
   
   .text-lcars-display {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Orbitron', 'Courier Prime', monospace;
     font-weight: 900;
     letter-spacing: 0.2em;
     text-transform: uppercase;
   }
+  
+  /* LCARS Color Utilities */
+  .bg-lcars-orange { background-color: hsl(var(--lcars-orange)); }
+  .bg-lcars-blue { background-color: hsl(var(--lcars-blue)); }
+  .bg-lcars-purple { background-color: hsl(var(--lcars-purple)); }
+  .bg-lcars-yellow { background-color: hsl(var(--lcars-yellow)); }
+  .bg-lcars-red { background-color: hsl(var(--lcars-red)); }
+  .bg-lcars-green { background-color: hsl(var(--lcars-green)); }
+  .bg-lcars-pink { background-color: hsl(var(--lcars-pink)); }
+  .bg-lcars-cyan { background-color: hsl(var(--lcars-cyan)); }
+  .bg-lcars-violet { background-color: hsl(var(--lcars-violet)); }
 }
