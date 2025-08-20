@@ -432,10 +432,10 @@ export const ChatPane = () => {
   };
 
   return (
-    <div className="flex h-[600px] gap-4">
+    <div className="h-full flex gap-4 p-4 overflow-hidden">
       {/* Chat Section */}
-      <Card className="flex-1 flex flex-col">
-        <CardHeader>
+      <Card className="flex-1 flex flex-col min-h-0">
+        <CardHeader className="flex-shrink-0">
           <div className="flex items-center justify-between">
             <CardTitle>Chat</CardTitle>
             <div className="flex items-center space-x-2">
@@ -449,8 +449,9 @@ export const ChatPane = () => {
           </div>
         </CardHeader>
         
-        <CardContent className="flex-1 flex flex-col">
-          <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+        <CardContent className="flex-1 flex flex-col min-h-0 p-6">
+          {/* Messages area with proper flex and overflow */}
+          <div className="flex-1 overflow-y-auto space-y-4 mb-4 min-h-0">
             {messages.map((message) => (
               <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`flex items-start space-x-2 max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
@@ -506,13 +507,15 @@ export const ChatPane = () => {
             <div ref={messagesEndRef} />
           </div>
           
-          <div className="flex space-x-2">
+          {/* Input area - fixed at bottom with proper spacing */}
+          <div className="flex-shrink-0 flex space-x-2">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Type a message..."
               disabled={isProcessing || !isHealthy}
+              className="flex-1"
             />
             <Button
               onClick={handleSend}
@@ -524,9 +527,9 @@ export const ChatPane = () => {
         </CardContent>
       </Card>
 
-      {/* Memory & Diary Side Panel */}
-      <Card className="w-80 flex flex-col">
-        <CardHeader className="pb-1 px-3 pt-2 flex-shrink-0">
+      {/* Memory & Diary Side Panel - matching spacing */}
+      <Card className="w-80 flex flex-col min-h-0">
+        <CardHeader className="pb-3 px-6 pt-6 flex-shrink-0">
           <CardTitle className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
               <Brain className="w-4 h-4 text-primary" />
@@ -536,7 +539,7 @@ export const ChatPane = () => {
           </CardTitle>
         </CardHeader>
         
-        <CardContent className="flex-1 flex flex-col p-3 pt-1 min-h-0 overflow-hidden">
+        <CardContent className="flex-1 flex flex-col p-6 pt-0 min-h-0 overflow-hidden">
           <Tabs defaultValue="memories" className="flex-1 flex flex-col min-h-0">
             <TabsList className="grid w-full grid-cols-2 h-8 mb-2 flex-shrink-0">
               <TabsTrigger value="memories" className="text-xs">Memories</TabsTrigger>
