@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,7 +34,7 @@ interface DiaryEntry {
 }
 
 const emotions = [
-  { value: '', label: 'None' },
+  { value: 'none', label: 'None' },
   { value: 'happy', label: '😊 Happy' },
   { value: 'sad', label: '😢 Sad' },
   { value: 'neutral', label: '😐 Neutral' },
@@ -54,7 +53,7 @@ export const MemoriesPane = () => {
   // Memory form state
   const [memoryText, setMemoryText] = useState('');
   const [memoryKind, setMemoryKind] = useState<'semantic' | 'episodic' | 'procedural' | 'working'>('semantic');
-  const [memoryEmotion, setMemoryEmotion] = useState('');
+  const [memoryEmotion, setMemoryEmotion] = useState('none');
   const [memoryTags, setMemoryTags] = useState('');
   const [memoryImportance, setMemoryImportance] = useState([0.5]);
   const [memoryRelevance, setMemoryRelevance] = useState([0.5]);
@@ -62,7 +61,7 @@ export const MemoriesPane = () => {
 
   // Diary form state
   const [diaryText, setDiaryText] = useState('');
-  const [diaryEmotion, setDiaryEmotion] = useState('');
+  const [diaryEmotion, setDiaryEmotion] = useState('none');
   const [diaryPhoto, setDiaryPhoto] = useState<string | null>(null);
 
   const { memorySearch, memoryLearn, diaryAppend, diaryRollup, upload } = useGateway();
@@ -74,7 +73,7 @@ export const MemoriesPane = () => {
     setLoading(true);
     try {
       const results = await memorySearch(searchQuery, 20);
-      // Fix: Handle both array and object responses properly
+      // Handle both array and object responses properly
       if (Array.isArray(results)) {
         setMemories(results);
       } else if (results && typeof results === 'object' && 'results' in results) {
@@ -137,7 +136,7 @@ export const MemoriesPane = () => {
         importance: memoryImportance[0],
         relevance: memoryRelevance[0],
         tags: memoryTags.split(',').map(tag => tag.trim()).filter(Boolean),
-        emotion: memoryEmotion || undefined,
+        emotion: memoryEmotion === 'none' ? undefined : memoryEmotion,
         photo_path: memoryPhoto || undefined,
         source: 'manual'
       };
@@ -152,7 +151,7 @@ export const MemoriesPane = () => {
       // Clear form
       setMemoryText('');
       setMemoryKind('semantic');
-      setMemoryEmotion('');
+      setMemoryEmotion('none');
       setMemoryTags('');
       setMemoryImportance([0.5]);
       setMemoryRelevance([0.5]);
@@ -180,7 +179,7 @@ export const MemoriesPane = () => {
     try {
       const entry = {
         text: diaryText,
-        emotion: diaryEmotion || undefined,
+        emotion: diaryEmotion === 'none' ? undefined : diaryEmotion,
         photo_path: diaryPhoto || undefined
       };
 
@@ -201,7 +200,7 @@ export const MemoriesPane = () => {
 
       // Clear form
       setDiaryText('');
-      setDiaryEmotion('');
+      setDiaryEmotion('none');
       setDiaryPhoto(null);
     } catch (error: any) {
       toast({
@@ -282,7 +281,7 @@ export const MemoriesPane = () => {
                             {memory.kind}
                           </Badge>
                         )}
-                        {memory.emotion && (
+                        {memory.emotion && memory.emotion !== 'none' && (
                           <Badge variant="outline" className="text-xs">
                             {emotions.find(e => e.value === memory.emotion)?.label || memory.emotion}
                           </Badge>
@@ -350,7 +349,7 @@ export const MemoriesPane = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {emotions.map((emotion) => (
-                          <SelectItem key={emotion.value || 'none'} value={emotion.value}>
+                          <SelectItem key={emotion.value} value={emotion.value}>
                             {emotion.label}
                           </SelectItem>
                         ))}
@@ -450,7 +449,7 @@ export const MemoriesPane = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {emotions.map((emotion) => (
-                        <SelectItem key={emotion.value || 'none'} value={emotion.value}>
+                        <SelectItem key={emotion.value} value={emotion.value}>
                           {emotion.label}
                         </SelectItem>
                       ))}
@@ -505,7 +504,7 @@ export const MemoriesPane = () => {
                             {entry.day}
                           </div>
                         )}
-                        {entry.emotion && (
+                        {entry.emotion && entry.emotion !== 'none' && (
                           <Badge variant="outline" className="text-xs">
                             {emotions.find(e => e.value === entry.emotion)?.label || entry.emotion}
                           </Badge>
