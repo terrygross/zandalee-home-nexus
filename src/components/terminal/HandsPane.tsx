@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Keyboard, Mouse, Code, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Keyboard, Mouse, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useGateway } from '@/hooks/useGateway';
 import { useToast } from '@/hooks/use-toast';
 
@@ -12,7 +12,7 @@ export const HandsPane = () => {
   const [keyText, setKeyText] = useState('');
   const [enterKey, setEnterKey] = useState(false);
 
-  const { keys, mouse, openApp } = useGateway();
+  const { keys, mouse } = useGateway();
   const { toast } = useToast();
 
   const handleSendKeys = async () => {
@@ -45,22 +45,6 @@ export const HandsPane = () => {
     } catch (error: any) {
       toast({
         title: 'Mouse Action Failed',
-        description: error.message || 'Unknown error',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  const handleOpenVSCode = async () => {
-    try {
-      await openApp({ name: 'code' });
-      toast({
-        title: 'App Launched',
-        description: 'VS Code opened successfully'
-      });
-    } catch (error: any) {
-      toast({
-        title: 'App Launch Failed',
         description: error.message || 'Unknown error',
         variant: 'destructive'
       });
@@ -164,21 +148,6 @@ export const HandsPane = () => {
               Scroll Down
             </Button>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Code className="w-5 h-5" />
-            Application Control
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button onClick={handleOpenVSCode} className="w-full">
-            <Code className="w-4 h-4 mr-2" />
-            Open VS Code
-          </Button>
         </CardContent>
       </Card>
     </div>
