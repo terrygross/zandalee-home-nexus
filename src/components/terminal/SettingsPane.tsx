@@ -42,9 +42,11 @@ export const SettingsPane = () => {
   const loadVoices = async () => {
     try {
       const voiceList = await voices();
-      setAvailableVoices(voiceList);
+      // Filter out any empty or invalid voices
+      const validVoices = voiceList.filter(voice => voice && voice.trim() !== '');
+      setAvailableVoices(validVoices);
       const saved = localStorage.getItem('selected_voice');
-      if (saved) {
+      if (saved && validVoices.includes(saved)) {
         setSelectedVoice(saved);
       }
     } catch (error) {
@@ -122,6 +124,9 @@ export const SettingsPane = () => {
     }
   };
 
+  // Filter available models to ensure no empty values
+  const validModels = availableModels.filter(modelName => modelName && modelName.trim() !== '');
+
   return (
     <div className="space-y-6">
       <Card>
@@ -163,13 +168,13 @@ export const SettingsPane = () => {
 
           <div className="space-y-2">
             <Label htmlFor="model">Model</Label>
-            {availableModels.length > 0 ? (
+            {validModels.length > 0 ? (
               <Select value={model} onValueChange={setModel}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a model" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableModels.map((modelName) => (
+                  {validModels.map((modelName) => (
                     <SelectItem key={modelName} value={modelName}>
                       {modelName}
                     </SelectItem>
@@ -207,18 +212,26 @@ export const SettingsPane = () => {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="voice">Voice</Label>
-            <Select value={selectedVoice} onValueChange={handleVoiceChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a voice" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableVoices.map((voice, index) => (
-                  <SelectItem key={index} value={voice}>
-                    {voice}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {availableVoices.length > 0 ? (
+              <Select value={selectedVoice} onValueChange={handleVoiceChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a voice" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableVoices.map((voice, index) => (
+                    <SelectItem key={`voice-${index}-${voice}`} value={voice}>
+                      {voice}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input
+                value={selectedVoice}
+                onChange={(e) => handleVoiceChange(e.target.value)}
+                placeholder="Enter voice name"
+              />
+            )}
           </div>
         </CardContent>
       </Card>
