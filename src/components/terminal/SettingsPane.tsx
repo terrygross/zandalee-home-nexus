@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Eye, EyeOff, TestTube } from 'lucide-react';
 import { useGateway } from '@/hooks/useGateway';
@@ -17,15 +16,12 @@ export const SettingsPane = () => {
   const [showApiKey, setShowApiKey] = useState(false);
   const [loading, setLoading] = useState(false);
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'green' | 'amber' | 'red'>('idle');
-  const [selectedVoice, setSelectedVoice] = useState('');
-  const [availableVoices, setAvailableVoices] = useState<string[]>([]);
 
-  const { getConfig, setConfig, health, getTags, voices, availableModels } = useGateway();
+  const { getConfig, setConfig, health, getTags } = useGateway();
   const { toast } = useToast();
 
   useEffect(() => {
     loadConfig();
-    loadVoices();
   }, []);
 
   const loadConfig = async () => {
@@ -36,29 +32,6 @@ export const SettingsPane = () => {
       setModel(config.model || 'qwen2.5-coder:32b');
     } catch (error) {
       console.error('Failed to load config:', error);
-    }
-  };
-
-  const loadVoices = async () => {
-    try {
-      const voiceList = await voices();
-      console.log('Raw voice list:', voiceList);
-      // Filter out empty strings, null, undefined, and non-string values
-      const validVoices = voiceList.filter(voice => 
-        voice && 
-        typeof voice === 'string' && 
-        voice.trim() !== ''
-      );
-      console.log('Filtered voices:', validVoices);
-      setAvailableVoices(validVoices);
-      
-      const saved = localStorage.getItem('selected_voice');
-      if (saved && saved.trim() !== '') {
-        setSelectedVoice(saved);
-      }
-    } catch (error) {
-      console.error('Failed to load voices:', error);
-      setAvailableVoices([]);
     }
   };
 
@@ -111,13 +84,6 @@ export const SettingsPane = () => {
     }
   };
 
-  const handleVoiceChange = (voice: string) => {
-    if (voice && voice.trim() !== '') {
-      setSelectedVoice(voice);
-      localStorage.setItem('selected_voice', voice);
-    }
-  };
-
   const getTestStatusBadge = () => {
     switch (testStatus) {
       case 'testing':
@@ -132,23 +98,6 @@ export const SettingsPane = () => {
         return null;
     }
   };
-
-  // Double filter and log available models to catch any empty strings
-  console.log('Raw availableModels:', availableModels);
-  const validModels = availableModels.filter(modelName => 
-    modelName && 
-    typeof modelName === 'string' && 
-    modelName.trim() !== ''
-  );
-  console.log('Filtered validModels:', validModels);
-  
-  // Double filter voices as well
-  const validVoices = availableVoices.filter(voice => 
-    voice && 
-    typeof voice === 'string' && 
-    voice.trim() !== ''
-  );
-  console.log('Final validVoices for rendering:', validVoices);
 
   return (
     <div className="space-y-6">
@@ -191,43 +140,12 @@ export const SettingsPane = () => {
 
           <div className="space-y-2">
             <Label htmlFor="model">Model</Label>
-            {validModels.length > 0 ? (
-              <Select 
-                value={model && model.trim() !== '' ? model : undefined} 
-                onValueChange={(value) => {
-                  console.log('Model selection changed to:', value);
-                  if (value && value.trim() !== '') {
-                    setModel(value);
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a model" />
-                </SelectTrigger>
-                <SelectContent>
-                  {validModels.map((modelName) => {
-                    console.log('Rendering model SelectItem with value:', modelName);
-                    // Additional safety check before rendering
-                    if (!modelName || typeof modelName !== 'string' || modelName.trim() === '') {
-                      console.error('Attempted to render SelectItem with invalid model value:', modelName);
-                      return null;
-                    }
-                    return (
-                      <SelectItem key={modelName} value={modelName}>
-                        {modelName}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            ) : (
-              <Input
-                id="model"
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                placeholder="qwen2.5-coder:32b"
-              />
-            )}
+            <Input
+              id="model"
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+              placeholder="qwen2.5-coder:32b"
+            />
           </div>
 
           <div className="flex space-x-2">
@@ -251,40 +169,9 @@ export const SettingsPane = () => {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="voice">Voice</Label>
-            {validVoices.length > 0 ? (
-              <Select 
-                value={selectedVoice && selectedVoice.trim() !== '' ? selectedVoice : undefined} 
-                onValueChange={(value) => {
-                  console.log('Voice selection changed to:', value);
-                  if (value && value.trim() !== '') {
-                    handleVoiceChange(value);
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a voice" />
-                </SelectTrigger>
-                <SelectContent>
-                  {validVoices.map((voice, index) => {
-                    console.log('Rendering voice SelectItem with value:', voice);
-                    // Additional safety check before rendering
-                    if (!voice || typeof voice !== 'string' || voice.trim() === '') {
-                      console.error('Attempted to render SelectItem with invalid voice value:', voice);
-                      return null;
-                    }
-                    return (
-                      <SelectItem key={`voice-${index}-${voice}`} value={voice}>
-                        {voice}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            ) : (
-              <div className="text-sm text-muted-foreground">
-                No voices available
-              </div>
-            )}
+            <div className="text-sm text-muted-foreground">
+              Voice selection temporarily disabled for debugging
+            </div>
           </div>
         </CardContent>
       </Card>
