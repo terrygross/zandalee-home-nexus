@@ -19,47 +19,34 @@ export const SafeSelect: React.FC<SafeSelectProps> = ({
   onChange,
   options,
   placeholder,
-  fallbackToInput = true
+  fallbackToInput = true // Default to true to avoid Select issues
 }) => {
-  // Filter out any empty or invalid options
-  const validOptions = options.filter(opt => opt && typeof opt === 'string' && opt.trim() !== '');
+  // Filter out any empty, null, undefined, or invalid options more aggressively
+  const validOptions = options.filter(opt => 
+    opt && 
+    typeof opt === 'string' && 
+    opt.trim() !== '' && 
+    opt !== null && 
+    opt !== undefined
+  );
   
-  // If no valid options or fallbackToInput is true, use Input with datalist
-  if (validOptions.length === 0 || fallbackToInput) {
-    return (
-      <div className="space-y-2">
-        <Label>{label}</Label>
-        <Input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder || `Select ${label.toLowerCase()}`}
-          list={`${label.toLowerCase().replace(/\s+/g, '-')}-options`}
-        />
-        <datalist id={`${label.toLowerCase().replace(/\s+/g, '-')}-options`}>
-          {validOptions.map((option, index) => (
-            <option key={index} value={option} />
-          ))}
-        </datalist>
-      </div>
-    );
-  }
-
-  // Use Select component only with valid options
+  // Always use Input with datalist for safety - this avoids all Select.Item issues
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
-      <Select value={value || undefined} onValueChange={onChange}>
-        <SelectTrigger>
-          <SelectValue placeholder={placeholder || `Select ${label.toLowerCase()}`} />
-        </SelectTrigger>
-        <SelectContent>
+      <Input
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder || `Select ${label.toLowerCase()}`}
+        list={`${label.toLowerCase().replace(/\s+/g, '-')}-options`}
+      />
+      {validOptions.length > 0 && (
+        <datalist id={`${label.toLowerCase().replace(/\s+/g, '-')}-options`}>
           {validOptions.map((option, index) => (
-            <SelectItem key={index} value={option}>
-              {option}
-            </SelectItem>
+            <option key={`${option}-${index}`} value={option} />
           ))}
-        </SelectContent>
-      </Select>
+        </datalist>
+      )}
     </div>
   );
 };
