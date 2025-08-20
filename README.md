@@ -1,73 +1,127 @@
-# Welcome to your Lovable project
 
-## Project info
+# Zandalee Terminal
 
-**URL**: https://lovable.dev/projects/1129ef77-0d63-40d0-8da6-a2b144642a6a
+A comprehensive AI assistant terminal that connects to a local gateway for chat, voice, memory, and PC control functionality.
 
-## How can I edit this code?
+## Environment Setup
 
-There are several ways of editing your application.
+Create a `.env.local` file in the root directory (optional):
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/1129ef77-0d63-40d0-8da6-a2b144642a6a) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```env
+VITE_ZANDALEE_API_BASE=http://127.0.0.1:11500
 ```
 
-**Edit a file directly in GitHub**
+If not set, the application defaults to `http://127.0.0.1:11500`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Development
 
-**Use GitHub Codespaces**
+```bash
+# Install dependencies
+npm install
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Start development server
+npm run dev
 
-## What technologies are used for this project?
+# Build for production
+npm run build
 
-This project is built with:
+# Preview production build
+npm run preview
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Quick Test Steps
 
-## How can I deploy this project?
+1. **Health Check**: Open the app - status bar should show gateway connection status
+2. **Config**: Go to Settings tab, enter Salad base URL and API key, click "Test Connection"
+3. **Chat**: Send a message in the Chat tab - should get AI response
+4. **Speak**: Enable "Speak Back" toggle in Chat tab for TTS responses
+5. **Memory**: Click ⭐ on assistant messages to save to memory, search in Memories tab
+6. **Hands**: Use Hands tab to send keystrokes or mouse actions
+7. **Docs**: Drag & drop files in Docs tab to upload
 
-Simply open [Lovable](https://lovable.dev/projects/1129ef77-0d63-40d0-8da6-a2b144642a6a) and click on Share -> Publish.
+## API Endpoints
 
-## Can I connect a custom domain to my Lovable project?
+The gateway hook (`src/hooks/useGateway.ts`) connects to these endpoints:
 
-Yes, you can!
+### Core Gateway
+- `GET /health` - Health check
+- `GET /config` - Get configuration
+- `POST /config` - Save configuration
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### AI Chat
+- `GET /api/tags` - List available models
+- `POST /api/chat` - Send chat message
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Voice/TTS
+- `GET /local/voices` - List available voices
+- `POST /local/speak` - Text-to-speech
+
+### Memory System
+- `POST /memory/learn` - Save memory
+- `GET /memory/search?q=&limit=` - Search memories
+
+### PC Control (Hands)
+- `POST /local/keys` - Send keystrokes
+- `POST /local/mouse` - Mouse actions
+- `POST /local/app` - Launch applications
+
+### Document Processing
+- `POST /local/upload` - Upload files (multipart)
+- `GET /local/docs` - List uploaded documents
+
+## Architecture
+
+- **Single Hook**: `useGateway.ts` centralizes all API calls with typed interfaces
+- **Component Structure**: Modular tab-based interface with focused components
+- **Error Handling**: Consistent error handling with user-friendly toasts
+- **Local Fallback**: Settings persist to localStorage when backend unavailable
+- **Real-time Status**: Health check polling every 2 seconds
+
+## Features
+
+### Settings Panel
+- Gateway configuration (base URL, API key, model)
+- Connection testing with status badges
+- Voice selection and persistence
+- Pre-filled Salad Cloud URL
+
+### Chat Interface
+- Real-time AI conversations
+- Memory saving with ⭐ button
+- TTS integration with voice selection
+- Message history with timestamps
+
+### Memory System
+- Search saved memories
+- Semantic/episodic/procedural memory types
+- Tag-based organization
+
+### Hands (PC Control)
+- Keyboard text input with Enter option
+- Mouse movement and clicking
+- Application launching (VS Code)
+
+### Document Processing
+- Drag & drop file upload
+- File listing with size display
+- Multiple file support
+
+### Mic Wizard (UI Stub)
+- Device selection interface
+- Quality metrics display
+- Configuration saving
+- **Note**: Currently stubbed with mock data
+
+## Build Output
+
+The `npm run build` command produces a static build in the `dist/` directory suitable for hosting at any path (`/`).
+
+## Error Handling
+
+The application provides friendly error messages for common scenarios:
+- **401**: "Unauthorized - check API key"
+- **502**: "Gateway error - check Salad connection"
+- **Timeout**: Network connectivity issues
+- **Other**: Generic server errors
+
+All errors show both inline feedback and toast notifications.
