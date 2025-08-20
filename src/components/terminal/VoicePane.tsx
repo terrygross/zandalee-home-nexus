@@ -46,26 +46,18 @@ export const VoicePane = () => {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="voice">Voice</Label>
-            {availableVoices.length > 0 ? (
-              <Select value={selectedVoice} onValueChange={handleVoiceChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a voice" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableVoices.map((voice, index) => (
-                    <SelectItem key={`voice-${index}-${voice}`} value={voice}>
-                      {voice}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <Input
-                value={selectedVoice}
-                onChange={(e) => handleVoiceChange(e.target.value)}
-                placeholder="Enter voice name"
-              />
-            )}
+            <Select value={selectedVoice} onValueChange={handleVoiceChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a voice" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableVoices.map((voice, index) => (
+                  <SelectItem key={`voice-${index}-${voice}`} value={voice}>
+                    {voice}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
