@@ -52,11 +52,20 @@ export const ChatPane = () => {
     setIsLoading(true);
 
     try {
-      const response = await chat(userMessage.text);
+      const chatRequest = {
+        messages: [
+          {
+            role: 'user' as const,
+            content: userMessage.text
+          }
+        ]
+      };
+      
+      const response = await chat(chatRequest);
       
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: response.response || 'No response received',
+        text: response || 'No response received',
         sender: 'assistant',
         timestamp: new Date()
       };
@@ -85,7 +94,7 @@ export const ChatPane = () => {
       <CardHeader className="flex-shrink-0 pt-2 pb-2">
         <CardTitle>Chat with Zandalee</CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col space-y-2 p-4 pb-2 min-h-0">
+      <CardContent className="flex-1 flex flex-col space-y-2 px-4 pt-1 pb-4 min-h-0">
         <ScrollArea ref={scrollAreaRef} className="flex-1 min-h-0">
           <div className="space-y-4 pr-4">
             {messages.length === 0 ? (
