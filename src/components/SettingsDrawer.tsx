@@ -74,15 +74,69 @@ interface AvatarConfig {
 
 const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:8759';
 
+// Default configurations
+const DEFAULT_CONFIGS = {
+  audio: {
+    input_device: { id: -1, name: "Default Microphone" },
+    output_device: { id: -1, name: "Default Speakers" },
+    volume: 0.8,
+    samplerate: 16000,
+    frame_ms: 10,
+    vad_mode: 1,
+    start_voiced_frames: 2,
+    end_unvoiced_frames: 500,
+    preroll_ms: 500,
+    silence_hold_ms: 5000
+  },
+  llm: {
+    provider: "openai",
+    api_key: "",
+    model: "gpt-3.5-turbo",
+    base_url: "",
+    temperature: 0.7,
+    max_tokens: 1000,
+    streaming: true
+  },
+  ui: {
+    theme: "system",
+    font_size: 14,
+    zoom_level: 1.0,
+    panels: {
+      chat: true,
+      meters: true,
+      memory: true,
+      actions: true,
+      avatar: true
+    },
+    self_test_on_start: true,
+    latency_meters: true,
+    earcons: true
+  },
+  avatar: {
+    enabled: true,
+    style: "realistic",
+    lip_sync: true,
+    renderer: "webgl",
+    performance: {
+      fps_cap: 30,
+      quality: "medium"
+    },
+    sandbox: {
+      separate_process: false
+    }
+  }
+} as const;
+
 export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ isOpen, onClose }) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [backendAvailable, setBackendAvailable] = useState(true);
   
   // Config states
-  const [audioConfig, setAudioConfig] = useState<AudioConfig | null>(null);
-  const [llmConfig, setLLMConfig] = useState<LLMConfig | null>(null);
-  const [uiConfig, setUIConfig] = useState<UIConfig | null>(null);
-  const [avatarConfig, setAvatarConfig] = useState<AvatarConfig | null>(null);
+  const [audioConfig, setAudioConfig] = useState<AudioConfig>(DEFAULT_CONFIGS.audio);
+  const [llmConfig, setLLMConfig] = useState<LLMConfig>(DEFAULT_CONFIGS.llm);
+  const [uiConfig, setUIConfig] = useState<UIConfig>(DEFAULT_CONFIGS.ui);
+  const [avatarConfig, setAvatarConfig] = useState<AvatarConfig>(DEFAULT_CONFIGS.avatar);
 
   // Load all configs on mount
   useEffect(() => {
@@ -94,38 +148,86 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ isOpen, onClose 
   const loadAllConfigs = async () => {
     setLoading(true);
     try {
-      const [audioRes, llmRes, uiRes, avatarRes] = await Promise.all([
+      // Try to load from backend first
+      const [audioRes, llmRes, uiRes, avatarRes] = await Promise.allSettled([
         fetch(`${API_BASE}/config/audio`),
         fetch(`${API_BASE}/config/llm`),
         fetch(`${API_BASE}/config/ui`),
         fetch(`${API_BASE}/config/avatar`)
       ]);
 
-      if (audioRes.ok) {
-        const audioData = await audioRes.json();
-        setAudioConfig(audioData.config);
+      let backendWorking = false;
+
+      // Load audio config
+      if (audioRes.status === 'fulfilled' && audioRes.value.ok) {
+        const audioData = await audioRes.value.json();
+        setAudioConfig(audioData.config || DEFAULT_CONFIGS.audio);
+        backendWorking = true;
+      } else {
+        // Load from localStorage or use defaults
+        const saved = localStorage.getItem('zandalee_audio_config');
+        setAudioConfig(saved ? JSON.parse(saved) : DEFAULT_CONFIGS.audio);
       }
 
-      if (llmRes.ok) {
-        const llmData = await llmRes.json();
-        setLLMConfig(llmData.config);
+      // Load LLM config
+      if (llmRes.status === 'fulfilled' && llmRes.value.ok) {
+        const llmData = await llmRes.value.json();
+        setLLMConfig(llmData.config || DEFAULT_CONFIGS.llm);
+        backendWorking = true;
+      } else {
+        const saved = localStorage.getItem('zandalee_llm_config');
+        setLLMConfig(saved ? JSON.parse(saved) : DEFAULT_CONFIGS.llm);
       }
 
-      if (uiRes.ok) {
-        const uiData = await uiRes.json();
-        setUIConfig(uiData.config);
+      // Load UI config
+      if (uiRes.status === 'fulfilled' && uiRes.value.ok) {
+        const uiData = await uiRes.value.json();
+        setUIConfig(uiData.config || DEFAULT_CONFIGS.ui);
+        backendWorking = true;
+      } else {
+        const saved = localStorage.getItem('zandalee_ui_config');
+        setUIConfig(saved ? JSON.parse(saved) : DEFAULT_CONFIGS.ui);
       }
 
-      if (avatarRes.ok) {
-        const avatarData = await avatarRes.json();
-        setAvatarConfig(avatarData.config);
+      // Load avatar config
+      if (avatarRes.status === 'fulfilled' && avatarRes.value.ok) {
+        const avatarData = await avatarRes.value.json();
+        setAvatarConfig(avatarData.config || DEFAULT_CONFIGS.avatar);
+        backendWorking = true;
+      } else {
+        const saved = localStorage.getItem('zandalee_avatar_config');
+        setAvatarConfig(saved ? JSON.parse(saved) : DEFAULT_CONFIGS.avatar);
       }
+
+      setBackendAvailable(backendWorking);
+
+      if (!backendWorking) {
+        toast({
+          title: "Backend Offline",
+          description: "Using local settings. Changes will be saved locally.",
+          variant: "default"
+        });
+      }
+
     } catch (error) {
       console.error('Failed to load configs:', error);
+      setBackendAvailable(false);
+      
+      // Load all from localStorage
+      const audioSaved = localStorage.getItem('zandalee_audio_config');
+      const llmSaved = localStorage.getItem('zandalee_llm_config');
+      const uiSaved = localStorage.getItem('zandalee_ui_config');
+      const avatarSaved = localStorage.getItem('zandalee_avatar_config');
+
+      setAudioConfig(audioSaved ? JSON.parse(audioSaved) : DEFAULT_CONFIGS.audio);
+      setLLMConfig(llmSaved ? JSON.parse(llmSaved) : DEFAULT_CONFIGS.llm);
+      setUIConfig(uiSaved ? JSON.parse(uiSaved) : DEFAULT_CONFIGS.ui);
+      setAvatarConfig(avatarSaved ? JSON.parse(avatarSaved) : DEFAULT_CONFIGS.avatar);
+
       toast({
-        title: "Error",
-        description: "Failed to load settings",
-        variant: "destructive"
+        title: "Settings Loaded",
+        description: "Using local settings. Backend is offline.",
+        variant: "default"
       });
     } finally {
       setLoading(false);
@@ -134,62 +236,90 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ isOpen, onClose 
 
   const saveConfig = async (configType: string, configData: any) => {
     try {
-      const response = await fetch(`${API_BASE}/config/${configType}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ data: configData })
-      });
+      if (backendAvailable) {
+        const response = await fetch(`${API_BASE}/config/${configType}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ data: configData })
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to save config');
+        if (!response.ok) {
+          throw new Error('Backend save failed');
+        }
       }
+
+      // Always save to localStorage as backup
+      localStorage.setItem(`zandalee_${configType}_config`, JSON.stringify(configData));
 
       toast({
         title: "Success",
-        description: `${configType} settings saved successfully`
+        description: `${configType} settings saved ${backendAvailable ? 'to backend' : 'locally'}`
       });
     } catch (error) {
       console.error(`Failed to save ${configType} config:`, error);
+      
+      // Fallback to localStorage
+      localStorage.setItem(`zandalee_${configType}_config`, JSON.stringify(configData));
+      
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : `Failed to save ${configType} settings`,
-        variant: "destructive"
+        title: "Saved Locally",
+        description: `${configType} settings saved to browser storage`,
+        variant: "default"
       });
     }
   };
 
   const resetConfig = async (configType: string) => {
     try {
-      const response = await fetch(`${API_BASE}/config/${configType}/reset`, {
-        method: 'POST'
-      });
+      if (backendAvailable) {
+        const response = await fetch(`${API_BASE}/config/${configType}/reset`, {
+          method: 'POST'
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to reset config');
+        if (!response.ok) {
+          throw new Error('Backend reset failed');
+        }
       }
 
+      // Reset to defaults
+      const defaultConfig = DEFAULT_CONFIGS[configType as keyof typeof DEFAULT_CONFIGS];
+      
+      switch (configType) {
+        case 'audio':
+          setAudioConfig(defaultConfig as AudioConfig);
+          break;
+        case 'llm':
+          setLLMConfig(defaultConfig as LLMConfig);
+          break;
+        case 'ui':
+          setUIConfig(defaultConfig as UIConfig);
+          break;
+        case 'avatar':
+          setAvatarConfig(defaultConfig as AvatarConfig);
+          break;
+      }
+
+      // Clear localStorage
+      localStorage.removeItem(`zandalee_${configType}_config`);
+
       toast({
-        title: "Success",
+        title: "Reset Complete",
         description: `${configType} settings reset to defaults`
       });
 
-      // Reload configs after reset
-      loadAllConfigs();
     } catch (error) {
       console.error(`Failed to reset ${configType} config:`, error);
       toast({
-        title: "Error",
+        title: "Reset Failed",
         description: error instanceof Error ? error.message : `Failed to reset ${configType} settings`,
         variant: "destructive"
       });
     }
   };
 
-  if (loading || !audioConfig || !llmConfig || !uiConfig || !avatarConfig) {
+  if (loading) {
     return (
       <Sheet open={isOpen} onOpenChange={onClose}>
         <SheetContent className="w-[800px] max-w-[90vw]">
@@ -211,6 +341,9 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ isOpen, onClose 
           <SheetTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
             Zandalee Settings
+            {!backendAvailable && (
+              <Badge variant="outline" className="ml-2">Local Mode</Badge>
+            )}
           </SheetTitle>
           <SheetDescription>
             Configure your AI assistant preferences and system settings
