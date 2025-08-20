@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MessageCircle, Settings, Mic, Hand, FileText, Brain } from 'lucide-react';
+import { MessageCircle, Settings, Mic, Hand, FileText, Brain, Volume2 } from 'lucide-react';
 import { useGateway } from '@/hooks/useGateway';
 import { ChatPane } from './terminal/ChatPane';
 import { SettingsPane } from './terminal/SettingsPane';
@@ -11,6 +11,7 @@ import { MemoriesPane } from './terminal/MemoriesPane';
 import { MicWizardPane } from './terminal/MicWizardPane';
 import { HandsPane } from './terminal/HandsPane';
 import { DocsPane } from './terminal/DocsPane';
+import { VoicePane } from './terminal/VoicePane';
 import { StatusBar } from './terminal/StatusBar';
 
 export const ZandaleeTerminal = () => {
@@ -32,7 +33,7 @@ export const ZandaleeTerminal = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="flex-shrink-0 grid w-full grid-cols-6 mb-4 h-auto min-h-[2.5rem]">
+          <TabsList className="flex-shrink-0 grid w-full grid-cols-7 mb-4 h-auto min-h-[2.5rem] overflow-x-auto">
             <TabsTrigger value="chat" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
               <MessageCircle className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
               <span className="hidden sm:inline truncate">Chat</span>
@@ -40,6 +41,10 @@ export const ZandaleeTerminal = () => {
             <TabsTrigger value="settings" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
               <Settings className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
               <span className="hidden sm:inline truncate">Settings</span>
+            </TabsTrigger>
+            <TabsTrigger value="voice" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
+              <Volume2 className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">Voice</span>
             </TabsTrigger>
             <TabsTrigger value="memories" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
               <Brain className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
@@ -66,6 +71,10 @@ export const ZandaleeTerminal = () => {
             
             <TabsContent value="settings" className="h-full m-0 overflow-hidden">
               <SettingsPane />
+            </TabsContent>
+            
+            <TabsContent value="voice" className="h-full m-0 overflow-hidden">
+              <VoicePane />
             </TabsContent>
             
             <TabsContent value="memories" className="h-full m-0 overflow-hidden">

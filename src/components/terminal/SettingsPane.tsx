@@ -17,15 +17,12 @@ export const SettingsPane = () => {
   const [showApiKey, setShowApiKey] = useState(false);
   const [loading, setLoading] = useState(false);
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'green' | 'amber' | 'red'>('idle');
-  const [selectedVoice, setSelectedVoice] = useState('');
-  const [availableVoices, setAvailableVoices] = useState<string[]>([]);
 
-  const { getConfig, setConfig, health, getTags, voices, availableModels } = useGateway();
+  const { getConfig, setConfig, health, getTags, availableModels } = useGateway();
   const { toast } = useToast();
 
   useEffect(() => {
     loadConfig();
-    loadVoices();
   }, []);
 
   const loadConfig = async () => {
@@ -36,22 +33,6 @@ export const SettingsPane = () => {
       setModel(config.model || 'qwen2.5-coder:32b');
     } catch (error) {
       console.error('Failed to load config:', error);
-    }
-  };
-
-  const loadVoices = async () => {
-    try {
-      const voiceList = await voices();
-      // Filter out any empty or invalid voices
-      const validVoices = voiceList.filter(voice => voice && voice.trim() !== '');
-      setAvailableVoices(validVoices);
-      const saved = localStorage.getItem('selected_voice');
-      if (saved && validVoices.includes(saved)) {
-        setSelectedVoice(saved);
-      }
-    } catch (error) {
-      console.error('Failed to load voices:', error);
-      setAvailableVoices([]);
     }
   };
 
@@ -102,11 +83,6 @@ export const SettingsPane = () => {
         variant: 'destructive'
       });
     }
-  };
-
-  const handleVoiceChange = (voice: string) => {
-    setSelectedVoice(voice);
-    localStorage.setItem('selected_voice', voice);
   };
 
   const getTestStatusBadge = () => {
@@ -202,37 +178,6 @@ export const SettingsPane = () => {
           </div>
 
           {getTestStatusBadge()}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Voice Settings</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="voice">Voice</Label>
-            {availableVoices.length > 0 ? (
-              <Select value={selectedVoice} onValueChange={handleVoiceChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a voice" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableVoices.map((voice, index) => (
-                    <SelectItem key={`voice-${index}-${voice}`} value={voice}>
-                      {voice}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <Input
-                value={selectedVoice}
-                onChange={(e) => handleVoiceChange(e.target.value)}
-                placeholder="Enter voice name"
-              />
-            )}
-          </div>
         </CardContent>
       </Card>
     </div>
