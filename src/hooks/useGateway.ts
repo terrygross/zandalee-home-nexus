@@ -36,36 +36,7 @@ interface Memory {
   importance?: number;
   relevance?: number;
   tags?: string[];
-  emotion?: string | null;
-  photo_path?: string | null;
   source?: string;
-}
-
-interface MicDevice {
-  id: number;
-  name: string;
-  channels: number;
-  default?: boolean;
-}
-
-interface MicWizardResult {
-  devices: Array<{
-    id: number;
-    name: string;
-    SNR: number;
-    voiced: number;
-    startDelay: number;
-    clip: number;
-    score: number;
-  }>;
-  chosen: any;
-  persisted: boolean;
-}
-
-interface DiaryEntry {
-  text: string;
-  emotion?: string | null;
-  photo_path?: string | null;
 }
 
 interface GatewayError {
@@ -243,7 +214,7 @@ export const useGateway = () => {
     await handleResponse(response);
   };
 
-  const upload = async (files: File[]): Promise<{ files: Array<{ name: string; path: string }> }> => {
+  const upload = async (files: File[]): Promise<void> => {
     const formData = new FormData();
     files.forEach(file => formData.append('files', file));
     
@@ -252,107 +223,12 @@ export const useGateway = () => {
       body: formData
     });
     await handleResponse(response);
-    return response.json();
   };
 
   const listDocs = async (): Promise<any[]> => {
     const response = await fetch(`${API_BASE}/local/docs`);
     await handleResponse(response);
     return response.json();
-  };
-
-  // New Mic endpoints
-  const micList = async (): Promise<MicDevice[]> => {
-    try {
-      const response = await fetch(`${API_BASE}/mic/list`);
-      await handleResponse(response);
-      return response.json();
-    } catch (error) {
-      // Return mock data if endpoint not available
-      console.warn('Mic list endpoint not available, using mock data');
-      return [
-        { id: 1, name: 'Default Microphone', channels: 1, default: true },
-        { id: 2, name: 'USB Headset', channels: 2 },
-        { id: 3, name: 'Built-in Microphone', channels: 1 }
-      ];
-    }
-  };
-
-  const micWizard = async (): Promise<MicWizardResult> => {
-    try {
-      const response = await fetch(`${API_BASE}/mic/wizard`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
-      });
-      await handleResponse(response);
-      return response.json();
-    } catch (error) {
-      // Return mock data if endpoint not available
-      console.warn('Mic wizard endpoint not available, using mock data');
-      return {
-        devices: [
-          { id: 1, name: 'Default Microphone', SNR: 25, voiced: 85, startDelay: 20, clip: 0, score: 95 },
-          { id: 2, name: 'USB Headset', SNR: 22, voiced: 82, startDelay: 25, clip: 1, score: 88 },
-          { id: 3, name: 'Built-in Microphone', SNR: 18, voiced: 75, startDelay: 35, clip: 2, score: 72 }
-        ],
-        chosen: { id: 1 },
-        persisted: false
-      };
-    }
-  };
-
-  const micUse = async (payload: { id: number }): Promise<{ ok: boolean; id: number }> => {
-    try {
-      const response = await fetch(`${API_BASE}/mic/use`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      await handleResponse(response);
-      return response.json();
-    } catch (error) {
-      // Mock success if endpoint not available
-      console.warn('Mic use endpoint not available, using mock response');
-      return { ok: true, id: payload.id };
-    }
-  };
-
-  // New Diary endpoints
-  const diaryAppend = async (body: DiaryEntry): Promise<{ ok: boolean; id: string; day: string }> => {
-    try {
-      const response = await fetch(`${API_BASE}/diary/append`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      await handleResponse(response);
-      return response.json();
-    } catch (error) {
-      // Mock success if endpoint not available
-      console.warn('Diary append endpoint not available, using mock response');
-      return { ok: true, id: 'mock-id', day: new Date().toISOString().split('T')[0] };
-    }
-  };
-
-  const diaryRollup = async (period: 'daily' | 'weekly' | 'monthly'): Promise<{ ok: boolean; period: string; text: string }> => {
-    try {
-      const response = await fetch(`${API_BASE}/diary/rollup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ period })
-      });
-      await handleResponse(response);
-      return response.json();
-    } catch (error) {
-      // Mock response if endpoint not available
-      console.warn('Diary rollup endpoint not available, using mock response');
-      return {
-        ok: true,
-        period,
-        text: `Mock ${period} summary: This is a placeholder rollup for the ${period} period. The actual implementation will provide meaningful insights from diary entries.`
-      };
-    }
   };
 
   return {
@@ -371,12 +247,6 @@ export const useGateway = () => {
     mouse,
     openApp,
     upload,
-    listDocs,
-    // New endpoints
-    micList,
-    micWizard,
-    micUse,
-    diaryAppend,
-    diaryRollup
+    listDocs
   };
 };
