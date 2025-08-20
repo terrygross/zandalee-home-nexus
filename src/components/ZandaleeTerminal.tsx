@@ -18,12 +18,12 @@ export const ZandaleeTerminal = () => {
   const { isHealthy } = useGateway();
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col h-screen w-screen bg-background overflow-hidden">
       <StatusBar />
       
-      <div className="flex-1 flex flex-col container mx-auto p-4 max-w-full">
-        <div className="mb-6 flex-shrink-0">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Zandalee Terminal</h1>
+      <div className="flex-1 flex flex-col min-h-0 px-4 py-2">
+        <div className="flex-shrink-0 mb-4">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Zandalee Terminal</h1>
           <div className="flex items-center gap-2">
             <Badge variant={isHealthy ? "default" : "destructive"}>
               {isHealthy ? "Gateway Connected" : "Gateway Offline"}
@@ -31,56 +31,56 @@ export const ZandaleeTerminal = () => {
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-6 overflow-x-auto min-w-0">
-            <TabsTrigger value="chat" className="flex items-center gap-2 min-w-0">
-              <MessageCircle className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">Chat</span>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+          <TabsList className="flex-shrink-0 grid w-full grid-cols-6 mb-4 h-auto min-h-[2.5rem]">
+            <TabsTrigger value="chat" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
+              <MessageCircle className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">Chat</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2 min-w-0">
-              <Settings className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">Settings</span>
+            <TabsTrigger value="settings" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
+              <Settings className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">Settings</span>
             </TabsTrigger>
-            <TabsTrigger value="memories" className="flex items-center gap-2 min-w-0">
-              <Brain className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">Memories</span>
+            <TabsTrigger value="memories" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
+              <Brain className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">Memories</span>
             </TabsTrigger>
-            <TabsTrigger value="mic" className="flex items-center gap-2 min-w-0">
-              <Mic className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">Mic Wizard</span>
+            <TabsTrigger value="mic" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
+              <Mic className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">Mic</span>
             </TabsTrigger>
-            <TabsTrigger value="hands" className="flex items-center gap-2 min-w-0">
-              <Hand className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">Hands</span>
+            <TabsTrigger value="hands" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
+              <Hand className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">Hands</span>
             </TabsTrigger>
-            <TabsTrigger value="docs" className="flex items-center gap-2 min-w-0">
-              <FileText className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">Docs</span>
+            <TabsTrigger value="docs" className="flex items-center gap-1 px-2 py-1.5 text-xs md:text-sm">
+              <FileText className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">Docs</span>
             </TabsTrigger>
           </TabsList>
 
-          <div className="flex-1 min-h-0">
-            <TabsContent value="chat" className="h-full m-0">
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <TabsContent value="chat" className="h-full m-0 overflow-hidden">
               <ChatPane />
             </TabsContent>
             
-            <TabsContent value="settings" className="h-full m-0 overflow-y-auto">
+            <TabsContent value="settings" className="h-full m-0 overflow-hidden">
               <SettingsPane />
             </TabsContent>
             
-            <TabsContent value="memories" className="h-full m-0">
+            <TabsContent value="memories" className="h-full m-0 overflow-hidden">
               <MemoriesPane />
             </TabsContent>
             
-            <TabsContent value="mic" className="h-full m-0">
+            <TabsContent value="mic" className="h-full m-0 overflow-hidden">
               <MicWizardPane />
             </TabsContent>
             
-            <TabsContent value="hands" className="h-full m-0">
+            <TabsContent value="hands" className="h-full m-0 overflow-hidden">
               <HandsPane />
             </TabsContent>
             
-            <TabsContent value="docs" className="h-full m-0">
+            <TabsContent value="docs" className="h-full m-0 overflow-hidden">
               <DocsPane />
             </TabsContent>
           </div>
