@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
@@ -52,6 +51,13 @@ class APIError extends Error {
     this.status = status;
     this.name = 'APIError';
   }
+}
+
+interface AudioDevice {
+  id: number;
+  name: string;
+  channels: number;
+  default?: boolean;
 }
 
 export const useGateway = () => {
@@ -231,6 +237,47 @@ export const useGateway = () => {
     return response.json();
   };
 
+  const micList = async (): Promise<AudioDevice[]> => {
+    try {
+      const response = await fetch(`${API_BASE}/mic/list`);
+      await handleResponse(response);
+      return response.json();
+    } catch (error) {
+      console.warn('Mic list endpoint not available, using mock data');
+      throw error;
+    }
+  };
+
+  const micWizard = async (): Promise<{ devices: any[]; chosen?: any; persisted?: boolean }> => {
+    try {
+      const response = await fetch(`${API_BASE}/mic/wizard`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      await handleResponse(response);
+      return response.json();
+    } catch (error) {
+      console.warn('Mic wizard endpoint not available');
+      throw error;
+    }
+  };
+
+  const micUse = async (body: { id: number }): Promise<{ ok: boolean; id: number }> => {
+    try {
+      const response = await fetch(`${API_BASE}/mic/use`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      await handleResponse(response);
+      return response.json();
+    } catch (error) {
+      console.warn('Mic use endpoint not available');
+      throw error;
+    }
+  };
+
   return {
     isHealthy,
     availableModels,
@@ -247,6 +294,9 @@ export const useGateway = () => {
     mouse,
     openApp,
     upload,
-    listDocs
+    listDocs,
+    micList,
+    micWizard,
+    micUse
   };
 };

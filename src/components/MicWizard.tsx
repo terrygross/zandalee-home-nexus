@@ -4,26 +4,27 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Mic, Volume2, Settings, Play, Check, AlertCircle } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Mic, Volume2, Settings, Play, Check, AlertCircle, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useGateway } from "@/hooks/useGateway";
 
 interface AudioDevice {
   id: number;
   name: string;
-  max_input_channels: number;
-  samplerate: number;
+  channels: number;
+  default?: boolean;
 }
 
-interface DeviceMetrics {
+interface DeviceResult {
   id: number;
   name: string;
-  snr_db: number;
-  voiced_ratio: number;
-  start_delay_ms: number;
-  clipping_percent: number;
-  dropout_percent: number;
+  SNR: number;
+  voiced: number;
+  startDelay: number;
+  clip: number;
   score: number;
-  samplerate: number;
 }
 
 interface MicWizardProps {
@@ -32,188 +33,213 @@ interface MicWizardProps {
 }
 
 const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
-  const [step, setStep] = useState<'preflight' | 'enumerate' | 'testing' | 'results' | 'confirm'>('preflight');
+  const [step, setStep] = useState<'devices' | 'running' | 'results'>('devices');
   const [devices, setDevices] = useState<AudioDevice[]>([]);
-  const [currentDevice, setCurrentDevice] = useState<number>(0);
-  const [testingPhase, setTestingPhase] = useState<'noise' | 'voice'>('noise');
-  const [progress, setProgress] = useState(0);
-  const [metrics, setMetrics] = useState<DeviceMetrics[]>([]);
-  const [selectedDevice, setSelectedDevice] = useState<DeviceMetrics | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [results, setResults] = useState<DeviceResult[]>([]);
+  const [selectedDevice, setSelectedDevice] = useState<DeviceResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [wizardProgress, setWizardProgress] = useState(0);
   const { toast } = useToast();
-
-  const API_BASE = 'http://localhost:3001';
+  const { micList, micWizard, micUse } = useGateway();
 
   useEffect(() => {
-    if (open && step === 'preflight') {
-      startWizard();
+    if (open) {
+      loadDevices();
     }
   }, [open]);
 
-  const startWizard = async () => {
-    setIsProcessing(true);
+  const loadDevices = async () => {
+    setIsLoading(true);
     try {
-      // Preflight: Pause TTS and load last known profile
-      await fetch(`${API_BASE}/mic/preflight`, { method: 'POST' });
-      
-      // Enumerate devices
-      setStep('enumerate');
-      const response = await fetch(`${API_BASE}/mic/list`);
-      const deviceList = await response.json();
-      setDevices(deviceList.filter((d: AudioDevice) => d.max_input_channels > 0));
-      
-      // Start testing phase
-      setStep('testing');
-      await testAllDevices(deviceList.filter((d: AudioDevice) => d.max_input_channels > 0));
-      
+      const deviceList = await micList();
+      setDevices(deviceList);
     } catch (error) {
       toast({
-        title: "Mic Wizard Error",
-        description: error instanceof Error ? error.message : 'Failed to start wizard',
+        title: "Error Loading Devices",
+        description: "Could not load microphone devices. Using mock data.",
         variant: "destructive"
       });
+      // Mock data fallback
+      setDevices([
+        { id: 1, name: "Default Microphone", channels: 1, default: true },
+        { id: 2, name: "USB Headset", channels: 2 },
+        { id: 3, name: "Built-in Microphone", channels: 1 }
+      ]);
     } finally {
-      setIsProcessing(false);
+      setIsLoading(false);
     }
   };
 
-  const testAllDevices = async (deviceList: AudioDevice[]) => {
-    const results: DeviceMetrics[] = [];
-    
-    for (let i = 0; i < deviceList.length; i++) {
-      const device = deviceList[i];
-      setCurrentDevice(i);
-      setProgress((i / deviceList.length) * 100);
-      
-      try {
-        // Test noise floor
-        setTestingPhase('noise');
-        await new Promise(resolve => setTimeout(resolve, 1000)); // 1s noise capture
-        
-        // Test voice
-        setTestingPhase('voice');
-        const response = await fetch(`${API_BASE}/mic/test`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ device_id: device.id })
-        });
-        
-        if (response.ok) {
-          const result = await response.json();
-          results.push(result);
-        }
-        
-      } catch (error) {
-        console.warn(`Failed to test device ${device.id}:`, error);
-      }
-    }
-    
-    setMetrics(results);
-    setSelectedDevice(results.sort((a, b) => b.score - a.score)[0] || null);
-    setStep('results');
-  };
+  const startWizard = async () => {
+    setStep('running');
+    setWizardProgress(0);
+    setIsLoading(true);
 
-  const confirmDevice = async () => {
-    if (!selectedDevice) return;
-    
-    setIsProcessing(true);
+    // Simulate progress
+    const progressInterval = setInterval(() => {
+      setWizardProgress(prev => Math.min(prev + 10, 90));
+    }, 500);
+
     try {
-      await fetch(`${API_BASE}/mic/use`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: selectedDevice.id })
+      const wizardResult = await micWizard();
+      clearInterval(progressInterval);
+      setWizardProgress(100);
+
+      if (wizardResult.devices) {
+        setResults(wizardResult.devices);
+        setSelectedDevice(wizardResult.devices[0] || null);
+        setStep('results');
+      } else {
+        throw new Error('No results from wizard');
+      }
+    } catch (error) {
+      clearInterval(progressInterval);
+      toast({
+        title: "Wizard Error",
+        description: "Using mock results for demonstration.",
+        variant: "destructive"
       });
       
+      // Mock results
+      const mockResults: DeviceResult[] = devices.map((device, index) => ({
+        id: device.id,
+        name: device.name,
+        SNR: 25.5 - index * 2,
+        voiced: 0.75 - index * 0.1,
+        startDelay: 20 + index * 10,
+        clip: index * 0.5,
+        score: 0.85 - index * 0.1
+      }));
+      
+      setResults(mockResults);
+      setSelectedDevice(mockResults[0]);
+      setStep('results');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const applyDevice = async () => {
+    if (!selectedDevice) return;
+
+    setIsLoading(true);
+    try {
+      await micUse({ id: selectedDevice.id });
       toast({
         title: "Mic Calibrated",
-        description: `Using ${selectedDevice.name} with ${selectedDevice.snr_db.toFixed(1)}dB SNR`,
+        description: `Now using ${selectedDevice.name} with ${selectedDevice.SNR.toFixed(1)}dB SNR`,
       });
-      
       onOpenChange(false);
-      
     } catch (error) {
       toast({
         title: "Configuration Error",
-        description: error instanceof Error ? error.message : 'Failed to save configuration',
+        description: "Failed to save mic configuration",
         variant: "destructive"
       });
     } finally {
-      setIsProcessing(false);
+      setIsLoading(false);
     }
   };
 
-  const formatScore = (score: number) => (score * 100).toFixed(1);
+  const resetWizard = () => {
+    setStep('devices');
+    setResults([]);
+    setSelectedDevice(null);
+    setWizardProgress(0);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl bg-space-deep/95 backdrop-blur-xl border border-energy-cyan/30">
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2 text-text-primary">
-            <Settings className="w-5 h-5 text-energy-cyan" />
+          <DialogTitle className="flex items-center space-x-2">
+            <Settings className="w-5 h-5" />
             <span>Microphone Calibration Wizard</span>
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
-          {step === 'preflight' && (
-            <div className="text-center space-y-4">
-              <Volume2 className="w-12 h-12 text-energy-pulse mx-auto" />
-              <div>
-                <h3 className="text-lg font-semibold text-text-primary">Preparing Audio System</h3>
-                <p className="text-text-secondary">Pausing TTS and loading previous configuration...</p>
+          {step === 'devices' && (
+            <>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Available Devices</span>
+                    <Badge variant="secondary">
+                      <Volume2 className="w-3 h-3 mr-1" />
+                      Wizard mutes TTS while running
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="w-6 h-6 animate-spin mr-2" />
+                      <span>Loading devices...</span>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {devices.map((device) => (
+                        <div key={device.id} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            <Mic className="w-4 h-4" />
+                            <div>
+                              <p className="font-medium">{device.name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {device.channels} channel{device.channels !== 1 ? 's' : ''}
+                                {device.default && ' • Default'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <div className="flex justify-center">
+                <Button 
+                  onClick={startWizard} 
+                  disabled={isLoading || devices.length === 0}
+                  size="lg"
+                  className="px-8"
+                >
+                  <Play className="w-4 h-4 mr-2" />
+                  Start Wizard
+                </Button>
               </div>
-            </div>
+            </>
           )}
 
-          {step === 'enumerate' && (
-            <div className="text-center space-y-4">
-              <Mic className="w-12 h-12 text-energy-cyan mx-auto animate-pulse" />
-              <div>
-                <h3 className="text-lg font-semibold text-text-primary">Discovering Audio Devices</h3>
-                <p className="text-text-secondary">Found {devices.length} input devices with mono capability</p>
-              </div>
-            </div>
-          )}
-
-          {step === 'testing' && (
+          {step === 'running' && (
             <div className="space-y-6">
               <div className="text-center">
-                <Mic className="w-12 h-12 text-energy-glow mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-text-primary">
-                  Testing Device {currentDevice + 1} of {devices.length}
-                </h3>
-                <p className="text-text-secondary">
-                  {devices[currentDevice]?.name}
+                <Mic className="w-12 h-12 mx-auto mb-4 animate-pulse text-primary" />
+                <h3 className="text-lg font-semibold">Testing Microphones</h3>
+                <p className="text-muted-foreground">
+                  Please speak clearly when prompted...
                 </p>
               </div>
 
-              <Progress value={progress} className="w-full" />
+              <Progress value={wizardProgress} className="w-full" />
 
               <div className="text-center">
-                <div className="inline-flex items-center space-x-2 px-4 py-2 bg-space-surface/50 rounded-lg">
-                  {testingPhase === 'noise' ? (
-                    <>
-                      <div className="w-2 h-2 bg-energy-pulse rounded-full animate-pulse" />
-                      <span className="text-text-primary">Recording noise floor...</span>
-                    </>
-                  ) : (
-                    <>
-                      <div className="w-2 h-2 bg-energy-cyan rounded-full animate-pulse" />
-                      <span className="text-text-primary">Say: "testing one two three"</span>
-                    </>
-                  )}
+                <div className="inline-flex items-center space-x-2 px-4 py-2 bg-muted rounded-lg">
+                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                  <span>Analyzing audio quality...</span>
                 </div>
               </div>
             </div>
           )}
 
           {step === 'results' && (
-            <div className="space-y-6">
-              <div className="text-center">
-                <Check className="w-12 h-12 text-status-success mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-text-primary">Calibration Results</h3>
-                <p className="text-text-secondary">
-                  Tested {metrics.length} devices. Recommended device highlighted.
+            <>
+              <div className="text-center mb-6">
+                <Check className="w-12 h-12 mx-auto mb-4 text-green-500" />
+                <h3 className="text-lg font-semibold">Calibration Complete</h3>
+                <p className="text-muted-foreground">
+                  Select the best device from the results below
                 </p>
               </div>
 
@@ -221,39 +247,38 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead></TableHead>
                       <TableHead>Device</TableHead>
                       <TableHead>SNR (dB)</TableHead>
                       <TableHead>Voiced %</TableHead>
-                      <TableHead>Start Delay</TableHead>
-                      <TableHead>Clipping %</TableHead>
+                      <TableHead>Start Delay (ms)</TableHead>
+                      <TableHead>Clip %</TableHead>
                       <TableHead>Score</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {metrics.map((metric) => (
+                    {results.map((result) => (
                       <TableRow 
-                        key={metric.id}
+                        key={result.id}
                         className={`cursor-pointer transition-colors ${
-                          selectedDevice?.id === metric.id 
-                            ? 'bg-energy-cyan/20 border-energy-cyan' 
-                            : 'hover:bg-space-surface/50'
+                          selectedDevice?.id === result.id 
+                            ? 'bg-primary/10 border-primary' 
+                            : 'hover:bg-muted/50'
                         }`}
-                        onClick={() => setSelectedDevice(metric)}
+                        onClick={() => setSelectedDevice(result)}
                       >
-                        <TableCell className="font-medium">
-                          <div className="flex items-center space-x-2">
-                            {selectedDevice?.id === metric.id && (
-                              <Check className="w-4 h-4 text-status-success" />
-                            )}
-                            <span className="truncate max-w-48">{metric.name}</span>
-                          </div>
+                        <TableCell>
+                          {selectedDevice?.id === result.id && (
+                            <Check className="w-4 h-4 text-green-500" />
+                          )}
                         </TableCell>
-                        <TableCell>{metric.snr_db.toFixed(1)}</TableCell>
-                        <TableCell>{(metric.voiced_ratio * 100).toFixed(1)}%</TableCell>
-                        <TableCell>{metric.start_delay_ms.toFixed(0)}ms</TableCell>
-                        <TableCell>{metric.clipping_percent.toFixed(1)}%</TableCell>
-                        <TableCell className="font-semibold text-energy-cyan">
-                          {formatScore(metric.score)}
+                        <TableCell className="font-medium">{result.name}</TableCell>
+                        <TableCell>{result.SNR.toFixed(1)}</TableCell>
+                        <TableCell>{(result.voiced * 100).toFixed(1)}%</TableCell>
+                        <TableCell>{result.startDelay.toFixed(0)}</TableCell>
+                        <TableCell>{result.clip.toFixed(1)}%</TableCell>
+                        <TableCell className="font-semibold text-primary">
+                          {(result.score * 100).toFixed(1)}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -261,23 +286,25 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
                 </Table>
               </div>
 
-              <div className="flex justify-between items-center">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setStep('testing')}
-                  disabled={isProcessing}
-                >
-                  Retest Devices
+              <div className="flex justify-between items-center pt-4">
+                <Button variant="outline" onClick={resetWizard}>
+                  <AlertCircle className="w-4 h-4 mr-2" />
+                  Run Again
                 </Button>
                 <Button 
-                  onClick={confirmDevice}
-                  disabled={!selectedDevice || isProcessing}
-                  className="bg-energy-cyan hover:bg-energy-cyan/80"
+                  onClick={applyDevice}
+                  disabled={!selectedDevice || isLoading}
+                  className="px-8"
                 >
-                  {isProcessing ? 'Saving...' : 'Use Selected Device'}
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Check className="w-4 h-4 mr-2" />
+                  )}
+                  Apply & Save
                 </Button>
               </div>
-            </div>
+            </>
           )}
         </div>
       </DialogContent>
