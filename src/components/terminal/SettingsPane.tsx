@@ -170,7 +170,7 @@ export const SettingsPane = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {availableModels.map((modelName) => (
-                    <SelectItem key={modelName} value={modelName}>
+                    <SelectItem key={modelName} value={modelName || 'default'}>
                       {modelName}
                     </SelectItem>
                   ))}
@@ -213,7 +213,7 @@ export const SettingsPane = () => {
               </SelectTrigger>
               <SelectContent>
                 {availableVoices.map((voice, index) => (
-                  <SelectItem key={index} value={voice}>
+                  <SelectItem key={index} value={voice || `voice-${index}`}>
                     {voice}
                   </SelectItem>
                 ))}
