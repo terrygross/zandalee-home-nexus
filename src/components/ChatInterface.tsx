@@ -1,8 +1,7 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Send, User, Bot, Terminal, Star, Zap, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useGateway } from "@/hooks/useGateway";
@@ -244,6 +243,13 @@ const ChatInterface = () => {
     );
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
     <div className="glass-panel h-full flex flex-col">
       <div className="p-4 border-b border-border/30 flex-shrink-0">
@@ -320,26 +326,28 @@ const ChatInterface = () => {
       </div>
 
       <div className="p-4 border-t border-border/30 flex-shrink-0">
-        <div className="flex space-x-2">
-          <Input
+        <div className="flex space-x-2 items-end">
+          <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Type a message..."
-            className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted"
+            onKeyDown={handleKeyPress}
+            placeholder="Type a message... (Press Enter to send, Shift+Enter for new line)"
+            className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted resize-none min-h-[120px] max-h-[240px]"
             disabled={isProcessing || (!isHealthy && !useDirectLLMMode) || (useDirectLLMMode && !isConfigured)}
           />
-          <VoiceInput
-            onTranscript={handleVoiceTranscript}
-            disabled={isProcessing || (!isHealthy && !useDirectLLMMode) || (useDirectLLMMode && !isConfigured)}
-          />
-          <Button
-            onClick={handleSend}
-            disabled={!input.trim() || isProcessing || (!isHealthy && !useDirectLLMMode) || (useDirectLLMMode && !isConfigured)}
-            className="bg-energy-cyan/20 hover:bg-energy-cyan/30 text-energy-cyan border border-energy-cyan/30 neon-border"
-          >
-            <Send className="w-4 h-4" />
-          </Button>
+          <div className="flex flex-col space-y-2">
+            <VoiceInput
+              onTranscript={handleVoiceTranscript}
+              disabled={isProcessing || (!isHealthy && !useDirectLLMMode) || (useDirectLLMMode && !isConfigured)}
+            />
+            <Button
+              onClick={handleSend}
+              disabled={!input.trim() || isProcessing || (!isHealthy && !useDirectLLMMode) || (useDirectLLMMode && !isConfigured)}
+              className="bg-energy-cyan/20 hover:bg-energy-cyan/30 text-energy-cyan border border-energy-cyan/30 neon-border"
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
         
         <div className="flex justify-between items-center mt-2 text-xs text-text-muted">
@@ -349,7 +357,7 @@ const ChatInterface = () => {
               : `Gateway mode • Gateway health: ${isHealthy ? '✅' : '❌'} • Click ⭐ to save responses`
             }
           </span>
-          <span>Press Enter to send</span>
+          <span>Press Enter to send • Shift+Enter for new line</span>
         </div>
       </div>
     </div>
