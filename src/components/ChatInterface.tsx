@@ -332,7 +332,7 @@ const ChatInterface = () => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyPress}
             placeholder="Type a message... (Press Enter to send, Shift+Enter for new line)"
-            className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted resize-none min-h-[120px] max-h-[240px]"
+            className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted resize-none min-h-[200px] max-h-[300px]"
             disabled={isProcessing || (!isHealthy && !useDirectLLMMode) || (useDirectLLMMode && !isConfigured)}
           />
           <div className="flex flex-col space-y-2">
