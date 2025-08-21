@@ -326,16 +326,16 @@ const ChatInterface = () => {
       </div>
 
       <div className="p-4 border-t border-border/30 flex-shrink-0">
-        <div className="flex space-x-2 items-end">
+        <div className="flex space-x-2 items-start">
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyPress}
             placeholder="Type a message... (Press Enter to send, Shift+Enter for new line)"
-            className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted resize-none h-[300px]"
+            className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted resize-none h-[500px]"
             disabled={isProcessing || (!isHealthy && !useDirectLLMMode) || (useDirectLLMMode && !isConfigured)}
           />
-          <div className="flex flex-col space-y-2">
+          <div className="flex flex-col space-y-2 justify-end h-[500px]">
             <VoiceInput
               onTranscript={handleVoiceTranscript}
               disabled={isProcessing || (!isHealthy && !useDirectLLMMode) || (useDirectLLMMode && !isConfigured)}
