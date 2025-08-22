@@ -85,6 +85,7 @@ export const ChatPane = () => {
   const [uploadingDiary, setUploadingDiary] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   const { chat, speak, memoryLearn, memorySearch, isHealthy, getConfig } = useGateway();
   const { toast } = useToast();
@@ -95,9 +96,37 @@ export const ChatPane = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const MAX_ROWS = 8;
+  
+  const autoResize = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    
+    el.style.height = 'auto';
+    const lineHeight = parseFloat(getComputedStyle(el).lineHeight || '20');
+    const padding = parseFloat(getComputedStyle(el).paddingTop || '0') + parseFloat(getComputedStyle(el).paddingBottom || '0');
+    const border = parseFloat(getComputedStyle(el).borderTopWidth || '0') + parseFloat(getComputedStyle(el).borderBottomWidth || '0');
+    const maxHeight = lineHeight * MAX_ROWS + padding + border;
+    const newHeight = Math.min(el.scrollHeight, maxHeight);
+    
+    el.style.height = newHeight + 'px';
+    el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden';
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    autoResize();
+  }, [input]);
 
   useEffect(() => {
     loadMemories();
@@ -432,7 +461,7 @@ export const ChatPane = () => {
   };
 
   return (
-    <div className="h-full flex gap-4 p-4 overflow-hidden">
+    <div className="h-full flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
       {/* Chat Section */}
       <Card className="flex-1 flex flex-col min-h-0">
         <CardHeader className="flex-shrink-0">
@@ -509,17 +538,20 @@ export const ChatPane = () => {
           
           {/* Input area - fixed at bottom with proper spacing */}
           <div className="flex-shrink-0 flex space-x-2">
-            <Input
+            <Textarea
+              ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Type a message..."
+              onKeyDown={handleKeyDown}
+              placeholder="Type a message... (Enter to send, Shift+Enter for new line)"
+              rows={4}
+              className="flex-1 text-sm resize-none overflow-y-hidden"
               disabled={isProcessing || !isHealthy}
-              className="flex-1"
             />
             <Button
               onClick={handleSend}
               disabled={!input.trim() || isProcessing || !isHealthy}
+              className="self-end"
             >
               <Send className="w-4 h-4" />
             </Button>
@@ -528,7 +560,7 @@ export const ChatPane = () => {
       </Card>
 
       {/* Memory & Diary Side Panel - fixed height management */}
-      <Card className="w-80 flex flex-col h-full">
+      <Card className="w-full lg:w-80 flex flex-col h-full lg:h-full min-h-[400px]">
         <CardHeader className="pb-3 px-6 pt-6 flex-shrink-0">
           <CardTitle className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
