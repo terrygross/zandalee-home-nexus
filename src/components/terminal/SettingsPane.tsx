@@ -111,125 +111,140 @@ export const SettingsPane = () => {
   const validModels = availableModels.filter(modelName => modelName && modelName.trim() !== '');
 
   return (
-    <div className="h-full">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-        <TabsList className={`grid w-full ${canInviteUsers(user) ? 'grid-cols-3' : 'grid-cols-2'}`}>
-          <TabsTrigger value="gateway" className="flex items-center gap-2">
-            <Settings className="w-4 h-4" />
-            Gateway
-          </TabsTrigger>
-          <TabsTrigger value="appcontrol" className="flex items-center gap-2">
-            <Code className="w-4 h-4" />
-            App Control
-          </TabsTrigger>
-          {canInviteUsers(user) && (
-            <TabsTrigger value="family" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              Family
-            </TabsTrigger>
-          )}
-        </TabsList>
+    <div className="h-full space-y-4">
+      {/* Sub-navigation */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => setActiveTab('gateway')}
+          className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+            activeTab === 'gateway' 
+              ? 'bg-primary text-primary-foreground' 
+              : 'bg-muted hover:bg-muted/80'
+          }`}
+        >
+          <Settings className="w-4 h-4 inline mr-2" />
+          Gateway
+        </button>
+        <button
+          onClick={() => setActiveTab('appcontrol')}
+          className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+            activeTab === 'appcontrol' 
+              ? 'bg-primary text-primary-foreground' 
+              : 'bg-muted hover:bg-muted/80'
+          }`}
+        >
+          <Code className="w-4 h-4 inline mr-2" />
+          App Control
+        </button>
+        {canInviteUsers(user) && (
+          <button
+            onClick={() => setActiveTab('family')}
+            className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+              activeTab === 'family' 
+                ? 'bg-primary text-primary-foreground' 
+                : 'bg-muted hover:bg-muted/80'
+            }`}
+          >
+            <Users className="w-4 h-4 inline mr-2" />
+            Family
+          </button>
+        )}
+      </div>
 
-        <div className="flex-1 mt-4">
-          <TabsContent value="gateway" className="h-full m-0">
-            <Card>
-              <CardHeader>
-                <CardTitle>Gateway Configuration</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="base">Base URL</Label>
+      {/* Content */}
+      <div className="flex-1">
+        {activeTab === 'gateway' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Gateway Configuration</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="base">Base URL</Label>
+                <Input
+                  id="base"
+                  value={base}
+                  onChange={(e) => setBase(e.target.value)}
+                  placeholder="https://pomelo-gadogado-wkow7cp6m2u599hw.salad.cloud"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="apiKey">API Key</Label>
+                <div className="flex gap-2">
                   <Input
-                    id="base"
-                    value={base}
-                    onChange={(e) => setBase(e.target.value)}
-                    placeholder="https://pomelo-gadogado-wkow7cp6m2u599hw.salad.cloud"
+                    id="apiKey"
+                    type={showApiKey ? 'text' : 'password'}
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder="sk-..."
+                    className="flex-1"
                   />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="apiKey">API Key</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="apiKey"
-                      type={showApiKey ? 'text' : 'password'}
-                      value={apiKey}
-                      onChange={(e) => setApiKey(e.target.value)}
-                      placeholder="sk-..."
-                      className="flex-1"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="px-3 h-10 flex-shrink-0"
-                      onClick={() => setShowApiKey(!showApiKey)}
-                    >
-                      {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="model">Model</Label>
-                  {validModels.length > 0 ? (
-                    <Select value={model} onValueChange={setModel}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a model" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {validModels.map((modelName) => (
-                          <SelectItem key={modelName} value={modelName}>
-                            {modelName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <Input
-                      id="model"
-                      value={model}
-                      onChange={(e) => setModel(e.target.value)}
-                      placeholder="qwen2.5-coder:32b"
-                    />
-                  )}
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  <Button 
-                    onClick={saveConfig} 
-                    disabled={loading}
-                    className="h-9 px-4 text-xs sm:h-10 sm:px-6 sm:text-sm"
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="px-3 h-10 flex-shrink-0"
+                    onClick={() => setShowApiKey(!showApiKey)}
                   >
-                    {loading ? 'Saving...' : 'Save Configuration'}
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={testConnection} 
-                    disabled={testStatus === 'testing'}
-                    className="h-9 px-4 text-xs sm:h-10 sm:px-6 sm:text-sm"
-                  >
-                    <TestTube className="w-3 h-3 mr-1 sm:w-4 sm:h-4 sm:mr-2" />
-                    Test Connection
+                    {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
+              </div>
 
-                {getTestStatusBadge()}
-              </CardContent>
-            </Card>
-          </TabsContent>
+              <div className="space-y-2">
+                <Label htmlFor="model">Model</Label>
+                {validModels.length > 0 ? (
+                  <Select value={model} onValueChange={setModel}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {validModels.map((modelName) => (
+                        <SelectItem key={modelName} value={modelName}>
+                          {modelName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input
+                    id="model"
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    placeholder="qwen2.5-coder:32b"
+                  />
+                )}
+              </div>
 
-          <TabsContent value="appcontrol" className="h-full m-0">
-            <AppControlPane />
-          </TabsContent>
+              <div className="flex flex-wrap gap-2">
+                <Button 
+                  onClick={saveConfig} 
+                  disabled={loading}
+                  className="h-9 px-4 text-xs sm:h-10 sm:px-6 sm:text-sm"
+                >
+                  {loading ? 'Saving...' : 'Save Configuration'}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={testConnection} 
+                  disabled={testStatus === 'testing'}
+                  className="h-9 px-4 text-xs sm:h-10 sm:px-6 sm:text-sm"
+                >
+                  <TestTube className="w-3 h-3 mr-1 sm:w-4 sm:h-4 sm:mr-2" />
+                  Test Connection
+                </Button>
+              </div>
 
-          {canInviteUsers(user) && (
-            <TabsContent value="family" className="h-full m-0">
-              <ManageFamilyPane />
-            </TabsContent>
-          )}
-        </div>
-      </Tabs>
+              {getTestStatusBadge()}
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === 'appcontrol' && <AppControlPane />}
+
+        {activeTab === 'family' && canInviteUsers(user) && <ManageFamilyPane />}
+      </div>
     </div>
   );
 };
