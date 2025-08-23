@@ -18,10 +18,10 @@ const buttonVariants = cva(
         link: "text-lcars-orange underline-offset-4 hover:underline bg-transparent",
       },
       size: {
-        default: "h-10 px-6 py-2",
-        sm: "h-8 px-4",
-        lg: "h-12 px-8",
-        icon: "h-10 w-10",
+        default: "h-12 px-8 py-3 min-w-24",
+        sm: "h-10 px-6 py-2 min-w-20",
+        lg: "h-14 px-10 py-4 min-w-28",
+        icon: "h-12 w-12",
       },
     },
     defaultVariants: {
