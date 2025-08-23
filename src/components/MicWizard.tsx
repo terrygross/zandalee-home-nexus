@@ -214,8 +214,8 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
                 <Button 
                   onClick={startWizard} 
                   disabled={isLoading || devices.length === 0}
-                  size="lg"
-                  className="px-8"
+                  size="default"
+                  className="w-full sm:w-auto sm:px-8"
                 >
                   <Play className="w-3 h-3 mr-2 sm:w-4 sm:h-4" />
                   Start Wizard
@@ -298,15 +298,21 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
                 </table>
               </div>
 
-              <div className="flex justify-between items-center pt-4">
-                <Button variant="outline" onClick={resetWizard}>
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={resetWizard}
+                  className="w-full sm:w-auto"
+                  size="sm"
+                >
                   <AlertCircle className="w-3 h-3 mr-2 sm:w-4 sm:h-4" />
                   Run Again
                 </Button>
                 <Button 
                   onClick={applyDevice}
                   disabled={!selectedDevice || isLoading}
-                  className="px-8"
+                  className="w-full sm:w-auto sm:px-8"
+                  size="sm"
                 >
                   {isLoading ? (
                     <Loader2 className="w-3 h-3 mr-2 animate-spin sm:w-4 sm:h-4" />
