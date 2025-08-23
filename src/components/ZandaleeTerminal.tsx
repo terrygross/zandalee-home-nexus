@@ -92,7 +92,7 @@ export const ZandaleeTerminal = () => {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`
-                          inline-flex items-center gap-1 px-1.5 py-2.5 flex-shrink-0 min-w-[45px] sm:min-w-[90px] md:min-w-[100px]
+                          inline-flex items-center gap-1 px-1 py-2.5 flex-shrink-0 w-[42px] sm:min-w-[90px] md:min-w-[100px]
                           text-xs sm:text-sm font-bold rounded-full transition-all text-black touch-manipulation
                           ${activeTab === tab.id 
                             ? 'bg-lcars-orange shadow-sm' 
