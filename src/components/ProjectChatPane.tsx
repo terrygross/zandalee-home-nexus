@@ -53,7 +53,11 @@ const EMOTION_OPTIONS = [
   { value: "relief", label: "😮‍💨 Relief" }
 ];
 
-export const ProjectChatPane = () => {
+interface ProjectChatPaneProps {
+  selectedProject?: { id: string; name: string; archived?: boolean } | null;
+}
+
+export const ProjectChatPane = ({ selectedProject }: ProjectChatPaneProps = {}) => {
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [speakBackEnabled, setSpeakBackEnabled] = useState(false);

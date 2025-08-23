@@ -88,16 +88,8 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
       setWizardProgress(100);
 
       if (wizardResult.devices?.length > 0) {
-        // Map backend metrics to UI format
-        const mappedResults = wizardResult.devices.map((r: any) => ({
-          id: r.id,
-          name: r.name,
-          SNR: r.snr_db,
-          voiced: r.voiced_ratio,
-          startDelay: r.start_delay_ms,
-          clip: r.clipping_pct,
-          score: r.score
-        }));
+        // Use the properly mapped results from useGateway
+        const mappedResults = wizardResult.devices;
         setResults(mappedResults);
         setSelectedDevice(mappedResults[0] || null);
         setStep('results');

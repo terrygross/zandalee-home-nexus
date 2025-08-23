@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useSession } from '@/contexts/SessionContext';
 import { canInviteUsers } from '@/utils/roleGuards';
 import { AppControlPane } from './AppControlPane';
-import { ManageFamilyPane } from './ManageFamilyPane';
+import { InviteManagerPane } from './InviteManagerPane';
 
 export const SettingsPane = () => {
   const [base, setBase] = useState('');
@@ -201,7 +201,7 @@ export const SettingsPane = () => {
       <AppControlPane />
 
       {/* Family Management (conditional) */}
-      {canInviteUsers(user) && <ManageFamilyPane />}
+      {canInviteUsers(user) && <InviteManagerPane />}
     </div>
   );
 };
