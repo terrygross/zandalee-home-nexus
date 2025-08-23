@@ -227,7 +227,7 @@ export const ZandaleeTerminal = () => {
           </div>
 
           <div className="flex-1 min-h-0 overflow-hidden">
-            <TabsContent value="chat" className="h-full m-0 overflow-hidden">
+            <TabsContent value="chat" className="h-full m-0 overflow-hidden md:overflow-visible">
               <ChatPane />
             </TabsContent>
             
