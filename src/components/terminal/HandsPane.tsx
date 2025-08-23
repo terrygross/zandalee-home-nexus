@@ -71,7 +71,7 @@ export const HandsPane = () => {
             />
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center gap-2">
             <input
               type="checkbox"
               id="enterKey"
@@ -82,7 +82,7 @@ export const HandsPane = () => {
             <Label htmlFor="enterKey">Press Enter after typing</Label>
           </div>
           
-          <Button onClick={handleSendKeys} disabled={!keyText.trim()}>
+          <Button onClick={handleSendKeys} disabled={!keyText.trim()} className="w-full sm:w-auto min-h-[44px] text-sm">
             <Keyboard className="w-4 h-4 mr-2" />
             Send Keys
           </Button>
@@ -100,6 +100,7 @@ export const HandsPane = () => {
           <div className="grid grid-cols-2 gap-2">
             <Button
               variant="outline"
+              className="w-full min-h-[44px] text-xs sm:text-sm"
               onClick={() => handleMouseAction('move', { dx: -50, dy: 0 })}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -107,6 +108,7 @@ export const HandsPane = () => {
             </Button>
             <Button
               variant="outline"
+              className="w-full min-h-[44px] text-xs sm:text-sm"
               onClick={() => handleMouseAction('move', { dx: 50, dy: 0 })}
             >
               <ArrowRight className="w-4 h-4 mr-2" />
@@ -114,6 +116,7 @@ export const HandsPane = () => {
             </Button>
             <Button
               variant="outline"
+              className="w-full min-h-[44px] text-xs sm:text-sm"
               onClick={() => handleMouseAction('move', { dx: 0, dy: -50 })}
             >
               <ArrowUp className="w-4 h-4 mr-2" />
@@ -121,6 +124,7 @@ export const HandsPane = () => {
             </Button>
             <Button
               variant="outline"
+              className="w-full min-h-[44px] text-xs sm:text-sm"
               onClick={() => handleMouseAction('move', { dx: 0, dy: 50 })}
             >
               <ArrowDown className="w-4 h-4 mr-2" />
@@ -128,21 +132,23 @@ export const HandsPane = () => {
             </Button>
           </div>
           
-          <div className="flex space-x-2">
-            <Button onClick={() => handleMouseAction('click')}>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <Button className="w-full min-h-[44px] text-xs sm:text-sm" onClick={() => handleMouseAction('click')}>
               Click
             </Button>
-            <Button onClick={() => handleMouseAction('double')}>
+            <Button className="w-full min-h-[44px] text-xs sm:text-sm" onClick={() => handleMouseAction('double')}>
               Double Click
             </Button>
             <Button
-              variant="outline"
+              variant="outline" 
+              className="w-full min-h-[44px] text-xs sm:text-sm"
               onClick={() => handleMouseAction('scroll', { dy: -3 })}
             >
               Scroll Up
             </Button>
             <Button
               variant="outline"
+              className="w-full min-h-[44px] text-xs sm:text-sm"
               onClick={() => handleMouseAction('scroll', { dy: 3 })}
             >
               Scroll Down
