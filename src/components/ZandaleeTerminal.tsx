@@ -111,8 +111,8 @@ export const ZandaleeTerminal = () => {
             </TabsTrigger>
           </TabsList>
 
-          {/* Desktop/Tablet Vertical Navigation - Hidden on Mobile */}
-          <div className="hidden md:flex flex-col w-56 flex-shrink-0 border-r border-border pr-4 mr-4 gap-1 pt-3 md:sticky md:top-4 md:self-start md:max-h-[calc(100vh-6rem)] md:overflow-y-auto">
+          {/* Desktop Vertical Navigation - Hidden on Mobile/Tablet */}
+          <div className="hidden lg:flex flex-col w-56 flex-shrink-0 border-r border-border pr-4 mr-4 gap-1 pt-3 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
             <button
               onClick={() => setActiveTab('chat')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
