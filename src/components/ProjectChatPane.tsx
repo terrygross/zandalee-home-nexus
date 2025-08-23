@@ -1,12 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { Brain, BookOpen, Loader2, RefreshCw } from 'lucide-react';
-
-import { ChatInterface } from '@/components/ChatInterface';
+import ChatInterface from '@/components/ChatInterface';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useChat } from '@/hooks/useChat';
-import { useMemory } from '@/hooks/useMemory';
-import { useDiary } from '@/hooks/useDiary';
 import { useGateway } from '@/hooks/useGateway';
 import { useToast } from '@/hooks/use-toast';
 import { useSession } from '@/contexts/SessionContext';
@@ -17,62 +14,54 @@ interface ProjectChatPaneProps {
 
 export const ProjectChatPane = ({ selectedProject }: ProjectChatPaneProps) => {
   const { user } = useSession();
-  const {
-    messages,
-    isLoading,
-    streamingMessage,
-    handleSendMessage,
-    handleClearChat,
-    handleExportChat,
-    handleImportChat,
-  } = useChat(selectedProject);
-  const [providers, setProviders] = useState<any[]>([]);
-	const [selectedProvider, setSelectedProvider] = useState<any>(null);
-	const [models, setModels] = useState<any[]>([]);
-	const [selectedModel, setSelectedModel] = useState<any>(null);
   const { toast } = useToast();
-  const { getProviders, getModels } = useGateway();
+  const { memorySearch, diaryRollup } = useGateway();
+  
+  // Mock data for memories and diary - these would come from real hooks in a complete implementation
+  const [memories, setMemories] = useState<any[]>([]);
+  const [diary, setDiary] = useState<any[]>([]);
+  const [loadingMemories, setLoadingMemories] = useState(false);
+  const [loadingDiary, setLoadingDiary] = useState(false);
 
-  // Memory
-  const { memories, loadMemories, loading: loadingMemories } = useMemory(selectedProject);
+  const loadMemories = async () => {
+    setLoadingMemories(true);
+    try {
+      // This would search for memories related to the project
+      const result = await memorySearch(selectedProject?.name || 'general', 5);
+      setMemories(result.results || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to load memories",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingMemories(false);
+    }
+  };
 
-  // Diary
-  const { diary, loadDiary, loading: loadingDiary } = useDiary(selectedProject);
-
-  useEffect(() => {
-		const fetchProviders = async () => {
-			try {
-				const response = await getProviders();
-				setProviders(response);
-				setSelectedProvider(response[0]);
-			} catch (error: any) {
-				toast({
-					title: "Error",
-					description: error?.message || "Failed to load providers",
-					variant: "destructive",
-				});
-			}
-		};
-		fetchProviders();
-	}, [getProviders, toast]);
-
-	useEffect(() => {
-		const fetchModels = async () => {
-			if (!selectedProvider) return;
-			try {
-				const response = await getModels(selectedProvider.id);
-				setModels(response);
-				setSelectedModel(response[0]);
-			} catch (error: any) {
-				toast({
-					title: "Error",
-					description: error?.message || "Failed to load models",
-					variant: "destructive",
-				});
-			}
-		};
-		fetchModels();
-	}, [getModels, selectedProvider, toast]);
+  const loadDiary = async () => {
+    setLoadingDiary(true);
+    try {
+      // This would load recent diary entries
+      const result = await diaryRollup('daily');
+      // Convert the rollup result to diary entries format
+      if (result.text) {
+        setDiary([{
+          content: result.text,
+          created_at: new Date().toISOString()
+        }]);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to load diary",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingDiary(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -108,7 +97,7 @@ export const ProjectChatPane = ({ selectedProject }: ProjectChatPaneProps) => {
                   memories.slice(0, 5).map((memory, index) => (
                     <div key={index} className="text-sm p-2 bg-muted/50 rounded border-l-2 border-primary/20">
                       <p className="text-xs text-muted-foreground mb-1">{memory.created_at}</p>
-                      <p>{memory.content}</p>
+                      <p>{memory.text || memory.content}</p>
                     </div>
                   ))
                 )}
@@ -156,23 +145,8 @@ export const ProjectChatPane = ({ selectedProject }: ProjectChatPaneProps) => {
       </div>
 
       {/* Chat Section - Takes remaining space */}
-      <div className="flex-1 min-h-0 flex flex-col">
-        <ChatInterface
-          selectedProject={selectedProject}
-          onSendMessage={handleSendMessage}
-          messages={messages}
-          isLoading={isLoading}
-          streamingMessage={streamingMessage}
-          onClearChat={handleClearChat}
-          onExportChat={handleExportChat}
-          onImportChat={handleImportChat}
-          providers={providers}
-          selectedProvider={selectedProvider}
-          onProviderChange={setSelectedProvider}
-          models={models}
-          selectedModel={selectedModel}
-          onModelChange={setSelectedModel}
-        />
+      <div className="flex-1 min-h-0">
+        <ChatInterface />
       </div>
     </div>
   );
