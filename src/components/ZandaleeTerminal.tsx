@@ -38,7 +38,7 @@ export const ZandaleeTerminal = () => {
       <div className="flex flex-col min-h-[100dvh] w-full overflow-x-hidden bg-background">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
           {/* Header with Custom Navigation */}
-          <div className="flex-shrink-0 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="sticky top-0 z-10 flex-shrink-0 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex items-center justify-between p-3 sm:px-6">
               <div className="flex items-center gap-4">
                 <LeftNavDrawer />
@@ -52,7 +52,7 @@ export const ZandaleeTerminal = () => {
             </div>
           
           {/* Custom Tab Navigation */}
-          <div className="px-3 sm:px-6 pb-3">
+          <div className="sticky top-[73px] z-10 px-3 sm:px-6 pb-3 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/50">
             <div className="flex flex-wrap gap-2 scrollbar-hide justify-start">
               {[
                 { id: 'chat', label: 'CHAT', icon: MessageCircle, color: 'bg-lcars-purple' },
