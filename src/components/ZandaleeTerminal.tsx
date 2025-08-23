@@ -36,7 +36,7 @@ export const ZandaleeTerminal = () => {
   } = useSuperAdminAudit(isSuperAdmin);
 
   return (
-    <div className="flex flex-col min-h-[100dvh] w-screen bg-background overflow-hidden">
+    <div className="flex flex-col min-h-[100dvh] w-screen bg-background md:overflow-visible">
       {/* Header with title and status */}
       <div className="flex-shrink-0 px-4 py-2 border-b">
         <div className="flex items-center gap-4">
@@ -226,7 +226,7 @@ export const ZandaleeTerminal = () => {
             </button>
           </div>
 
-          <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="flex-1 min-h-0 md:overflow-visible">
             <TabsContent value="chat" className="h-full m-0 overflow-hidden md:overflow-visible">
               <ChatPane />
             </TabsContent>
