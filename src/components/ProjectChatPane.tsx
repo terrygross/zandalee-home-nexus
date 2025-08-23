@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { Send, User, Bot, MessageSquarePlus, Search, Download, Check, Paperclip, Star, Plus, Brain, BookOpen, Upload, Image, Heart, HelpCircle, MoreHorizontal, Pin, Archive, Trash2 } from 'lucide-react';
+import { Send, User, Bot, MessageSquarePlus, Search, Download, Check, Paperclip, Star, Plus, Brain, BookOpen, Upload, Image, Heart, HelpCircle, MoreHorizontal, Pin, Archive, Trash2, Copy } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useGateway } from '@/hooks/useGateway';
@@ -545,6 +545,15 @@ export const ProjectChatPane = () => {
     }
   };
 
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: "Copied", description: "Response copied to clipboard" });
+    } catch {
+      toast({ title: "Copy failed", description: "Could not copy to clipboard", variant: "destructive" });
+    }
+  };
+
   const handleSaveAsMemory = async (content: string) => {
     try {
       await memoryLearn({
@@ -739,13 +748,13 @@ export const ProjectChatPane = () => {
                           )}
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          {message.role === 'user' ? 'You' : message.role === 'system' ? 'System' : 'Assistant'}
+                          {message.role === 'user' ? 'You' : message.role === 'system' ? 'System' : 'Zandalee'}
                         </span>
                         <span className="text-xs text-muted-foreground">
                           {new Date(message.ts).toLocaleTimeString()}
                         </span>
                       </div>
-                      <div className={`rounded-lg p-3 ${
+                      <div className={`relative rounded-lg p-3 ${
                         message.role === 'user' 
                           ? 'bg-primary text-primary-foreground ml-8' 
                           : message.role === 'system'
@@ -754,17 +763,29 @@ export const ProjectChatPane = () => {
                       }`}>
                         <div className="text-sm whitespace-pre-wrap">{message.content}</div>
                         {message.role === 'assistant' && (
-                          <div className="flex gap-1 mt-2">
+                          <>
                             <Button
                               variant="ghost"
-                              size="sm"
-                              className="h-6 px-2 text-xs"
-                              onClick={() => handleSaveAsMemory(message.content)}
+                              size="icon"
+                              className="absolute top-2 right-2 h-7 w-7 rounded-full bg-background/70 hover:bg-background shadow"
+                              onClick={() => handleCopy(message.content)}
+                              aria-label="Copy Zandalee response"
+                              title="Copy"
                             >
-                              <Star className="w-3 h-3 mr-1" />
-                              Save as Memory
+                              <Copy className="w-4 h-4" />
                             </Button>
-                          </div>
+                            <div className="flex gap-1 mt-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 text-xs"
+                                onClick={() => handleSaveAsMemory(message.content)}
+                              >
+                                <Star className="w-3 h-3 mr-1" />
+                                Save as Memory
+                              </Button>
+                            </div>
+                          </>
                         )}
                       </div>
                     </div>
@@ -780,7 +801,7 @@ export const ProjectChatPane = () => {
                     <div className="w-6 h-6 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center">
                       <Bot className="w-4 h-4" />
                     </div>
-                    <span className="text-xs text-muted-foreground">Assistant</span>
+                    <span className="text-xs text-muted-foreground">Zandalee</span>
                   </div>
                   <div className="bg-secondary rounded-lg p-3">
                     <div className="flex space-x-1">
