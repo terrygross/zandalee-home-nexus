@@ -275,23 +275,25 @@ export function ManageFamilyPane() {
   }, [user]);
 
   return (
-    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold">Manage Family</h2>
-          <p className="text-muted-foreground text-sm sm:text-base">
-            Invite new members and manage existing family accounts
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-          <Badge variant="outline" className="gap-2 text-xs sm:text-sm">
-            <UserCog className="w-3 h-3 sm:w-4 sm:h-4" />
-            {user?.displayName}
-          </Badge>
-          <Button variant="outline" size="sm" onClick={logout}>
-            Sign Out
-          </Button>
-        </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Users className="w-5 h-5" />
+          Manage Family
+        </CardTitle>
+        <CardDescription>
+          Invite new members and manage existing family accounts
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+        <Badge variant="outline" className="gap-2 text-xs sm:text-sm">
+          <UserCog className="w-3 h-3 sm:w-4 sm:h-4" />
+          {user?.displayName}
+        </Badge>
+        <Button variant="outline" size="sm" onClick={logout}>
+          Sign Out
+        </Button>
       </div>
 
       <Tabs defaultValue="invite" className="space-y-4">
@@ -485,6 +487,7 @@ export function ManageFamilyPane() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

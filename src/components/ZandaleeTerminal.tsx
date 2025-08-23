@@ -153,7 +153,7 @@ export const ZandaleeTerminal = () => {
 
             {/* Settings tab - conditionally rendered for admins only */}
             {(user?.role === 'superadmin' || user?.role === 'admin') && (
-              <TabsContent value="settings" className="h-full m-0 overflow-hidden">
+              <TabsContent value="settings" className="h-full m-0 overflow-y-auto">
                 <SettingsPane />
               </TabsContent>
             )}

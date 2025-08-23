@@ -109,7 +109,7 @@ export const SettingsPane = () => {
   const validModels = availableModels.filter(modelName => modelName && modelName.trim() !== '');
 
   return (
-    <div className="h-full space-y-6">
+    <div className="h-full overflow-y-auto p-4 space-y-6">
       {/* Gateway Configuration */}
       <Card>
         <CardHeader>
