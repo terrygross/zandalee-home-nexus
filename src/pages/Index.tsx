@@ -28,10 +28,10 @@ const Index = () => {
       {/* Header */}
       <ZandaleeHeader />
       
-      {/* Main Content Area - constrained to remaining viewport height */}
-      <div className="flex-1 flex overflow-hidden" style={{ height: 'calc(100vh - 80px)' }}>
-        {/* Left Sidebar - Adjusted proportions for better space allocation */}
-        <div className="w-80 bg-space-surface/20 border-r border-energy-cyan/30 flex flex-col">
+      {/* Main Content Area - Mobile: stacked, Desktop: side-by-side */}
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden" style={{ height: 'calc(100vh - 80px)' }}>
+        {/* Left Sidebar - Hidden on mobile, visible on desktop */}
+        <div className="hidden md:block w-80 bg-space-surface/20 border-r border-energy-cyan/30 flex-col">
           {/* Avatar Panel - Reduced to 35% */}
           <div className="h-[35%] p-2">
             <AvatarPanel />
@@ -43,7 +43,7 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Center Content */}
+        {/* Center Content - Full width on mobile, flex-1 on desktop */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Chat Interface */}
           <div className="flex-1 min-h-0">
@@ -56,8 +56,8 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Right Sidebar - Compact */}
-        <div className="w-72 bg-space-surface/20 border-l border-energy-cyan/30 flex flex-col overflow-hidden">
+        {/* Right Sidebar - Hidden on mobile, visible on desktop */}
+        <div className="hidden md:flex w-72 bg-space-surface/20 border-l border-energy-cyan/30 flex-col overflow-hidden">
           {/* Audio Controls */}
           <div className="flex-shrink-0 p-2">
             <AudioControls />
@@ -82,6 +82,13 @@ const Index = () => {
           <div className="flex-1 min-h-0 p-2 pt-0">
             <VoiceMetrics />
           </div>
+        </div>
+      </div>
+
+      {/* Mobile Memory Manager - Only visible on mobile, positioned below main content */}
+      <div className="md:hidden bg-space-surface/20 border-t border-energy-cyan/30 max-h-80 overflow-y-auto">
+        <div className="p-4">
+          <MemoryManager />
         </div>
       </div>
 
