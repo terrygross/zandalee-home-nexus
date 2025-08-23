@@ -78,7 +78,7 @@ const ChatInterface = () => {
       </div>
 
       {/* Messages Area */}
-      <ScrollArea className="flex-1 min-h-0 pr-4" ref={scrollAreaRef}>
+      <ScrollArea className="flex-1 min-h-0 pr-4 scrollbar-hide" ref={scrollAreaRef}>
         <div className="space-y-4">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full text-muted-foreground">
