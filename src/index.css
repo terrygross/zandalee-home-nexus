@@ -1,40 +1,36 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* LCARS Design System - Authentic Colors */
 @layer base {
   :root {
-    /* LCARS Authentic Colors from reference images */
-    --lcars-orange: 17 100% 58%;        /* Primary orange/amber */
-    --lcars-blue: 199 89% 48%;          /* Primary blue */
-    --lcars-red: 355 85% 63%;           /* Alert red */
-    --lcars-yellow: 51 100% 50%;        /* Warning yellow */
-    --lcars-purple: 296 100% 75%;       /* Purple/magenta */
-    --lcars-green: 120 100% 25%;        /* Success green */
-    --lcars-pink: 320 100% 75%;         /* Pink accent */
-    --lcars-cyan: 180 100% 50%;         /* Cyan accent */
-    --lcars-violet: 270 100% 75%;       /* Violet accent */
-    /* Add missing LCARS colors */
-    --lcars-teal: 174 100% 50%;         /* Teal accent */
+    /* LCARS Color Palette */
+    --lcars-orange: 25 95% 65%;
+    --lcars-blue: 210 100% 60%;
+    --lcars-red: 0 100% 65%;
+    --lcars-yellow: 50 100% 70%;
+    --lcars-purple: 280 100% 70%;
+    --lcars-green: 120 100% 60%;
+    --lcars-pink: 320 100% 70%;
     
-    /* LCARS Backgrounds */
-    --lcars-bg-primary: 240 10% 8%;     /* Deep space black */
-    --lcars-bg-secondary: 240 8% 12%;   /* Panel background */
-    --lcars-bg-tertiary: 240 6% 15%;    /* Card background */
-    --lcars-bg-panel: 240 8% 10%;       /* Main panel */
+    /* LCARS Background Colors */
+    --lcars-bg-primary: 220 20% 8%;
+    --lcars-bg-secondary: 220 15% 12%;
+    --lcars-bg-tertiary: 220 10% 16%;
+    --lcars-bg-panel: 220 15% 10%;
     
-    /* LCARS Text */
-    --lcars-text-primary: 199 89% 85%;  /* Light blue text */
-    --lcars-text-secondary: 199 50% 70%; /* Medium blue text */
-    --lcars-text-muted: 199 30% 50%;    /* Dim blue text */
-    --lcars-text-accent: 17 100% 70%;   /* Orange accent text */
+    /* LCARS Text Colors */
+    --lcars-text-primary: 210 50% 85%;
+    --lcars-text-secondary: 210 30% 70%;
+    --lcars-text-muted: 210 20% 55%;
+    --lcars-text-accent: 25 95% 65%;
     
-    /* Map to shadcn variables */
+    /* Standard colors mapped to LCARS theme */
     --background: var(--lcars-bg-primary);
     --foreground: var(--lcars-text-primary);
-    --card: var(--lcars-bg-panel);
+    --card: var(--lcars-bg-secondary);
     --card-foreground: var(--lcars-text-primary);
     --popover: var(--lcars-bg-secondary);
     --popover-foreground: var(--lcars-text-primary);
@@ -45,13 +41,36 @@
     --muted: var(--lcars-bg-tertiary);
     --muted-foreground: var(--lcars-text-muted);
     --accent: var(--lcars-blue);
-    --accent-foreground: var(--lcars-text-primary);
+    --accent-foreground: var(--lcars-bg-primary);
     --destructive: var(--lcars-red);
     --destructive-foreground: var(--lcars-text-primary);
-    --border: 199 50% 30%;
+    --border: var(--lcars-bg-tertiary);
     --input: var(--lcars-bg-tertiary);
     --ring: var(--lcars-orange);
-    --radius: 0rem;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Dark mode uses the same LCARS colors */
+    --background: var(--lcars-bg-primary);
+    --foreground: var(--lcars-text-primary);
+    --card: var(--lcars-bg-secondary);
+    --card-foreground: var(--lcars-text-primary);
+    --popover: var(--lcars-bg-secondary);
+    --popover-foreground: var(--lcars-text-primary);
+    --primary: var(--lcars-orange);
+    --primary-foreground: var(--lcars-bg-primary);
+    --secondary: var(--lcars-bg-tertiary);
+    --secondary-foreground: var(--lcars-text-secondary);
+    --muted: var(--lcars-bg-tertiary);
+    --muted-foreground: var(--lcars-text-muted);
+    --accent: var(--lcars-blue);
+    --accent-foreground: var(--lcars-bg-primary);
+    --destructive: var(--lcars-red);
+    --destructive-foreground: var(--lcars-text-primary);
+    --border: var(--lcars-bg-tertiary);
+    --input: var(--lcars-bg-tertiary);
+    --ring: var(--lcars-orange);
   }
 }
 
@@ -59,120 +78,63 @@
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Orbitron', 'Courier Prime', monospace;
-    background: linear-gradient(45deg, hsl(var(--lcars-bg-primary)) 0%, hsl(var(--lcars-bg-secondary)) 100%);
+    @apply bg-background text-foreground font-mono;
   }
 }
 
 @layer components {
-  /* LCARS Panel with authentic rounded corners */
-  .lcars-panel {
-    @apply bg-card border-l-4 border-primary;
-    border-radius: 20px 0px 0px 20px;
-    position: relative;
+  .lcars-card {
+    background: linear-gradient(135deg, hsl(var(--lcars-bg-secondary)) 0%, hsl(var(--lcars-bg-tertiary)) 100%);
+    border: 2px solid hsl(var(--lcars-orange));
+    box-shadow: 0 0 20px hsl(var(--lcars-orange) / 0.3);
   }
   
-  /* LCARS Button - authentic pill shape with rounded ends */
   .lcars-button {
-    @apply font-bold text-black;
-    border-radius: 25px;
-    position: relative;
-    transition: all 0.2s ease;
+    background: linear-gradient(135deg, hsl(var(--lcars-orange)) 0%, hsl(var(--lcars-red)) 100%);
+    color: hsl(var(--lcars-bg-primary));
+    border: none;
     text-transform: uppercase;
+    font-weight: 600;
     letter-spacing: 0.1em;
+    transition: all 0.3s ease;
   }
   
   .lcars-button:hover {
-    transform: scale(1.02);
-    filter: brightness(1.1);
+    box-shadow: 0 0 15px hsl(var(--lcars-orange) / 0.6);
+    transform: translateY(-1px);
   }
   
-  /* LCARS Tab - rounded rectangle shape */
-  .lcars-tab {
-    @apply font-bold border-none;
-    @apply bg-lcars-bg-tertiary text-lcars-text-secondary;
-    border-radius: 15px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    transition: all 0.2s ease;
-  }
-  
-  .lcars-tab[data-state="active"] {
-    @apply bg-lcars-blue text-black;
-  }
-  
-  .lcars-tab:hover:not([data-state="active"]) {
-    @apply bg-lcars-bg-secondary text-lcars-text-primary;
-  }
-  
-  /* LCARS Input - rounded rectangle */
   .lcars-input {
-    @apply bg-input text-foreground border-2 border-lcars-blue;
-    border-radius: 15px;
-    padding: 8px 16px;
+    background: hsl(var(--lcars-bg-tertiary));
+    border: 2px solid hsl(var(--lcars-blue));
+    color: hsl(var(--lcars-text-primary));
   }
   
   .lcars-input:focus {
-    @apply border-lcars-orange ring-2 ring-lcars-orange ring-opacity-50;
+    border-color: hsl(var(--lcars-orange));
+    box-shadow: 0 0 10px hsl(var(--lcars-orange) / 0.4);
   }
   
-  /* LCARS Badge - pill shaped */
-  .lcars-badge {
-    @apply font-bold tracking-wider text-black;
-    border-radius: 20px;
+  .lcars {
+    color: hsl(var(--lcars-text-accent));
+    font-family: 'Orbitron', monospace;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.15em;
-  }
-  
-  /* LCARS Card - rounded corner panel */
-  .lcars-card {
-    @apply bg-card;
-    border-radius: 20px;
-    border: 2px solid hsl(var(--lcars-blue));
+    letter-spacing: 0.1em;
   }
 }
 
 @layer utilities {
-  .text-lcars {
-    font-family: 'Orbitron', 'Courier Prime', monospace;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-  
-  .text-lcars-display {
-    font-family: 'Orbitron', 'Courier Prime', monospace;
-    font-weight: 900;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-  }
-  
-  /* LCARS Color Utilities */
-  .bg-lcars-orange { background-color: hsl(var(--lcars-orange)); }
-  .bg-lcars-blue { background-color: hsl(var(--lcars-blue)); }
-  .bg-lcars-purple { background-color: hsl(var(--lcars-purple)); }
-  .bg-lcars-yellow { background-color: hsl(var(--lcars-yellow)); }
-  .bg-lcars-red { background-color: hsl(var(--lcars-red)); }
-  .bg-lcars-green { background-color: hsl(var(--lcars-green)); }
-  .bg-lcars-pink { background-color: hsl(var(--lcars-pink)); }
-  .bg-lcars-cyan { background-color: hsl(var(--lcars-cyan)); }
-  .bg-lcars-violet { background-color: hsl(var(--lcars-violet)); }
-  .bg-lcars-teal { background-color: hsl(var(--lcars-teal)); }
-  
-  /* Hide scrollbars */
   .scrollbar-hide {
+    /* IE and Edge */
     -ms-overflow-style: none;
+    /* Firefox */
     scrollbar-width: none;
   }
-
+  
   .scrollbar-hide::-webkit-scrollbar {
+    /* Safari and Chrome */
     display: none;
-  }
-
-  .no-anchor {
-    overflow-anchor: none;
   }
 }
