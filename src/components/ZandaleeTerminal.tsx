@@ -37,9 +37,10 @@ export const ZandaleeTerminal = () => {
     <ProjectChatProvider>
       <div className="flex flex-col min-h-[100dvh] w-full overflow-x-hidden bg-background">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-          {/* Header with Custom Navigation */}
-          <div className="sticky top-0 z-10 flex-shrink-0 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex items-center justify-between p-3 sm:px-6">
+          {/* Sticky Header and Navigation Container */}
+          <div className="sticky top-0 z-50 flex-shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+            {/* Header */}
+            <div className="flex items-center justify-between p-3 sm:px-6 border-b border-border/50">
               <div className="flex items-center gap-4">
                 <LeftNavDrawer />
                 <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
@@ -51,8 +52,8 @@ export const ZandaleeTerminal = () => {
               </div>
             </div>
           
-          {/* Custom Tab Navigation */}
-          <div className="sticky top-[73px] z-10 px-3 sm:px-6 pb-3 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/50">
+            {/* Tab Navigation */}
+            <div className="px-3 sm:px-6 pb-3 pt-3">
             <div className="flex flex-wrap gap-2 scrollbar-hide justify-start">
               {[
                 { id: 'chat', label: 'CHAT', icon: MessageCircle, color: 'bg-lcars-purple' },
