@@ -121,13 +121,13 @@ export function RegisterScreen({ onSwitchToLogin }: RegisterScreenProps) {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">Family Name</Label>
               <Input
                 id="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Your display name"
+                placeholder="Your family name"
                 disabled={loading}
               />
             </div>

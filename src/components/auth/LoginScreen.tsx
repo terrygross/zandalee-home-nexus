@@ -94,13 +94,13 @@ export function LoginScreen({ onSwitchToRegister }: LoginScreenProps) {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">Family Name</Label>
               <Input
                 id="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
+                placeholder="Enter your family name"
                 disabled={loading}
               />
             </div>
