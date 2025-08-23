@@ -175,8 +175,10 @@ export function LoginScreen({ onSwitchToRegister }: LoginScreenProps) {
                 variant="link"
                 onClick={onSwitchToRegister}
                 disabled={loading}
+                className="text-xs sm:text-sm px-2 whitespace-normal h-auto py-2"
               >
-                Have an invite code? Register here
+                <span className="hidden xs:inline">Have an invite code? Register here</span>
+                <span className="xs:hidden">Have invite code? Register</span>
               </Button>
             </div>
           </form>
