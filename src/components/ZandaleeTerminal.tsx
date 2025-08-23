@@ -116,7 +116,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('chat')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'chat' ? 'bg-lcars-purple text-black' : 'bg-lcars-purple/20 text-lcars-text-primary hover:bg-lcars-purple hover:text-black'
+                activeTab === 'chat' ? 'bg-lcars-purple text-black' : 'bg-lcars-purple/70 text-black hover:bg-lcars-purple'
               }`}
               aria-selected={activeTab === 'chat'}
             >
@@ -127,7 +127,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('settings')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'settings' ? 'bg-lcars-blue text-black' : 'bg-lcars-blue/20 text-lcars-text-primary hover:bg-lcars-blue hover:text-black'
+                activeTab === 'settings' ? 'bg-lcars-blue text-black' : 'bg-lcars-blue/70 text-black hover:bg-lcars-blue'
               }`}
               aria-selected={activeTab === 'settings'}
             >
@@ -138,7 +138,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('appcontrol')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'appcontrol' ? 'bg-lcars-green text-black' : 'bg-lcars-green/20 text-lcars-text-primary hover:bg-lcars-green hover:text-black'
+                activeTab === 'appcontrol' ? 'bg-lcars-green text-black' : 'bg-lcars-green/70 text-black hover:bg-lcars-green'
               }`}
               aria-selected={activeTab === 'appcontrol'}
             >
@@ -149,7 +149,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('voice')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'voice' ? 'bg-lcars-orange text-black' : 'bg-lcars-orange/20 text-lcars-text-primary hover:bg-lcars-orange hover:text-black'
+                activeTab === 'voice' ? 'bg-lcars-orange text-black' : 'bg-lcars-orange/70 text-black hover:bg-lcars-orange'
               }`}
               aria-selected={activeTab === 'voice'}
             >
@@ -160,7 +160,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('memories')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'memories' ? 'bg-lcars-yellow text-black' : 'bg-lcars-yellow/20 text-lcars-text-primary hover:bg-lcars-yellow hover:text-black'
+                activeTab === 'memories' ? 'bg-lcars-yellow text-black' : 'bg-lcars-yellow/70 text-black hover:bg-lcars-yellow'
               }`}
               aria-selected={activeTab === 'memories'}
             >
@@ -171,7 +171,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('mic')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'mic' ? 'bg-lcars-pink text-black' : 'bg-lcars-pink/20 text-lcars-text-primary hover:bg-lcars-pink hover:text-black'
+                activeTab === 'mic' ? 'bg-lcars-pink text-black' : 'bg-lcars-pink/70 text-black hover:bg-lcars-pink'
               }`}
               aria-selected={activeTab === 'mic'}
             >
@@ -182,7 +182,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('hands')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'hands' ? 'bg-lcars-cyan text-black' : 'bg-lcars-cyan/20 text-lcars-text-primary hover:bg-lcars-cyan hover:text-black'
+                activeTab === 'hands' ? 'bg-lcars-cyan text-black' : 'bg-lcars-cyan/70 text-black hover:bg-lcars-cyan'
               }`}
               aria-selected={activeTab === 'hands'}
             >
@@ -193,7 +193,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('docs')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'docs' ? 'bg-lcars-violet text-black' : 'bg-lcars-violet/20 text-lcars-text-primary hover:bg-lcars-violet hover:text-black'
+                activeTab === 'docs' ? 'bg-lcars-violet text-black' : 'bg-lcars-violet/70 text-black hover:bg-lcars-violet'
               }`}
               aria-selected={activeTab === 'docs'}
             >
@@ -205,7 +205,7 @@ export const ZandaleeTerminal = () => {
               <button
                 onClick={() => setActiveTab('manage-family')}
                 className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                  activeTab === 'manage-family' ? 'bg-lcars-red text-black' : 'bg-lcars-red/20 text-lcars-text-primary hover:bg-lcars-red hover:text-black'
+                  activeTab === 'manage-family' ? 'bg-lcars-red text-black' : 'bg-lcars-red/70 text-black hover:bg-lcars-red'
                 }`}
                 aria-selected={activeTab === 'manage-family'}
               >
@@ -217,7 +217,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('shared')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'shared' ? 'bg-lcars-teal text-black' : 'bg-lcars-teal/20 text-lcars-text-primary hover:bg-lcars-teal hover:text-black'
+                activeTab === 'shared' ? 'bg-lcars-teal text-black' : 'bg-lcars-teal/70 text-black hover:bg-lcars-teal'
               }`}
               aria-selected={activeTab === 'shared'}
             >

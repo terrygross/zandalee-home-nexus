@@ -16,6 +16,8 @@
     --lcars-pink: 320 100% 75%;         /* Pink accent */
     --lcars-cyan: 180 100% 50%;         /* Cyan accent */
     --lcars-violet: 270 100% 75%;       /* Violet accent */
+    /* Add missing LCARS colors */
+    --lcars-teal: 174 100% 50%;         /* Teal accent */
     
     /* LCARS Backgrounds */
     --lcars-bg-primary: 240 10% 8%;     /* Deep space black */
@@ -152,4 +154,5 @@
   .bg-lcars-pink { background-color: hsl(var(--lcars-pink)); }
   .bg-lcars-cyan { background-color: hsl(var(--lcars-cyan)); }
   .bg-lcars-violet { background-color: hsl(var(--lcars-violet)); }
+  .bg-lcars-teal { background-color: hsl(var(--lcars-teal)); }
 }
