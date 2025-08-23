@@ -233,15 +233,15 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-7xl h-[85vh] bg-space-deep/95 backdrop-blur-xl border border-energy-cyan/30 flex flex-col">
+      <DialogContent className="w-[95vw] sm:max-w-7xl h-[85vh] bg-space-deep/95 backdrop-blur-xl border border-energy-cyan/30 flex flex-col">
         <DialogHeader className="flex-shrink-0 pb-2">
-          <DialogTitle className="flex items-center space-x-2 text-text-primary text-lg">
-            <Settings className="w-5 h-5 text-energy-cyan" />
+          <DialogTitle className="flex items-center space-x-2 text-text-primary text-sm sm:text-lg">
+            <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-energy-cyan" />
             <span>Microphone Calibration Wizard</span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-4 gap-4 flex-1 min-h-0">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 flex-1 min-h-0">
           {/* Left Panel - Compact Status */}
           <Card className="glass-panel flex flex-col">
             <CardHeader className="pb-2 flex-shrink-0">
@@ -306,7 +306,7 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
           </Card>
 
           {/* Main Panel - Results or Log */}
-          <Card className="glass-panel col-span-3 flex flex-col">
+          <Card className="glass-panel lg:col-span-3 flex flex-col">
             <CardHeader className="pb-2 flex-shrink-0">
               <CardTitle className="text-sm">
                 {step === 'results' ? 'Test Results' : 'Progress Log'}
@@ -362,27 +362,27 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
                     </Table>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row justify-between items-center gap-2 pt-2 border-t border-border/30 flex-shrink-0">
+                  <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-2 border-t border-border/30 flex-shrink-0">
                     <Button 
                       variant="outline" 
                       onClick={retestDevices}
                       disabled={isProcessing}
-                      size="sm"
-                      className="w-full sm:w-auto text-xs"
+                      size="default"
+                      className="w-full sm:w-auto text-sm min-h-[44px]"
                     >
-                      <Play className="w-3 h-3 mr-1" />
+                      <Play className="w-4 h-4 mr-2" />
                       Retest
                     </Button>
                     <Button 
                       onClick={confirmDevice}
                       disabled={!selectedDevice || isProcessing}
-                      className="bg-energy-cyan hover:bg-energy-cyan/80 w-full sm:w-auto text-xs"
-                      size="sm"
+                      className="bg-energy-cyan hover:bg-energy-cyan/80 w-full sm:w-auto sm:px-8 text-sm min-h-[44px]"
+                      size="default"
                     >
                       {isProcessing ? (
-                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       ) : (
-                        <Check className="w-3 h-3 mr-1" />
+                        <Check className="w-4 h-4 mr-2" />
                       )}
                       Use Device
                     </Button>
