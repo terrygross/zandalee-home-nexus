@@ -6,6 +6,8 @@ import { MessageCircle, Settings, Mic, Hand, FileText, Brain, Volume2, Code, Use
 import { useGateway } from '@/hooks/useGateway';
 import { useSession } from '@/contexts/SessionContext';
 import { canInviteUsers } from '@/utils/roleGuards';
+import { useSuperAdminAudit } from '@/hooks/useSuperAdminAudit';
+import { SuperAdminAuditBanner } from '@/components/SuperAdminAuditBanner';
 import { ChatPane } from './terminal/ChatPane';
 import { SettingsPane } from './terminal/SettingsPane';
 import { MemoriesPane } from './terminal/MemoriesPane';
@@ -22,6 +24,17 @@ export const ZandaleeTerminal = () => {
   const { isHealthy } = useGateway();
   const { user } = useSession();
 
+  // Super-admin audit functionality
+  const isSuperAdmin = user?.role === 'superadmin';
+  const {
+    entries,
+    loading: auditLoading,
+    hasNewAttempts,
+    fetchAuditEntries,
+    markAsSeen,
+    recentEntries
+  } = useSuperAdminAudit(isSuperAdmin);
+
   return (
     <div className="flex flex-col min-h-[100dvh] w-screen bg-background overflow-hidden">
       {/* Header with title and status */}
@@ -33,6 +46,20 @@ export const ZandaleeTerminal = () => {
           </Badge>
         </div>
       </div>
+      
+      {/* Super-Admin Audit Banner */}
+      {isSuperAdmin && (
+        <div className="flex-shrink-0 px-4">
+          <SuperAdminAuditBanner
+            entries={entries}
+            recentEntries={recentEntries}
+            hasNewAttempts={hasNewAttempts}
+            onMarkAsSeen={markAsSeen}
+            onRefresh={() => fetchAuditEntries()}
+            loading={auditLoading}
+          />
+        </div>
+      )}
       
       <div className="flex-1 flex flex-col min-h-0 px-4 py-1">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
