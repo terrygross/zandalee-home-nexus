@@ -69,7 +69,7 @@ export const ZandaleeTerminal = () => {
             {/* Tab Navigation */}
             <div className="px-3 sm:px-6 pb-3 pt-3">
               <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                <div className="flex gap-2 whitespace-nowrap">
+                <div className="flex gap-1 md:gap-2 whitespace-nowrap">
                   {[
                     { id: 'chat', label: 'CHAT', icon: MessageCircle, color: 'bg-lcars-purple' },
                     { id: 'voice', label: 'VOICE', icon: Volume2, color: 'bg-lcars-orange' },
@@ -92,16 +92,16 @@ export const ZandaleeTerminal = () => {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`
-                          inline-flex items-center gap-2 px-3 py-2 flex-shrink-0
-                          text-sm font-bold rounded-full transition-all text-black
+                          inline-flex items-center gap-1 md:gap-2 px-2 md:px-3 py-2 flex-shrink-0
+                          text-xs md:text-sm font-bold rounded-full transition-all text-black
                           ${activeTab === tab.id 
                             ? 'bg-lcars-orange shadow-sm' 
                             : `${tab.color} hover:bg-lcars-orange`
                           }
                         `}
                       >
-                        <Icon className="w-4 h-4 flex-shrink-0 xs:w-3 xs:h-3 sm:w-4 sm:h-4" />
-                        <span className="hidden sm:inline whitespace-nowrap">{tab.label}</span>
+                        <Icon className="w-3 h-3 md:w-4 md:h-4 lg:w-4 lg:h-4 flex-shrink-0" />
+                        <span className="hidden md:inline lg:inline whitespace-nowrap text-xs md:text-sm">{tab.label}</span>
                       </button>
                     );
                   })}
