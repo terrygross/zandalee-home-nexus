@@ -116,7 +116,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('chat')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'chat' ? 'bg-lcars-purple text-black' : 'bg-lcars-purple/70 text-black hover:bg-lcars-purple'
+                activeTab === 'chat' ? 'bg-lcars-purple text-black opacity-100' : 'bg-lcars-purple text-black opacity-75 hover:opacity-100'
               }`}
               aria-selected={activeTab === 'chat'}
             >
@@ -127,7 +127,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('settings')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'settings' ? 'bg-lcars-blue text-black' : 'bg-lcars-blue/70 text-black hover:bg-lcars-blue'
+                activeTab === 'settings' ? 'bg-lcars-blue text-black opacity-100' : 'bg-lcars-blue text-black opacity-75 hover:opacity-100'
               }`}
               aria-selected={activeTab === 'settings'}
             >
@@ -138,7 +138,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('appcontrol')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'appcontrol' ? 'bg-lcars-green text-black' : 'bg-lcars-green/70 text-black hover:bg-lcars-green'
+                activeTab === 'appcontrol' ? 'bg-lcars-green text-black opacity-100' : 'bg-lcars-green text-black opacity-75 hover:opacity-100'
               }`}
               aria-selected={activeTab === 'appcontrol'}
             >
@@ -149,7 +149,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('voice')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'voice' ? 'bg-lcars-orange text-black' : 'bg-lcars-orange/70 text-black hover:bg-lcars-orange'
+                activeTab === 'voice' ? 'bg-lcars-orange text-black opacity-100' : 'bg-lcars-orange text-black opacity-75 hover:opacity-100'
               }`}
               aria-selected={activeTab === 'voice'}
             >
@@ -160,7 +160,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('memories')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'memories' ? 'bg-lcars-yellow text-black' : 'bg-lcars-yellow/70 text-black hover:bg-lcars-yellow'
+                activeTab === 'memories' ? 'bg-lcars-yellow text-black opacity-100' : 'bg-lcars-yellow text-black opacity-75 hover:opacity-100'
               }`}
               aria-selected={activeTab === 'memories'}
             >
@@ -171,7 +171,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('mic')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'mic' ? 'bg-lcars-pink text-black' : 'bg-lcars-pink/70 text-black hover:bg-lcars-pink'
+                activeTab === 'mic' ? 'bg-lcars-pink text-black opacity-100' : 'bg-lcars-pink text-black opacity-75 hover:opacity-100'
               }`}
               aria-selected={activeTab === 'mic'}
             >
@@ -182,7 +182,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('hands')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'hands' ? 'bg-lcars-cyan text-black' : 'bg-lcars-cyan/70 text-black hover:bg-lcars-cyan'
+                activeTab === 'hands' ? 'bg-lcars-cyan text-black opacity-100' : 'bg-lcars-cyan text-black opacity-75 hover:opacity-100'
               }`}
               aria-selected={activeTab === 'hands'}
             >
@@ -193,7 +193,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('docs')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'docs' ? 'bg-lcars-violet text-black' : 'bg-lcars-violet/70 text-black hover:bg-lcars-violet'
+                activeTab === 'docs' ? 'bg-lcars-violet text-black opacity-100' : 'bg-lcars-violet text-black opacity-75 hover:opacity-100'
               }`}
               aria-selected={activeTab === 'docs'}
             >
@@ -204,8 +204,8 @@ export const ZandaleeTerminal = () => {
             {canInviteUsers(user) && (
               <button
                 onClick={() => setActiveTab('manage-family')}
-                className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                  activeTab === 'manage-family' ? 'bg-lcars-red text-black' : 'bg-lcars-red/70 text-black hover:bg-lcars-red'
+                className={`flex items-center gap-2 px-3 py-3 text-sm font-bold transition-all lcars-tab text-lcars whitespace-nowrap ${
+                  activeTab === 'manage-family' ? 'bg-lcars-red text-black opacity-100' : 'bg-lcars-red text-black opacity-75 hover:opacity-100'
                 }`}
                 aria-selected={activeTab === 'manage-family'}
               >
@@ -217,7 +217,7 @@ export const ZandaleeTerminal = () => {
             <button
               onClick={() => setActiveTab('shared')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
-                activeTab === 'shared' ? 'bg-lcars-teal text-black' : 'bg-lcars-teal/70 text-black hover:bg-lcars-teal'
+                activeTab === 'shared' ? 'bg-lcars-teal text-black opacity-100' : 'bg-lcars-teal text-black opacity-75 hover:opacity-100'
               }`}
               aria-selected={activeTab === 'shared'}
             >
