@@ -344,7 +344,7 @@ const MemoryManager = () => {
   };
 
   return (
-    <Card className="glass-panel h-full flex flex-col">
+    <Card className="glass-panel h-full md:h-full flex flex-col relative z-0">
       <CardHeader className="pb-2 px-3 pt-2 flex-shrink-0">
         <CardTitle className="flex items-center justify-between text-text-primary text-xs">
           <div className="flex items-center gap-2">

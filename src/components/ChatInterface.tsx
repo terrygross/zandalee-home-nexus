@@ -71,7 +71,7 @@ const ChatInterface = () => {
   };
 
   return (
-    <div className="h-full flex flex-col lcars-card border-2 border-accent/30 bg-card p-4">
+    <div className="h-full flex flex-col lcars-card border-2 border-accent/30 bg-card p-4 relative z-10">
       {/* Chat Header */}
       <div className="flex-shrink-0 pb-4">
         <h2 className="text-xl font-bold text-primary">CHAT</h2>
