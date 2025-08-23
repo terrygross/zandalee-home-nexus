@@ -556,7 +556,7 @@ export const ChatPane = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type a message... (Press Enter twice to send, or use Send button)"
+              placeholder="Type a message.. ( Hit enter once for new line or twice to send )"
               rows={4}
               className="flex-1 text-sm resize-none overflow-y-hidden"
               disabled={isProcessing || !isHealthy}

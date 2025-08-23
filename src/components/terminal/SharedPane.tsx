@@ -288,7 +288,7 @@ export function SharedPane() {
               
               <form onSubmit={sendMessage} className="flex gap-2">
                 <Textarea
-                  placeholder="Type your message to the family... (Press Enter twice to send, or use Send button)"
+                  placeholder="Type a message.. ( Hit enter once for new line or twice to send )"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   className="min-h-[60px]"

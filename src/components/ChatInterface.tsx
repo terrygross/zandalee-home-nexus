@@ -343,7 +343,7 @@ const ChatInterface = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyPress}
-            placeholder="Type a message... (Press Enter twice to send, or use arrow button)"
+            placeholder="Type a message.. ( Hit enter once for new line or twice to send )"
             className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted resize-none !h-[300px] !min-h-[300px] !max-h-[300px]"
             disabled={isProcessing || (!isHealthy && !useDirectLLMMode) || (useDirectLLMMode && !isConfigured)}
           />
