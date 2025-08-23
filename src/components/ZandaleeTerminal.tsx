@@ -35,10 +35,10 @@ export const ZandaleeTerminal = () => {
   
   return (
     <ProjectChatProvider>
-      <div className="flex flex-col min-h-[100dvh] w-full overflow-x-hidden bg-background">
+      <div className="flex flex-col h-[100dvh] w-full overflow-y-auto overflow-x-hidden bg-background">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
           {/* Sticky Header and Navigation Container */}
-          <div className="sticky top-0 z-50 flex-shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+          <div className="sticky top-0 z-[100] flex-shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border" style={{ top: 'env(safe-area-inset-top)' }}>
             {/* Header */}
             <div className="flex items-center justify-between p-3 sm:px-6 border-b border-border/50">
               <div className="flex items-center gap-4">
@@ -54,39 +54,39 @@ export const ZandaleeTerminal = () => {
           
             {/* Tab Navigation */}
             <div className="px-3 sm:px-6 pb-3 pt-3">
-            <div className="flex flex-wrap gap-2 scrollbar-hide justify-start">
-              {[
-                { id: 'chat', label: 'CHAT', icon: MessageCircle, color: 'bg-lcars-purple' },
-                { id: 'voice', label: 'VOICE', icon: Volume2, color: 'bg-lcars-orange' },
-                { id: 'memories', label: 'MEMORIES', icon: Brain, color: 'bg-lcars-yellow' },
-                { id: 'mic', label: 'MIC', icon: Mic, color: 'bg-lcars-pink' },
-                { id: 'hands', label: 'HANDS', icon: Hand, color: 'bg-lcars-cyan' },
-                { id: 'docs', label: 'DOCS', icon: FileText, color: 'bg-lcars-violet' },
-                { id: 'shared', label: 'SHARED', icon: Share2, color: 'bg-lcars-teal' },
-                { id: 'settings', label: 'SETTINGS', icon: Settings, color: 'bg-lcars-blue' }
-              ].map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`
-                      inline-flex items-center gap-2 px-3 py-2 flex-shrink-0
-                      text-sm font-bold rounded-full transition-all text-black
-                      ${activeTab === tab.id 
-                        ? 'bg-lcars-orange shadow-sm' 
-                        : `${tab.color} hover:bg-lcars-orange`
-                      }
-                    `}
-                  >
-                    <Icon className="w-4 h-4 flex-shrink-0 xs:w-3 xs:h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline whitespace-nowrap">{tab.label}</span>
-                  </button>
-                );
-              })}
+              <div className="flex flex-wrap gap-2 scrollbar-hide justify-start">
+                {[
+                  { id: 'chat', label: 'CHAT', icon: MessageCircle, color: 'bg-lcars-purple' },
+                  { id: 'voice', label: 'VOICE', icon: Volume2, color: 'bg-lcars-orange' },
+                  { id: 'memories', label: 'MEMORIES', icon: Brain, color: 'bg-lcars-yellow' },
+                  { id: 'mic', label: 'MIC', icon: Mic, color: 'bg-lcars-pink' },
+                  { id: 'hands', label: 'HANDS', icon: Hand, color: 'bg-lcars-cyan' },
+                  { id: 'docs', label: 'DOCS', icon: FileText, color: 'bg-lcars-violet' },
+                  { id: 'shared', label: 'SHARED', icon: Share2, color: 'bg-lcars-teal' },
+                  { id: 'settings', label: 'SETTINGS', icon: Settings, color: 'bg-lcars-blue' }
+                ].map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`
+                        inline-flex items-center gap-2 px-3 py-2 flex-shrink-0
+                        text-sm font-bold rounded-full transition-all text-black
+                        ${activeTab === tab.id 
+                          ? 'bg-lcars-orange shadow-sm' 
+                          : `${tab.color} hover:bg-lcars-orange`
+                        }
+                      `}
+                    >
+                      <Icon className="w-4 h-4 flex-shrink-0 xs:w-3 xs:h-3 sm:w-4 sm:h-4" />
+                      <span className="hidden sm:inline whitespace-nowrap">{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
 
         {/* Super-Admin Audit Banner */}
         {isSuperAdmin && (
