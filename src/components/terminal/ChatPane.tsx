@@ -114,10 +114,22 @@ export const ChatPane = () => {
     el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden';
   };
 
+  const lastEnterTime = useRef<number>(0);
+  
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
+      const currentTime = Date.now();
+      const timeSinceLastEnter = currentTime - lastEnterTime.current;
+      
+      if (timeSinceLastEnter < 600 && lastEnterTime.current > 0) {
+        // Double enter - send message
+        e.preventDefault();
+        handleSend();
+        lastEnterTime.current = 0;
+      } else {
+        // Single enter - new line (let default behavior happen)
+        lastEnterTime.current = currentTime;
+      }
     }
   };
 
@@ -544,7 +556,7 @@ export const ChatPane = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type a message... (Enter to send, Shift+Enter for new line)"
+              placeholder="Type a message... (Press Enter twice to send, or use Send button)"
               rows={4}
               className="flex-1 text-sm resize-none overflow-y-hidden"
               disabled={isProcessing || !isHealthy}

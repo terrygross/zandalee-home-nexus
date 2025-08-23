@@ -288,14 +288,24 @@ export function SharedPane() {
               
               <form onSubmit={sendMessage} className="flex gap-2">
                 <Textarea
-                  placeholder="Type your message to the family..."
+                  placeholder="Type your message to the family... (Press Enter twice to send, or use Send button)"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   className="min-h-[60px]"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      sendMessage(e);
+                      const currentTime = Date.now();
+                      const timeSinceLastEnter = currentTime - (window as any).lastEnterTime || 0;
+                      
+                      if (timeSinceLastEnter < 600 && (window as any).lastEnterTime > 0) {
+                        // Double enter - send message
+                        e.preventDefault();
+                        sendMessage(e);
+                        (window as any).lastEnterTime = 0;
+                      } else {
+                        // Single enter - new line (let default behavior happen)
+                        (window as any).lastEnterTime = currentTime;
+                      }
                     }
                   }}
                 />

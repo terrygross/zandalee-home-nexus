@@ -243,10 +243,22 @@ const ChatInterface = () => {
     );
   };
 
+  const lastEnterTime = useRef<number>(0);
+  
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
+      const currentTime = Date.now();
+      const timeSinceLastEnter = currentTime - lastEnterTime.current;
+      
+      if (timeSinceLastEnter < 600 && lastEnterTime.current > 0) {
+        // Double enter - send message
+        e.preventDefault();
+        handleSend();
+        lastEnterTime.current = 0;
+      } else {
+        // Single enter - new line (let default behavior happen)
+        lastEnterTime.current = currentTime;
+      }
     }
   };
 
@@ -331,7 +343,7 @@ const ChatInterface = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyPress}
-            placeholder="Type a message... (Press Enter to send, Shift+Enter for new line)"
+            placeholder="Type a message... (Press Enter twice to send, or use arrow button)"
             className="flex-1 bg-space-surface border-glass-border text-text-primary placeholder-text-muted resize-none !h-[300px] !min-h-[300px] !max-h-[300px]"
             disabled={isProcessing || (!isHealthy && !useDirectLLMMode) || (useDirectLLMMode && !isConfigured)}
           />
@@ -357,7 +369,7 @@ const ChatInterface = () => {
               : `Gateway mode • Gateway health: ${isHealthy ? '✅' : '❌'} • Click ⭐ to save responses`
             }
           </span>
-          <span>Press Enter to send • Shift+Enter for new line</span>
+          <span>Press Enter twice to send • Single Enter for new line</span>
         </div>
       </div>
     </div>
