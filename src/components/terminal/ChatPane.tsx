@@ -698,14 +698,14 @@ export const ChatPane = () => {
                   <div>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <div className="text-[10px] text-muted-foreground mb-1 cursor-help">Kind</div>
+                        <div className="text-[10px] text-muted-foreground mb-1 cursor-help hover:text-primary">Kind ?</div>
                       </TooltipTrigger>
-                      <TooltipContent side="left" className="max-w-xs text-xs">
-                        <div className="space-y-2">
-                          <div><strong>Semantic:</strong> Long-term memory of general knowledge, facts, and concepts - your "encyclopedia" of the world.</div>
-                          <div><strong>Episodic:</strong> Personal experiences with details of what, where, and when something happened.</div>
-                          <div><strong>Procedural:</strong> How to do things - skills like riding a bike or typing (implicit memory).</div>
-                          <div><strong>Working:</strong> Temporary mental scratchpad for immediate use, like remembering a phone number while dialing.</div>
+                      <TooltipContent side="top" align="start" className="max-w-xs text-xs z-50">
+                        <div className="space-y-1">
+                          <div><strong>Semantic:</strong> General knowledge and facts - your "encyclopedia" of the world.</div>
+                          <div><strong>Episodic:</strong> Personal experiences with details of what, where, and when.</div>
+                          <div><strong>Procedural:</strong> How to do things - skills like riding a bike (implicit memory).</div>
+                          <div><strong>Working:</strong> Temporary mental scratchpad for immediate use.</div>
                         </div>
                       </TooltipContent>
                     </Tooltip>
