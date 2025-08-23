@@ -99,7 +99,13 @@ export const ProjectChatPane = () => {
   const currentMessages = chat.activeThreadId ? getThreadMessages(chat.activeThreadId) : [];
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const messagesContainer = messagesEndRef.current?.parentElement;
+    if (messagesContainer) {
+      messagesContainer.scrollTo({ 
+        top: messagesContainer.scrollHeight, 
+        behavior: 'smooth' 
+      });
+    }
   };
 
   const MAX_ROWS = 8;
@@ -702,7 +708,7 @@ export const ProjectChatPane = () => {
           )}
 
           {/* Messages area with proper flex and overflow */}
-          <div className="flex-1 overflow-y-auto space-y-4 mb-4 min-h-0">
+          <div className="flex-1 overflow-y-auto overscroll-contain space-y-4 mb-4 min-h-0 no-anchor">
             {!chat.activeThreadId ? (
               <div className="text-center text-muted-foreground py-8">
                 <MessageSquarePlus className="w-12 h-12 mx-auto mb-4 opacity-50" />

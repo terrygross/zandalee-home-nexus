@@ -157,12 +157,16 @@
   .bg-lcars-teal { background-color: hsl(var(--lcars-teal)); }
   
   /* Hide scrollbars */
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.no-anchor {
+  overflow-anchor: none;
+}
 }

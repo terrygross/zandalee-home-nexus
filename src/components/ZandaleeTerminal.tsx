@@ -38,7 +38,7 @@ export const ZandaleeTerminal = () => {
       <div className="flex flex-col h-[100dvh] w-full overflow-y-auto overflow-x-hidden bg-background">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
           {/* Sticky Header and Navigation Container */}
-          <div className="sticky top-0 z-[100] flex-shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border" style={{ top: 'env(safe-area-inset-top)' }}>
+          <div className="sticky top-0 z-[100] flex-shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border no-anchor" style={{ top: 'env(safe-area-inset-top)' }}>
             {/* Header */}
             <div className="flex items-center justify-between p-3 sm:px-6 border-b border-border/50">
               <div className="flex items-center gap-4">
@@ -90,7 +90,7 @@ export const ZandaleeTerminal = () => {
 
         {/* Super-Admin Audit Banner */}
         {isSuperAdmin && (
-          <div className="flex-shrink-0 px-4">
+          <div className="flex-shrink-0 px-4 no-anchor">
             <SuperAdminAuditBanner
               entries={entries}
               recentEntries={recentEntries}
