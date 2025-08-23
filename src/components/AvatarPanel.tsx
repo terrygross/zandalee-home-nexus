@@ -40,7 +40,8 @@ const AvatarPanel = () => {
 
   const loadAvatars = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8759/avatar/list');
+      const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
+      const response = await fetch(`${API_BASE}/avatar/list`);
       const data = await response.json();
       
       if (data.ok) {
@@ -53,7 +54,8 @@ const AvatarPanel = () => {
 
   const loadActiveAvatar = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8759/avatar/status');
+      const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
+      const response = await fetch(`${API_BASE}/avatar/status`);
       const data = await response.json();
       
       if (data.ok && data.active_avatar_id) {
@@ -111,7 +113,8 @@ const AvatarPanel = () => {
       formData.append('file', file);
       formData.append('name', avatarName.trim());
 
-      const response = await fetch('http://127.0.0.1:8759/avatar/upload', {
+      const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
+      const response = await fetch(`${API_BASE}/avatar/upload`, {
         method: 'POST',
         body: formData
       });
@@ -147,7 +150,8 @@ const AvatarPanel = () => {
 
   const selectAvatar = async (avatarId: string) => {
     try {
-      const response = await fetch('http://127.0.0.1:8759/avatar/select', {
+      const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
+      const response = await fetch(`${API_BASE}/avatar/select`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: avatarId })
@@ -181,7 +185,8 @@ const AvatarPanel = () => {
     }
 
     try {
-      const response = await fetch(`http://127.0.0.1:8759/avatar/${avatarId}`, {
+      const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
+      const response = await fetch(`${API_BASE}/avatar/${avatarId}`, {
         method: 'DELETE'
       });
 

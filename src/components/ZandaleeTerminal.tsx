@@ -64,7 +64,13 @@ export const ZandaleeTerminal = () => {
                   { id: 'docs', label: 'DOCS', icon: FileText, color: 'bg-lcars-violet' },
                   { id: 'shared', label: 'SHARED', icon: Share2, color: 'bg-lcars-teal' },
                   { id: 'settings', label: 'SETTINGS', icon: Settings, color: 'bg-lcars-blue' }
-                ].map((tab) => {
+                 ].filter(tab => {
+                   // Hide Settings tab for non-admin users
+                   if (tab.id === 'settings' && user?.role !== 'superadmin' && user?.role !== 'admin') {
+                     return false;
+                   }
+                   return true;
+                 }).map((tab) => {
                   const Icon = tab.icon;
                   return (
                     <button
@@ -132,9 +138,12 @@ export const ZandaleeTerminal = () => {
               <SharedPane />
             </TabsContent>
 
-            <TabsContent value="settings" className="h-full m-0 overflow-hidden">
-              <SettingsPane />
-            </TabsContent>
+            {/* Settings tab - conditionally rendered for admins only */}
+            {(user?.role === 'superadmin' || user?.role === 'admin') && (
+              <TabsContent value="settings" className="h-full m-0 overflow-hidden">
+                <SettingsPane />
+              </TabsContent>
+            )}
           </div>
         </div>
       </Tabs>

@@ -344,6 +344,129 @@ export const useGateway = () => {
     }
   };
 
+  // Diary endpoints
+  const diaryAppend = async (body: { text: string; image?: string; emotion?: string; tags?: string[] }): Promise<{ ok: boolean; id: string; day: string }> => {
+    const response = await fetch(`${API_BASE}/diary/append`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(body)
+    });
+    await handleResponse(response);
+    return response.json();
+  };
+
+  const diaryRollup = async (body: { period?: string } = {}): Promise<{ ok: boolean; text: string }> => {
+    const response = await fetch(`${API_BASE}/diary/rollup`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(body)
+    });
+    await handleResponse(response);
+    return response.json();
+  };
+
+  // Internet endpoints
+  const openUrl = async (body: { url: string; browser?: string; autoRequest?: boolean }): Promise<{ ok: boolean; url: string }> => {
+    const response = await fetch(`${API_BASE}/local/open-url`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(body)
+    });
+    await handleResponse(response);
+    return response.json();
+  };
+
+  const fetchUrl = async (url: string): Promise<{ ok: boolean; contentType: string; text: string }> => {
+    const response = await fetch(`${API_BASE}/net/fetch?url=${encodeURIComponent(url)}`, {
+      headers: getAuthHeaders()
+    });
+    await handleResponse(response);
+    return response.json();
+  };
+
+  const downloadUrl = async (body: { url: string }): Promise<{ ok: boolean; name: string; savedAs: string; size: number }> => {
+    const response = await fetch(`${API_BASE}/net/download`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(body)
+    });
+    await handleResponse(response);
+    return response.json();
+  };
+
+  // Permissions endpoints
+  const permissionsExecute = async (body: { command: string }): Promise<{ allowed: boolean; reason?: string }> => {
+    const response = await fetch(`${API_BASE}/permissions/execute`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(body)
+    });
+    await handleResponse(response);
+    return response.json();
+  };
+
+  const permissionsRequest = async (body: { kind: 'app' | 'url'; payload: any; requester: string }): Promise<{ ok: boolean; request: any }> => {
+    const response = await fetch(`${API_BASE}/permissions/request`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(body)
+    });
+    await handleResponse(response);
+    return response.json();
+  };
+
+  const permissionsPending = async (): Promise<{ ok: boolean; pending: any[] }> => {
+    const response = await fetch(`${API_BASE}/permissions/pending`, {
+      headers: getAuthHeaders()
+    });
+    await handleResponse(response);
+    return response.json();
+  };
+
+  const permissionsApprove = async (body: { id: string; approver: string; note?: string }): Promise<{ ok: boolean }> => {
+    const response = await fetch(`${API_BASE}/permissions/approve`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(body)
+    });
+    await handleResponse(response);
+    return response.json();
+  };
+
+  const permissionsDeny = async (body: { id: string; approver: string; note?: string }): Promise<{ ok: boolean }> => {
+    const response = await fetch(`${API_BASE}/permissions/deny`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(body)
+    });
+    await handleResponse(response);
+    return response.json();
+  };
+
   return {
     isHealthy,
     availableModels,
@@ -363,6 +486,16 @@ export const useGateway = () => {
     listDocs,
     micList,
     micWizard,
-    micUse
+    micUse,
+    diaryAppend,
+    diaryRollup,
+    openUrl,
+    fetchUrl,
+    downloadUrl,
+    permissionsExecute,
+    permissionsRequest,
+    permissionsPending,
+    permissionsApprove,
+    permissionsDeny
   };
 };

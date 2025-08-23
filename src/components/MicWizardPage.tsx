@@ -77,7 +77,8 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
   }, [open]);
 
   const runMicWizard = async (config: WizardConfig = {}): Promise<WizardResponse> => {
-    const response = await fetch('http://localhost:3001/mic/wizard', {
+          const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
+          const response = await fetch(`${API_BASE}/mic/wizard`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(config)
