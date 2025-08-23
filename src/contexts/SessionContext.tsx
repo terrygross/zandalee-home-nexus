@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 export interface User {
   familyName: string;
   displayName: string;
-  role: 'admin' | 'adult' | 'kid' | 'guest';
+  role: 'superadmin' | 'admin' | 'adult' | 'kid' | 'guest';
   pin?: string; // Only stored for admin
 }
 
@@ -38,7 +38,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const login = (userData: User, passwordOrPin?: string) => {
     const sessionUser = {
       ...userData,
-      pin: userData.role === 'admin' ? passwordOrPin : undefined
+      pin: (userData.role === 'admin' || userData.role === 'superadmin') ? passwordOrPin : undefined
     };
     
     setUser(sessionUser);

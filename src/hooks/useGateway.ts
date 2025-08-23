@@ -72,7 +72,7 @@ export const useGateway = () => {
     if (user?.familyName) {
       headers['X-User'] = user.familyName;
     }
-    if (includePin && user?.role === 'admin' && user?.pin) {
+    if (includePin && (user?.role === 'admin' || user?.role === 'superadmin') && user?.pin) {
       headers['X-PIN'] = user.pin;
     }
     return headers;

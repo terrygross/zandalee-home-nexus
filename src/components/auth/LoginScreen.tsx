@@ -56,8 +56,8 @@ export function LoginScreen({ onSwitchToRegister }: LoginScreenProps) {
       if (username.trim().toLowerCase() === 'terence gross' && pin === 'Tridam@5013') {
         const adminUser = {
           familyName: 'Terence Gross',
-          displayName: 'Terry (Admin)',
-          role: 'admin' as const
+          displayName: 'Terry (SuperAdmin)',
+          role: 'superadmin' as const
         };
         
         login(adminUser, pin);

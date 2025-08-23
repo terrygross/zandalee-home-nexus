@@ -172,7 +172,7 @@ export function SharedPane() {
   };
 
   const deleteDocument = async (path: string) => {
-    if (!user?.role || user.role !== 'admin') {
+    if (!user?.role || (user.role !== 'admin' && user.role !== 'superadmin')) {
       toast({
         title: "Access denied",
         description: "Only administrators can delete shared documents",
@@ -392,7 +392,7 @@ export function SharedPane() {
                                   <Download className="w-4 h-4" />
                                   Download
                                 </Button>
-                                {user?.role === 'admin' && (
+                                {(user?.role === 'admin' || user?.role === 'superadmin') && (
                                   <Button
                                     variant="destructive"
                                     size="sm"

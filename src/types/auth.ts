@@ -2,7 +2,7 @@
 export interface InviteRequest {
   familyName: string;
   email: string;
-  role: 'admin' | 'adult' | 'kid' | 'guest';
+  role: 'superadmin' | 'admin' | 'adult' | 'kid' | 'guest';
 }
 
 export interface InviteResponse {
@@ -16,7 +16,7 @@ export interface PendingInvite {
   code: string;
   familyName: string;
   email: string;
-  role: 'admin' | 'adult' | 'kid' | 'guest';
+  role: 'superadmin' | 'admin' | 'adult' | 'kid' | 'guest';
   createdAt: string;
   expiresAt: string;
 }
@@ -46,7 +46,7 @@ export interface AuthResponse {
   ok: boolean;
   user?: {
     familyName: string;
-    role: 'admin' | 'adult' | 'kid' | 'guest';
+    role: 'superadmin' | 'admin' | 'adult' | 'kid' | 'guest';
   };
   error?: string;
 }
@@ -54,7 +54,7 @@ export interface AuthResponse {
 export interface FamilyMember {
   familyName: string;
   email: string;
-  role: 'admin' | 'adult' | 'kid' | 'guest';
+  role: 'superadmin' | 'admin' | 'adult' | 'kid' | 'guest';
   createdAt: string;
 }
 
@@ -66,7 +66,7 @@ export interface FamilyMembersResponse {
 
 export interface UpdateRoleRequest {
   familyName: string;
-  role: 'admin' | 'adult' | 'kid' | 'guest';
+  role: 'superadmin' | 'admin' | 'adult' | 'kid' | 'guest';
 }
 
 export interface ResetPasswordRequest {

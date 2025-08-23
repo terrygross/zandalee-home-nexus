@@ -148,7 +148,7 @@ export function ManageFamilyPane() {
     }
   };
 
-  const updateRole = async (familyName: string, newRole: 'admin' | 'adult' | 'kid' | 'guest') => {
+  const updateRole = async (familyName: string, newRole: 'superadmin' | 'admin' | 'adult' | 'kid' | 'guest') => {
     if (!user?.pin) return;
     
     setActionLoading(`role-${familyName}`);
@@ -423,15 +423,16 @@ export function ManageFamilyPane() {
                           <TableCell>
                             <Select
                               value={member.role}
-                              onValueChange={(newRole: 'admin' | 'adult' | 'kid' | 'guest') => 
+                              onValueChange={(newRole: 'superadmin' | 'admin' | 'adult' | 'kid' | 'guest') => 
                                 updateRole(member.familyName, newRole)
                               }
-                              disabled={member.familyName === user?.familyName}
+                              disabled={member.familyName === user?.familyName || member.role === 'superadmin'}
                             >
                               <SelectTrigger className="w-24">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
+                                <SelectItem value="superadmin">SuperAdmin</SelectItem>
                                 <SelectItem value="admin">Admin</SelectItem>
                                 <SelectItem value="adult">Adult</SelectItem>
                                 <SelectItem value="kid">Kid</SelectItem>
@@ -453,7 +454,7 @@ export function ManageFamilyPane() {
                                 <RotateCcw className="w-4 h-4" />
                                 {actionLoading === `reset-${member.familyName}` ? 'Resetting...' : 'Reset'}
                               </Button>
-                              {member.familyName !== user?.familyName && (
+                              {member.familyName !== user?.familyName && member.role !== 'superadmin' && (
                                 <Button
                                   variant="destructive"
                                   size="sm"

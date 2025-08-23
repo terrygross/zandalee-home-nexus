@@ -12,7 +12,7 @@ import { Copy, Mail } from 'lucide-react';
 export function InviteManager() {
   const [email, setEmail] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [role, setRole] = useState<'adult' | 'kid' | 'guest'>('adult');
+  const [role, setRole] = useState<'superadmin' | 'admin' | 'adult' | 'kid' | 'guest'>('adult');
   const [loading, setLoading] = useState(false);
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const { user } = useSession();
@@ -137,11 +137,13 @@ export function InviteManager() {
             
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Select value={role} onValueChange={(value: 'adult' | 'kid' | 'guest') => setRole(value)}>
+              <Select value={role} onValueChange={(value: 'superadmin' | 'admin' | 'adult' | 'kid' | 'guest') => setRole(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="superadmin">SuperAdmin - Full system control</SelectItem>
+                  <SelectItem value="admin">Admin - Family management access</SelectItem>
                   <SelectItem value="adult">Adult - Full access with rate limits</SelectItem>
                   <SelectItem value="kid">Kid - Reduced access with allowlists</SelectItem>
                   <SelectItem value="guest">Guest - Chat and mic wizard only</SelectItem>
