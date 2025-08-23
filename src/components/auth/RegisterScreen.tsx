@@ -71,18 +71,23 @@ export function RegisterScreen({ onSwitchToLogin }: RegisterScreenProps) {
         },
         body: JSON.stringify({ 
           code: code.trim(), 
-          username: username.trim(), 
-          pin 
+          familyName: username.trim(), 
+          passwordOrPin: pin 
         } as RegisterRequest),
       });
 
       const data: AuthResponse = await response.json();
       
       if (data.ok && data.user) {
-        login(data.user, pin);
+        const userData = {
+          familyName: data.user.familyName,
+          displayName: data.user.familyName, // Use familyName as displayName for now
+          role: data.user.role
+        };
+        login(userData, pin);
         toast({
           title: "Success",
-          description: `Welcome to Zandalee, ${data.user.displayName}!`
+          description: `Welcome to Zandalee, ${userData.displayName}!`
         });
       } else {
         throw new Error(data.error || 'Registration failed');

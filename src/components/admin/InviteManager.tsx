@@ -47,12 +47,12 @@ export function InviteManager() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-User': user.username,
+          'X-User': user.familyName,
           'X-PIN': user.pin
         },
         body: JSON.stringify({ 
+          familyName: displayName.trim(),
           email: email.trim(), 
-          displayName: displayName.trim(), 
           role 
         } as InviteRequest),
       });

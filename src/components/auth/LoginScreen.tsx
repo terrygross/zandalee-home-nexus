@@ -55,7 +55,7 @@ export function LoginScreen({ onSwitchToRegister }: LoginScreenProps) {
       // Temporary admin bypass for dev owner
       if (username.trim().toLowerCase() === 'terence gross' && pin === 'Tridam@5013') {
         const adminUser = {
-          username: 'Terence Gross',
+          familyName: 'Terence Gross',
           displayName: 'Terry (Admin)',
           role: 'admin' as const
         };
@@ -75,16 +75,21 @@ export function LoginScreen({ onSwitchToRegister }: LoginScreenProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username: username.trim(), pin } as LoginRequest),
+        body: JSON.stringify({ familyName: username.trim(), passwordOrPin: pin } as LoginRequest),
       });
 
       const data: AuthResponse = await response.json();
       
       if (data.ok && data.user) {
-        login(data.user, pin);
+        const userData = {
+          familyName: data.user.familyName,
+          displayName: data.user.familyName, // Use familyName as displayName for now
+          role: data.user.role
+        };
+        login(userData, pin);
         toast({
           title: "Success",
-          description: `Welcome back, ${data.user.displayName}!`
+          description: `Welcome back, ${userData.displayName}!`
         });
       } else {
         throw new Error(data.error || 'Login failed');

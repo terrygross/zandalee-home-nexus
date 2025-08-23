@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface User {
-  username: string;
+  familyName: string;
   displayName: string;
   role: 'admin' | 'adult' | 'kid' | 'guest';
   pin?: string; // Only stored for admin
@@ -9,7 +9,7 @@ export interface User {
 
 export interface SessionContextType {
   user: User | null;
-  login: (user: User, pin?: string) => void;
+  login: (user: User, passwordOrPin?: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
   hasRole: (requiredRole: string | string[]) => boolean;
@@ -35,10 +35,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = (userData: User, pin?: string) => {
+  const login = (userData: User, passwordOrPin?: string) => {
     const sessionUser = {
       ...userData,
-      pin: userData.role === 'admin' ? pin : undefined
+      pin: userData.role === 'admin' ? passwordOrPin : undefined
     };
     
     setUser(sessionUser);

@@ -69,8 +69,8 @@ export const useGateway = () => {
   // Helper to get auth headers
   const getAuthHeaders = (includePin = false) => {
     const headers: Record<string, string> = {};
-    if (user?.username) {
-      headers['X-User'] = user.username;
+    if (user?.familyName) {
+      headers['X-User'] = user.familyName;
     }
     if (includePin && user?.role === 'admin' && user?.pin) {
       headers['X-PIN'] = user.pin;

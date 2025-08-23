@@ -32,7 +32,7 @@ export function ProjectsSidebar({ selectedProject, onSelectProject }: ProjectsSi
       const baseUrl = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
       const response = await fetch(`${baseUrl}/projects`, {
         headers: {
-          'X-User': user.username,
+          'X-User': user.familyName,
         },
       });
 
@@ -76,7 +76,7 @@ export function ProjectsSidebar({ selectedProject, onSelectProject }: ProjectsSi
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-User': user.username,
+          'X-User': user.familyName,
         },
         body: JSON.stringify({ name: newProjectName.trim() } as CreateProjectRequest),
       });
@@ -197,7 +197,7 @@ export function ProjectsSidebar({ selectedProject, onSelectProject }: ProjectsSi
                         )}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Updated {formatDistanceToNow(new Date(project.last_activity))} ago
+                        Updated {formatDistanceToNow(new Date(project.lastActivity))} ago
                       </div>
                     </div>
                   </Button>
