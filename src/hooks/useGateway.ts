@@ -306,7 +306,7 @@ export const useGateway = () => {
     }
   };
 
-  const micWizard = async (): Promise<{ ok: boolean; results: any[]; chosen?: any }> => {
+  const micWizard = async (): Promise<{ ok: boolean; devices: any[]; chosen?: any }> => {
     try {
       const response = await fetch(`${API_BASE}/mic/wizard`, {
         method: 'POST',
@@ -318,15 +318,15 @@ export const useGateway = () => {
       });
       await handleResponse(response);
       const resp = await response.json();
-      // Return exactly what backend gives - let component handle mapping
-      return { ok: resp.ok, results: resp.results ?? resp.devices ?? [], chosen: resp.chosen };
+      // Return devices property to match component expectations
+      return { ok: resp.ok, devices: resp.results ?? resp.devices ?? [], chosen: resp.chosen };
     } catch (error) {
       console.warn('Mic wizard endpoint not available');
       throw error;
     }
   };
 
-  const micUse = async (body: { id: number }): Promise<{ ok: boolean }> => {
+  const micUse = async (id: number): Promise<{ ok: boolean }> => {
     try {
       const response = await fetch(`${API_BASE}/mic/use`, {
         method: 'POST',
@@ -334,7 +334,7 @@ export const useGateway = () => {
           'Content-Type': 'application/json',
           ...getAuthHeaders()
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify({ id })
       });
       await handleResponse(response);
       return response.json();

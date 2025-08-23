@@ -87,9 +87,9 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
       clearInterval(progressInterval);
       setWizardProgress(100);
 
-      if (wizardResult.results?.length > 0) {
+      if (wizardResult.devices?.length > 0) {
         // Map backend metrics to UI format
-        const mappedResults = wizardResult.results.map((r: any) => ({
+        const mappedResults = wizardResult.devices.map((r: any) => ({
           id: r.id,
           name: r.name,
           SNR: r.snr_db,
@@ -136,7 +136,7 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
 
     setIsLoading(true);
     try {
-      await micUse({ id: selectedDevice.id });
+      await micUse(selectedDevice.id);
       toast({
         title: "Mic Calibrated",
         description: `Now using ${selectedDevice.name} with ${selectedDevice.SNR.toFixed(1)}dB SNR`,
