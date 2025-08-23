@@ -643,6 +643,7 @@ export const ProjectChatPane = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
+              
               <Button
                 variant="outline"
                 size="sm"
@@ -708,55 +709,72 @@ export const ProjectChatPane = () => {
                 <p className="text-lg mb-2">No conversation selected</p>
                 <p className="text-sm">Start a new chat or select one from the history</p>
                 <Button onClick={handleNewChat} className="mt-4 lcars-button bg-lcars-blue">
+                  <MessageSquarePlus className="w-4 h-4 mr-2" />
                   Start New Chat
                 </Button>
               </div>
-            ) : filteredMessages.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8">
-                {searchQuery ? 'No messages match your search' : 'No messages yet'}
-              </div>
             ) : (
-              filteredMessages.map((message) => (
-                <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`flex items-start space-x-2 max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
-                    }`}>
-                      {message.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-                    </div>
-                    
-                    <div className={`rounded-lg p-3 ${
-                      message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary'
-                    }`}>
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs opacity-70">
+              <>
+                {filteredMessages.map((message) => (
+                  <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[80%] ${message.role === 'user' ? 'order-2' : 'order-1'}`}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                          message.role === 'user' 
+                            ? 'bg-primary text-primary-foreground' 
+                            : message.role === 'system'
+                            ? 'bg-destructive text-destructive-foreground'
+                            : 'bg-secondary text-secondary-foreground'
+                        }`}>
+                          {message.role === 'user' ? (
+                            <User className="w-4 h-4" />
+                          ) : (
+                            <Bot className="w-4 h-4" />
+                          )}
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {message.role === 'user' ? 'You' : message.role === 'system' ? 'System' : 'Assistant'}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
                           {new Date(message.ts).toLocaleTimeString()}
                         </span>
-                        
+                      </div>
+                      <div className={`rounded-lg p-3 ${
+                        message.role === 'user' 
+                          ? 'bg-primary text-primary-foreground ml-8' 
+                          : message.role === 'system'
+                          ? 'bg-destructive/10 text-destructive ml-8'
+                          : 'bg-secondary text-secondary-foreground ml-8'
+                      }`}>
+                        <div className="text-sm whitespace-pre-wrap">{message.content}</div>
                         {message.role === 'assistant' && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleSaveAsMemory(message.content)}
-                            className="h-6 px-2"
-                          >
-                            <Star className="w-3 h-3 mr-1" />
-                            Save
-                          </Button>
+                          <div className="flex gap-1 mt-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-xs"
+                              onClick={() => handleSaveAsMemory(message.content)}
+                            >
+                              <Star className="w-3 h-3 mr-1" />
+                              Save as Memory
+                            </Button>
+                          </div>
                         )}
                       </div>
                     </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </>
             )}
             
             {isProcessing && (
               <div className="flex justify-start">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
-                    <Bot className="w-4 h-4" />
+                <div className="max-w-[80%]">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-6 h-6 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center">
+                      <Bot className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs text-muted-foreground">Assistant</span>
                   </div>
                   <div className="bg-secondary rounded-lg p-3">
                     <div className="flex space-x-1">
@@ -815,8 +833,8 @@ export const ProjectChatPane = () => {
         </CardContent>
       </Card>
 
-      {/* Memory & Diary Side Panel - fixed height management */}
-      <Card className="w-full lg:w-80 flex flex-col h-full lg:h-full min-h-[400px]">
+      {/* Memory & Diary Side Panel - STICKY on desktop */}
+      <Card className="w-full lg:w-80 lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] flex flex-col min-h-[400px]">
         <CardHeader className="pb-3 px-6 pt-6 flex-shrink-0">
           <CardTitle className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
