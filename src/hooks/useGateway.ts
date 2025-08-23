@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSession } from '@/contexts/SessionContext';
 
 const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
 
@@ -63,6 +64,19 @@ interface AudioDevice {
 export const useGateway = () => {
   const [isHealthy, setIsHealthy] = useState(false);
   const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const { user } = useSession();
+
+  // Helper to get auth headers
+  const getAuthHeaders = (includePin = false) => {
+    const headers: Record<string, string> = {};
+    if (user?.username) {
+      headers['X-User'] = user.username;
+    }
+    if (includePin && user?.role === 'admin' && user?.pin) {
+      headers['X-PIN'] = user.pin;
+    }
+    return headers;
+  };
 
   // Health check polling
   useEffect(() => {
@@ -100,14 +114,18 @@ export const useGateway = () => {
   };
 
   const health = async (): Promise<{ ok: boolean; msg: string }> => {
-    const response = await fetch(`${API_BASE}/health`);
+    const response = await fetch(`${API_BASE}/health`, {
+      headers: getAuthHeaders()
+    });
     await handleResponse(response);
     return response.json();
   };
 
   const getConfig = async (): Promise<GatewayConfig> => {
     try {
-      const response = await fetch(`${API_BASE}/config`);
+      const response = await fetch(`${API_BASE}/config`, {
+        headers: getAuthHeaders(true) // Include PIN for admin config access
+      });
       await handleResponse(response);
       return response.json();
     } catch (error) {
@@ -124,7 +142,10 @@ export const useGateway = () => {
     try {
       const response = await fetch(`${API_BASE}/config`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(true) // Include PIN for admin config updates
+        },
         body: JSON.stringify(config)
       });
       await handleResponse(response);
@@ -137,7 +158,9 @@ export const useGateway = () => {
   };
 
   const getTags = async (): Promise<string[]> => {
-    const response = await fetch(`${API_BASE}/api/tags`);
+    const response = await fetch(`${API_BASE}/api/tags`, {
+      headers: getAuthHeaders()
+    });
     await handleResponse(response);
     const data = await response.json();
     const models = data.models?.map((m: any) => m.name) || [];
@@ -148,7 +171,10 @@ export const useGateway = () => {
   const chat = async (body: ChatRequest): Promise<string> => {
     const response = await fetch(`${API_BASE}/api/chat`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
       body: JSON.stringify(body)
     });
     await handleResponse(response);
@@ -157,7 +183,9 @@ export const useGateway = () => {
   };
 
   const voices = async (): Promise<string[]> => {
-    const response = await fetch(`${API_BASE}/local/voices`);
+    const response = await fetch(`${API_BASE}/local/voices`, {
+      headers: getAuthHeaders()
+    });
     await handleResponse(response);
     const data = await response.json();
     return data.voices || [];
@@ -166,7 +194,10 @@ export const useGateway = () => {
   const speak = async (body: { text: string; voice?: string; rate?: number; volume?: number }): Promise<void> => {
     const response = await fetch(`${API_BASE}/local/speak`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
       body: JSON.stringify(body)
     });
     await handleResponse(response);
@@ -175,14 +206,19 @@ export const useGateway = () => {
   const memoryLearn = async (body: Memory): Promise<void> => {
     const response = await fetch(`${API_BASE}/memory/learn`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
       body: JSON.stringify(body)
     });
     await handleResponse(response);
   };
 
   const memorySearch = async (q: string, limit = 20): Promise<any[]> => {
-    const response = await fetch(`${API_BASE}/memory/search?q=${encodeURIComponent(q)}&limit=${limit}`);
+    const response = await fetch(`${API_BASE}/memory/search?q=${encodeURIComponent(q)}&limit=${limit}`, {
+      headers: getAuthHeaders()
+    });
     await handleResponse(response);
     return response.json();
   };
@@ -190,7 +226,10 @@ export const useGateway = () => {
   const keys = async (body: { text: string; enter?: boolean }): Promise<void> => {
     const response = await fetch(`${API_BASE}/local/keys`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
       body: JSON.stringify(body)
     });
     await handleResponse(response);
@@ -205,7 +244,10 @@ export const useGateway = () => {
   }): Promise<void> => {
     const response = await fetch(`${API_BASE}/local/mouse`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
       body: JSON.stringify(body)
     });
     await handleResponse(response);
@@ -214,7 +256,10 @@ export const useGateway = () => {
   const openApp = async (body: { name: string; args?: string[] }): Promise<void> => {
     const response = await fetch(`${API_BASE}/local/app`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
       body: JSON.stringify(body)
     });
     await handleResponse(response);
@@ -226,20 +271,25 @@ export const useGateway = () => {
     
     const response = await fetch(`${API_BASE}/local/upload`, {
       method: 'POST',
+      headers: getAuthHeaders(),
       body: formData
     });
     await handleResponse(response);
   };
 
   const listDocs = async (): Promise<any[]> => {
-    const response = await fetch(`${API_BASE}/local/docs`);
+    const response = await fetch(`${API_BASE}/local/docs`, {
+      headers: getAuthHeaders()
+    });
     await handleResponse(response);
     return response.json();
   };
 
   const micList = async (): Promise<any> => {
     try {
-      const response = await fetch(`${API_BASE}/mic/list`);
+      const response = await fetch(`${API_BASE}/mic/list`, {
+        headers: getAuthHeaders()
+      });
       await handleResponse(response);
       const resp = await response.json();
       // Map backend shape to UI expectations
@@ -260,7 +310,10 @@ export const useGateway = () => {
     try {
       const response = await fetch(`${API_BASE}/mic/wizard`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        },
         body: JSON.stringify({})
       });
       await handleResponse(response);
@@ -277,7 +330,10 @@ export const useGateway = () => {
     try {
       const response = await fetch(`${API_BASE}/mic/use`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        },
         body: JSON.stringify(body)
       });
       await handleResponse(response);
