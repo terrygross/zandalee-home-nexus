@@ -20,6 +20,7 @@ import { ManageFamilyPane } from './terminal/ManageFamilyPane';
 import { SharedPane } from './terminal/SharedPane';
 
 export const ZandaleeTerminal = () => {
+  console.log('[ZandaleeTerminal] Rendering...');
   const [activeTab, setActiveTab] = useState('chat');
   const { isHealthy } = useGateway();
   const { user } = useSession();
@@ -35,6 +36,8 @@ export const ZandaleeTerminal = () => {
     recentEntries
   } = useSuperAdminAudit(isSuperAdmin);
 
+  console.log('[ZandaleeTerminal] About to render Tabs with activeTab:', activeTab);
+  
   return (
     <div className="flex flex-col min-h-[100dvh] w-screen bg-background">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
