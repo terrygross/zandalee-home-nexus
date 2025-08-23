@@ -69,7 +69,7 @@ export const ZandaleeTerminal = () => {
             {/* Tab Navigation */}
             <div className="px-3 sm:px-6 pb-3 pt-3">
               <div className="border-2 border-border rounded-lg p-1 overflow-hidden">
-                <div className="flex w-full">
+                <div className="flex w-full gap-1">
                   {[
                     { id: 'chat', label: 'CHAT', icon: MessageCircle, color: 'bg-lcars-purple' },
                     { id: 'voice', label: 'VOICE', icon: Volume2, color: 'bg-lcars-orange' },
