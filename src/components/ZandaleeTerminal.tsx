@@ -62,8 +62,9 @@ export const ZandaleeTerminal = () => {
       )}
       
       <div className="flex-1 flex flex-col min-h-0 px-4 py-1">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-          <TabsList className={`flex-shrink-0 grid w-full ${canInviteUsers(user) ? 'grid-cols-10' : 'grid-cols-9'} mb-1 h-auto min-h-[3rem] overflow-x-auto gap-2 whitespace-nowrap`}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col md:flex-row min-h-0">
+          {/* Mobile Top Tabs - Hidden on Desktop */}
+          <TabsList className={`md:hidden flex-shrink-0 grid w-full ${canInviteUsers(user) ? 'grid-cols-10' : 'grid-cols-9'} mb-1 h-auto min-h-[3rem] overflow-x-auto gap-2 whitespace-nowrap`}>
             <TabsTrigger value="chat" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-purple">
               <MessageCircle className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
               <span className="hidden sm:inline truncate">CHAT</span>
@@ -109,6 +110,121 @@ export const ZandaleeTerminal = () => {
               <span className="hidden sm:inline truncate">SHARED</span>
             </TabsTrigger>
           </TabsList>
+
+          {/* Desktop/Tablet Vertical Navigation - Hidden on Mobile */}
+          <div className="hidden md:flex flex-col w-56 flex-shrink-0 border-r border-border pr-4 mr-4 gap-1">
+            <button
+              onClick={() => setActiveTab('chat')}
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+                activeTab === 'chat' ? 'bg-lcars-purple text-black' : 'bg-lcars-purple/20 text-lcars-text-primary hover:bg-lcars-purple hover:text-black'
+              }`}
+              aria-selected={activeTab === 'chat'}
+            >
+              <MessageCircle className="h-4 w-4 flex-shrink-0" />
+              CHAT
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+                activeTab === 'settings' ? 'bg-lcars-blue text-black' : 'bg-lcars-blue/20 text-lcars-text-primary hover:bg-lcars-blue hover:text-black'
+              }`}
+              aria-selected={activeTab === 'settings'}
+            >
+              <Settings className="h-4 w-4 flex-shrink-0" />
+              SETTINGS
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('appcontrol')}
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+                activeTab === 'appcontrol' ? 'bg-lcars-green text-black' : 'bg-lcars-green/20 text-lcars-text-primary hover:bg-lcars-green hover:text-black'
+              }`}
+              aria-selected={activeTab === 'appcontrol'}
+            >
+              <Code className="h-4 w-4 flex-shrink-0" />
+              APP CONTROL
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('voice')}
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+                activeTab === 'voice' ? 'bg-lcars-orange text-black' : 'bg-lcars-orange/20 text-lcars-text-primary hover:bg-lcars-orange hover:text-black'
+              }`}
+              aria-selected={activeTab === 'voice'}
+            >
+              <Volume2 className="h-4 w-4 flex-shrink-0" />
+              VOICE
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('memories')}
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+                activeTab === 'memories' ? 'bg-lcars-yellow text-black' : 'bg-lcars-yellow/20 text-lcars-text-primary hover:bg-lcars-yellow hover:text-black'
+              }`}
+              aria-selected={activeTab === 'memories'}
+            >
+              <Brain className="h-4 w-4 flex-shrink-0" />
+              MEMORIES
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('mic')}
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+                activeTab === 'mic' ? 'bg-lcars-pink text-black' : 'bg-lcars-pink/20 text-lcars-text-primary hover:bg-lcars-pink hover:text-black'
+              }`}
+              aria-selected={activeTab === 'mic'}
+            >
+              <Mic className="h-4 w-4 flex-shrink-0" />
+              MIC
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('hands')}
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+                activeTab === 'hands' ? 'bg-lcars-cyan text-black' : 'bg-lcars-cyan/20 text-lcars-text-primary hover:bg-lcars-cyan hover:text-black'
+              }`}
+              aria-selected={activeTab === 'hands'}
+            >
+              <Hand className="h-4 w-4 flex-shrink-0" />
+              HANDS
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('docs')}
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+                activeTab === 'docs' ? 'bg-lcars-violet text-black' : 'bg-lcars-violet/20 text-lcars-text-primary hover:bg-lcars-violet hover:text-black'
+              }`}
+              aria-selected={activeTab === 'docs'}
+            >
+              <FileText className="h-4 w-4 flex-shrink-0" />
+              DOCS
+            </button>
+            
+            {canInviteUsers(user) && (
+              <button
+                onClick={() => setActiveTab('manage-family')}
+                className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+                  activeTab === 'manage-family' ? 'bg-lcars-red text-black' : 'bg-lcars-red/20 text-lcars-text-primary hover:bg-lcars-red hover:text-black'
+                }`}
+                aria-selected={activeTab === 'manage-family'}
+              >
+                <Users className="h-4 w-4 flex-shrink-0" />
+                MANAGE FAMILY
+              </button>
+            )}
+            
+            <button
+              onClick={() => setActiveTab('shared')}
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+                activeTab === 'shared' ? 'bg-lcars-teal text-black' : 'bg-lcars-teal/20 text-lcars-text-primary hover:bg-lcars-teal hover:text-black'
+              }`}
+              aria-selected={activeTab === 'shared'}
+            >
+              <Share2 className="h-4 w-4 flex-shrink-0" />
+              SHARED
+            </button>
+          </div>
 
           <div className="flex-1 min-h-0 overflow-hidden">
             <TabsContent value="chat" className="h-full m-0 overflow-hidden">
