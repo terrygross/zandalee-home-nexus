@@ -194,7 +194,7 @@ export const useDirectLLM = () => {
   };
 
   const callOllama = async (config: LLMProvider, messages: ChatMessage[]): Promise<string> => {
-    const baseUrl = config.baseUrl || 'http://localhost:11434';
+    const baseUrl = config.baseUrl || 'http://127.0.0.1:11434';
     const response = await fetch(`${baseUrl}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { MessageCircle, Settings, Mic, Hand, FileText, Brain, Volume2, Share2 } from 'lucide-react';
 import { useGateway } from '@/hooks/useGateway';
 import { useSession } from '@/contexts/SessionContext';
+import { useGatewayWS } from '@/hooks/useGatewayWS';
+import { useToast } from '@/hooks/use-toast';
 import { useSuperAdminAudit } from '@/hooks/useSuperAdminAudit';
 import { SuperAdminAuditBanner } from '@/components/SuperAdminAuditBanner';
 import { ProjectChatProvider } from '@/contexts/ProjectChatContext';
@@ -21,6 +23,17 @@ export const ZandaleeTerminal = () => {
   const [activeTab, setActiveTab] = useState('chat');
   const { isHealthy } = useGateway();
   const { user } = useSession();
+  const { toast } = useToast();
+
+  // WebSocket for permission events
+  useGatewayWS((evt) => {
+    if (evt.event === 'created') {
+      toast({
+        title: "Permission Request",
+        description: `New permission request: ${evt.record?.kind}`,
+      });
+    }
+  });
 
   // Super-admin audit functionality
   const isSuperAdmin = user?.role === 'superadmin';

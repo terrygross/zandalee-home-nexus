@@ -73,7 +73,10 @@ const MemoryManager = () => {
   const { searchMemories, learnMemory } = useZandaleeAPI();
   const { toast } = useToast();
 
-  const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:8759';
+  // -------------------- API BASE --------------------
+  const API_BASE =
+    import.meta.env.VITE_ZANDALEE_API_BASE?.replace(/\/+$/, "") ||
+    "http://127.0.0.1:11500";
 
   useEffect(() => {
     loadMemories();
