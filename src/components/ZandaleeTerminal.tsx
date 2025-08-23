@@ -49,7 +49,7 @@ export const ZandaleeTerminal = () => {
           
           {/* Custom Tab Navigation */}
           <div className="px-3 sm:px-6 pb-3">
-            <div className="flex flex-wrap gap-1 sm:gap-2 scrollbar-hide">
+            <div className="flex flex-wrap gap-2 scrollbar-hide justify-start">
               {[
                 { id: 'chat', label: 'CHAT', icon: MessageCircle, color: 'bg-lcars-purple' },
                 { id: 'voice', label: 'VOICE', icon: Volume2, color: 'bg-lcars-orange' },
@@ -66,16 +66,16 @@ export const ZandaleeTerminal = () => {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`
-                      inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 
-                      text-xs sm:text-sm font-bold rounded-full transition-all text-black
+                      inline-flex items-center gap-2 px-3 py-2 flex-shrink-0
+                      text-sm font-bold rounded-full transition-all text-black
                       ${activeTab === tab.id 
                         ? 'bg-lcars-orange shadow-sm' 
                         : `${tab.color} hover:bg-lcars-orange`
                       }
                     `}
                   >
-                    <Icon className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                    <span className="hidden xs:inline whitespace-nowrap">{tab.label}</span>
+                    <Icon className="w-4 h-4 flex-shrink-0 xs:w-3 xs:h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline whitespace-nowrap">{tab.label}</span>
                   </button>
                 );
               })}
