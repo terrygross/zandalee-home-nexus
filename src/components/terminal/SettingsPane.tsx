@@ -113,7 +113,7 @@ export const SettingsPane = () => {
   return (
     <div className="h-full">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className={`grid w-full ${canInviteUsers(user) ? 'grid-cols-3' : 'grid-cols-2'}`}>
           <TabsTrigger value="gateway" className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
             Gateway
