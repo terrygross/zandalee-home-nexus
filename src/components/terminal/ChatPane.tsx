@@ -561,7 +561,7 @@ export const ChatPane = () => {
       </Card>
 
       {/* Memory & Diary Side Panel - fixed height management */}
-      <Card className="w-full lg:w-80 flex flex-col h-full lg:h-full min-h-[400px]">
+      <Card className="w-full lg:w-80 flex flex-col h-full min-h-[400px] lg:sticky lg:top-2 lg:self-start lg:max-h-[calc(100dvh-1rem)] lg:overflow-auto">
         <CardHeader className="pb-3 px-6 pt-6 flex-shrink-0">
           <CardTitle className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
