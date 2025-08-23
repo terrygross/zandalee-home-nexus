@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -48,10 +49,10 @@ export const ZandaleeTerminal = () => {
   
   return (
     <ProjectChatProvider>
-      <div className="flex flex-col h-[100dvh] w-full overflow-y-auto overflow-x-hidden bg-background scrollbar-hide">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+      <div className="flex flex-col h-[100dvh] w-full overflow-hidden bg-background">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Sticky Header and Navigation Container */}
-          <div className="sticky top-0 z-[100] flex-shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border no-anchor" style={{ top: 'env(safe-area-inset-top)' }}>
+          <div className="sticky top-0 z-[100] flex-shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border" style={{ top: 'env(safe-area-inset-top)' }}>
             {/* Header */}
             <div className="flex items-center justify-between p-3 sm:px-6 border-b border-border/50">
               <div className="flex items-center gap-4">
@@ -67,100 +68,101 @@ export const ZandaleeTerminal = () => {
           
             {/* Tab Navigation */}
             <div className="px-3 sm:px-6 pb-3 pt-3">
-              <div className="flex flex-wrap gap-2 scrollbar-hide justify-start">
-                {[
-                  { id: 'chat', label: 'CHAT', icon: MessageCircle, color: 'bg-lcars-purple' },
-                  { id: 'voice', label: 'VOICE', icon: Volume2, color: 'bg-lcars-orange' },
-                  { id: 'memories', label: 'MEMORIES', icon: Brain, color: 'bg-lcars-yellow' },
-                  { id: 'mic', label: 'MIC', icon: Mic, color: 'bg-lcars-pink' },
-                  { id: 'hands', label: 'HANDS', icon: Hand, color: 'bg-lcars-cyan' },
-                  { id: 'docs', label: 'DOCS', icon: FileText, color: 'bg-lcars-violet' },
-                  { id: 'shared', label: 'SHARED', icon: Share2, color: 'bg-lcars-teal' },
-                  { id: 'settings', label: 'SETTINGS', icon: Settings, color: 'bg-lcars-blue' }
-                 ].filter(tab => {
-                   // Hide Settings tab for non-admin users
-                   if (tab.id === 'settings' && user?.role !== 'superadmin' && user?.role !== 'admin') {
-                     return false;
-                   }
-                   return true;
-                 }).map((tab) => {
-                  const Icon = tab.icon;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`
-                        inline-flex items-center gap-2 px-3 py-2 flex-shrink-0
-                        text-sm font-bold rounded-full transition-all text-black
-                        ${activeTab === tab.id 
-                          ? 'bg-lcars-orange shadow-sm' 
-                          : `${tab.color} hover:bg-lcars-orange`
-                        }
-                      `}
-                    >
-                      <Icon className="w-4 h-4 flex-shrink-0 xs:w-3 xs:h-3 sm:w-4 sm:h-4" />
-                      <span className="hidden sm:inline whitespace-nowrap">{tab.label}</span>
-                    </button>
-                  );
-                })}
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                <div className="flex gap-2 whitespace-nowrap">
+                  {[
+                    { id: 'chat', label: 'CHAT', icon: MessageCircle, color: 'bg-lcars-purple' },
+                    { id: 'voice', label: 'VOICE', icon: Volume2, color: 'bg-lcars-orange' },
+                    { id: 'memories', label: 'MEMORIES', icon: Brain, color: 'bg-lcars-yellow' },
+                    { id: 'mic', label: 'MIC', icon: Mic, color: 'bg-lcars-pink' },
+                    { id: 'hands', label: 'HANDS', icon: Hand, color: 'bg-lcars-cyan' },
+                    { id: 'docs', label: 'DOCS', icon: FileText, color: 'bg-lcars-violet' },
+                    { id: 'shared', label: 'SHARED', icon: Share2, color: 'bg-lcars-teal' },
+                    { id: 'settings', label: 'SETTINGS', icon: Settings, color: 'bg-lcars-blue' }
+                   ].filter(tab => {
+                     // Hide Settings tab for non-admin users
+                     if (tab.id === 'settings' && user?.role !== 'superadmin' && user?.role !== 'admin') {
+                       return false;
+                     }
+                     return true;
+                   }).map((tab) => {
+                    const Icon = tab.icon;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`
+                          inline-flex items-center gap-2 px-3 py-2 flex-shrink-0
+                          text-sm font-bold rounded-full transition-all text-black
+                          ${activeTab === tab.id 
+                            ? 'bg-lcars-orange shadow-sm' 
+                            : `${tab.color} hover:bg-lcars-orange`
+                          }
+                        `}
+                      >
+                        <Icon className="w-4 h-4 flex-shrink-0 xs:w-3 xs:h-3 sm:w-4 sm:h-4" />
+                        <span className="hidden sm:inline whitespace-nowrap">{tab.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
 
-        {/* Super-Admin Audit Banner */}
-        {isSuperAdmin && (
-          <div className="flex-shrink-0 px-4 no-anchor">
-            <SuperAdminAuditBanner
-              entries={entries}
-              recentEntries={recentEntries}
-              hasNewAttempts={hasNewAttempts}
-              onMarkAsSeen={markAsSeen}
-              onRefresh={() => fetchAuditEntries()}
-              loading={auditLoading}
-            />
+            {/* Super-Admin Audit Banner */}
+            {isSuperAdmin && (
+              <div className="flex-shrink-0 px-4">
+                <SuperAdminAuditBanner
+                  entries={entries}
+                  recentEntries={recentEntries}
+                  hasNewAttempts={hasNewAttempts}
+                  onMarkAsSeen={markAsSeen}
+                  onRefresh={() => fetchAuditEntries()}
+                  loading={auditLoading}
+                />
+              </div>
+            )}
           </div>
-        )}
         
-        <div className="flex-1 flex flex-col min-h-0 px-4 py-1">
-          <div className="flex-1 min-h-0 overflow-visible">
-            <TabsContent value="chat" className="h-full m-0 overflow-visible">
+          {/* Main Content - Single Scroll Container */}
+          <div className="flex-1 overflow-auto min-h-0">
+            <TabsContent value="chat" className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col">
               <ChatPane />
             </TabsContent>
             
-            <TabsContent value="voice" className="h-full m-0 overflow-hidden">
+            <TabsContent value="voice" className="h-full m-0 p-4">
               <VoicePane />
             </TabsContent>
             
-            <TabsContent value="memories" className="h-full m-0 overflow-hidden">
+            <TabsContent value="memories" className="h-full m-0 p-4">
               <MemoriesPane />
             </TabsContent>
             
-            <TabsContent value="mic" className="h-full m-0 overflow-hidden">
+            <TabsContent value="mic" className="h-full m-0 p-4">
               <MicWizardPane />
             </TabsContent>
             
-            <TabsContent value="hands" className="h-full m-0 overflow-hidden">
+            <TabsContent value="hands" className="h-full m-0 p-4">
               <HandsPane />
             </TabsContent>
             
-            <TabsContent value="docs" className="h-full m-0 overflow-hidden">
+            <TabsContent value="docs" className="h-full m-0 p-4">
               <DocsPane />
             </TabsContent>
             
-            <TabsContent value="shared" className="h-full m-0 overflow-hidden">
+            <TabsContent value="shared" className="h-full m-0 p-4">
               <SharedPane />
             </TabsContent>
 
             {/* Settings tab - conditionally rendered for admins only */}
             {(user?.role === 'superadmin' || user?.role === 'admin') && (
-              <TabsContent value="settings" className="h-full m-0 overflow-y-auto">
+              <TabsContent value="settings" className="h-full m-0">
                 <SettingsPane />
               </TabsContent>
             )}
           </div>
-        </div>
-      </Tabs>
-    </div>
+        </Tabs>
+      </div>
     </ProjectChatProvider>
   );
 };
