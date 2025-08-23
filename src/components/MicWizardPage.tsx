@@ -362,12 +362,13 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
                     </Table>
                   </div>
 
-                  <div className="flex justify-between items-center pt-2 border-t border-border/30 flex-shrink-0">
+                  <div className="flex flex-col sm:flex-row justify-between items-center gap-2 pt-2 border-t border-border/30 flex-shrink-0">
                     <Button 
                       variant="outline" 
                       onClick={retestDevices}
                       disabled={isProcessing}
                       size="sm"
+                      className="w-full sm:w-auto text-xs"
                     >
                       <Play className="w-3 h-3 mr-1" />
                       Retest
@@ -375,7 +376,7 @@ const MicWizardPage = ({ open, onOpenChange }: MicWizardPageProps) => {
                     <Button 
                       onClick={confirmDevice}
                       disabled={!selectedDevice || isProcessing}
-                      className="bg-energy-cyan hover:bg-energy-cyan/80"
+                      className="bg-energy-cyan hover:bg-energy-cyan/80 w-full sm:w-auto text-xs"
                       size="sm"
                     >
                       {isProcessing ? (
