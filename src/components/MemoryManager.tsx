@@ -341,7 +341,8 @@ const MemoryManager = () => {
   };
 
   return (
-    <Card className="glass-panel h-full flex flex-col">
+    <TooltipProvider>
+      <Card className="glass-panel h-full flex flex-col">
       <CardHeader className="pb-2 px-3 pt-2 flex-shrink-0">
         <CardTitle className="flex items-center justify-between text-text-primary text-xs">
           <div className="flex items-center gap-2">
@@ -475,21 +476,19 @@ const MemoryManager = () => {
               
               <div className="grid grid-cols-2 gap-2 mb-2">
                 <div>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="text-[10px] text-text-muted mb-1 cursor-help">Kind</div>
-                      </TooltipTrigger>
-                      <TooltipContent side="left" className="max-w-xs text-xs">
-                        <div className="space-y-2">
-                          <div><strong>Semantic:</strong> Long-term memory of general knowledge, facts, and concepts - your "encyclopedia" of the world.</div>
-                          <div><strong>Episodic:</strong> Personal experiences with details of what, where, and when something happened.</div>
-                          <div><strong>Procedural:</strong> How to do things - skills like riding a bike or typing (implicit memory).</div>
-                          <div><strong>Working:</strong> Temporary mental scratchpad for immediate use, like remembering a phone number while dialing.</div>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="text-[10px] text-text-muted mb-1 cursor-help">Kind</div>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" className="max-w-xs text-xs">
+                      <div className="space-y-2">
+                        <div><strong>Semantic:</strong> Long-term memory of general knowledge, facts, and concepts - your "encyclopedia" of the world.</div>
+                        <div><strong>Episodic:</strong> Personal experiences with details of what, where, and when something happened.</div>
+                        <div><strong>Procedural:</strong> How to do things - skills like riding a bike or typing (implicit memory).</div>
+                        <div><strong>Working:</strong> Temporary mental scratchpad for immediate use, like remembering a phone number while dialing.</div>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
                   <Select
                     value={newMemory.kind}
                     onValueChange={(value) => setNewMemory({ ...newMemory, kind: value })}
@@ -714,6 +713,7 @@ const MemoryManager = () => {
         </Tabs>
       </CardContent>
     </Card>
+    </TooltipProvider>
   );
 };
 
