@@ -36,7 +36,7 @@ export const ZandaleeTerminal = () => {
   } = useSuperAdminAudit(isSuperAdmin);
 
   return (
-    <div className="flex flex-col min-h-[100dvh] w-screen bg-background md:overflow-visible">
+    <div className="flex flex-col min-h-[100dvh] w-screen bg-background overflow-hidden">
       {/* Header with title and status */}
       <div className="flex-shrink-0 px-4 py-2 border-b">
         <div className="flex items-center gap-4">
@@ -61,8 +61,8 @@ export const ZandaleeTerminal = () => {
         </div>
       )}
       
-      <div className="flex-1 flex flex-col min-h-0 px-4 py-1 md:overflow-visible">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col md:flex-row min-h-0 md:overflow-visible">
+      <div className="flex-1 flex flex-col min-h-0 px-4 py-1">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col md:flex-row min-h-0">
           {/* Mobile Top Tabs - Hidden on Desktop */}
           <TabsList className={`md:hidden flex-shrink-0 grid w-full ${canInviteUsers(user) ? 'grid-cols-10' : 'grid-cols-9'} mb-1 h-auto min-h-[3rem] overflow-x-auto gap-2 whitespace-nowrap`}>
             <TabsTrigger value="chat" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-purple">
@@ -112,7 +112,7 @@ export const ZandaleeTerminal = () => {
           </TabsList>
 
           {/* Desktop/Tablet Vertical Navigation - Hidden on Mobile */}
-          <div className="hidden md:flex flex-col w-56 flex-shrink-0 border-r border-border pr-4 mr-4 gap-1 pt-3 md:sticky md:top-4 md:self-start md:max-h-[calc(100vh-6rem)] md:overflow-y-auto">
+          <div className="hidden md:flex flex-col w-56 flex-shrink-0 border-r border-border pr-4 mr-4 gap-1">
             <button
               onClick={() => setActiveTab('chat')}
               className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
@@ -204,7 +204,7 @@ export const ZandaleeTerminal = () => {
             {canInviteUsers(user) && (
               <button
                 onClick={() => setActiveTab('manage-family')}
-                className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars whitespace-nowrap ${
+                className={`flex items-center gap-2 px-3 py-3 text-sm font-bold transition-all lcars-tab text-lcars whitespace-nowrap ${
                   activeTab === 'manage-family' ? 'bg-lcars-red text-black opacity-100' : 'bg-lcars-red text-black opacity-75 hover:opacity-100'
                 }`}
                 aria-selected={activeTab === 'manage-family'}
@@ -226,8 +226,8 @@ export const ZandaleeTerminal = () => {
             </button>
           </div>
 
-          <div className="flex-1 min-h-0 md:overflow-visible">
-            <TabsContent value="chat" className="h-full m-0 overflow-hidden md:overflow-visible">
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <TabsContent value="chat" className="h-full m-0 overflow-hidden">
               <ChatPane />
             </TabsContent>
             
