@@ -14,7 +14,7 @@ export const StatusBar = () => {
         const [models, config] = await Promise.all([getTags(), getConfig()]);
         setCurrentModel(config.model);
         
-        if (models.includes(config.model)) {
+        if (models?.models?.includes(config.model)) {
           setModelStatus('ready');
         } else {
           setModelStatus('missing');

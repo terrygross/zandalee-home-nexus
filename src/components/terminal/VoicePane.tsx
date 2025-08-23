@@ -25,7 +25,7 @@ export const VoicePane = () => {
       console.log('Raw voice list:', voiceList);
       
       // Filter out any empty or invalid voices
-      const validVoices = voiceList.filter(voice => voice && voice.trim() !== '');
+      const validVoices = voiceList?.voices?.filter(voice => voice && voice.trim() !== '') || [];
       console.log('Valid voices:', validVoices);
       
       setAvailableVoices(validVoices);

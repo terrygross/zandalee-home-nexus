@@ -17,7 +17,7 @@ export const DocsPane = () => {
   const loadDocs = useCallback(async () => {
     try {
       const docList = await listDocs();
-      setDocs(docList);
+      setDocs(docList?.docs || []);
     } catch (error: any) {
       console.error('Failed to load docs:', error);
     }

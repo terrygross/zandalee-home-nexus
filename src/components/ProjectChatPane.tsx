@@ -220,7 +220,7 @@ export const ProjectChatPane = () => {
     try {
       setIsLoading(true);
       const results = await memorySearch(memorySearchQuery, 20);
-      setMemories(results || []);
+      setMemories(results?.results || []);
     } catch (error) {
       console.error('Search failed:', error);
     } finally {

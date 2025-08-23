@@ -66,7 +66,7 @@ export const SettingsPane = () => {
       await health();
       const models = await getTags();
       
-      if (models.includes(model)) {
+      if (models?.models?.includes(model)) {
         setTestStatus('green');
         toast({
           title: 'Connection Test',

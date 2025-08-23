@@ -22,7 +22,7 @@ export const MemoriesPane = () => {
     setLoading(true);
     try {
       const results = await memorySearch(searchQuery, 20);
-      setMemories(results);
+      setMemories(results?.results || []);
     } catch (error: any) {
       toast({
         title: 'Search Error',
