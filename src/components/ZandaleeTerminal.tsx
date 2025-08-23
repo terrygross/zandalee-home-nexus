@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -67,8 +68,8 @@ export const ZandaleeTerminal = () => {
           
             {/* Tab Navigation */}
             <div className="px-3 sm:px-6 pb-3 pt-3">
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                <div className="flex gap-1 md:gap-1 lg:gap-2 whitespace-nowrap w-full md:justify-center lg:justify-start">
+              <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+                <div className="flex gap-1 whitespace-nowrap w-full justify-start">
                   {[
                     { id: 'chat', label: 'CHAT', icon: MessageCircle, color: 'bg-lcars-purple' },
                     { id: 'voice', label: 'VOICE', icon: Volume2, color: 'bg-lcars-orange' },
@@ -91,16 +92,16 @@ export const ZandaleeTerminal = () => {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`
-                          inline-flex items-center gap-1 md:gap-1 lg:gap-2 px-1.5 md:px-2 lg:px-3 py-2 flex-shrink-0
-                          text-xs md:text-xs lg:text-sm font-bold rounded-full transition-all text-black
+                          inline-flex items-center gap-2 px-4 py-3 flex-shrink-0 min-w-[80px] sm:min-w-[100px]
+                          text-sm font-bold rounded-full transition-all text-black touch-manipulation
                           ${activeTab === tab.id 
                             ? 'bg-lcars-orange shadow-sm' 
                             : `${tab.color} hover:bg-lcars-orange`
                           }
                         `}
                       >
-                        <Icon className="w-3 h-3 md:w-3 md:h-3 lg:w-4 lg:h-4 flex-shrink-0" />
-                        <span className="hidden sm:inline md:inline lg:inline whitespace-nowrap text-xs md:text-xs lg:text-sm">{tab.label}</span>
+                        <Icon className="w-4 h-4 flex-shrink-0" />
+                        <span className="hidden sm:inline whitespace-nowrap text-sm">{tab.label}</span>
                       </button>
                     );
                   })}

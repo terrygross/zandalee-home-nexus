@@ -60,6 +60,16 @@
     @apply border-border;
   }
 
+  html, body {
+    overflow: hidden;
+    height: 100%;
+  }
+
+  #root {
+    height: 100vh;
+    overflow: hidden;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family: 'Orbitron', 'Courier Prime', monospace;
@@ -170,6 +180,16 @@
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Global scrollbar hiding */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
   .no-anchor {
