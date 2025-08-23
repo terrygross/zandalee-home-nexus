@@ -214,10 +214,10 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
                 <Button 
                   onClick={startWizard} 
                   disabled={isLoading || devices.length === 0}
-                  size="default"
-                  className="w-full sm:w-auto sm:px-8"
+                  size="lg"
+                  className="w-full sm:w-auto sm:px-8 text-sm min-h-[44px]"
                 >
-                  <Play className="w-3 h-3 mr-2 sm:w-4 sm:h-4" />
+                  <Play className="w-4 h-4 mr-2" />
                   Start Wizard
                 </Button>
               </div>
@@ -298,26 +298,26 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
                 </table>
               </div>
 
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4">
+              <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4">
                 <Button 
                   variant="outline" 
                   onClick={resetWizard}
-                  className="w-full sm:w-auto"
-                  size="sm"
+                  className="w-full sm:w-auto text-sm min-h-[44px]"
+                  size="default"
                 >
-                  <AlertCircle className="w-3 h-3 mr-2 sm:w-4 sm:h-4" />
+                  <AlertCircle className="w-4 h-4 mr-2" />
                   Run Again
                 </Button>
                 <Button 
                   onClick={applyDevice}
                   disabled={!selectedDevice || isLoading}
-                  className="w-full sm:w-auto sm:px-8"
-                  size="sm"
+                  className="w-full sm:w-auto sm:px-8 text-sm min-h-[44px]"
+                  size="default"
                 >
                   {isLoading ? (
-                    <Loader2 className="w-3 h-3 mr-2 animate-spin sm:w-4 sm:h-4" />
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
-                    <Check className="w-3 h-3 mr-2 sm:w-4 sm:h-4" />
+                    <Check className="w-4 h-4 mr-2" />
                   )}
                   Apply & Save
                 </Button>
