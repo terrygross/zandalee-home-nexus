@@ -39,9 +39,9 @@ export const MicWizardPane = () => {
           <Button 
             onClick={() => setIsWizardOpen(true)}
             size="lg" 
-            className="w-full"
+            className="w-full text-xs sm:text-sm"
           >
-            <Play className="w-4 h-4 mr-2" />
+            <Play className="w-3 h-3 mr-2 sm:w-4 sm:h-4" />
             START MIC WIZARD
           </Button>
 
