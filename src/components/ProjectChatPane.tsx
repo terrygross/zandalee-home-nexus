@@ -767,7 +767,7 @@ export const ProjectChatPane = () => {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="absolute bottom-2 right-2 h-7 w-7 rounded-full bg-background/70 hover:bg-background shadow"
+                              className="sticky bottom-0 right-0 float-right h-7 w-7 rounded-full bg-background/70 hover:bg-background shadow ml-auto mt-2"
                               onClick={() => handleCopy(message.content)}
                               aria-label="Copy Zandalee response"
                               title="Copy"
