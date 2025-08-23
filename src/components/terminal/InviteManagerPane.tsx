@@ -44,13 +44,22 @@ export const InviteManagerPane = () => {
   const { user } = useSession();
 
   const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
+  const ENABLE_INVITES = import.meta.env.VITE_ENABLE_INVITES !== 'false'; // Default enabled unless explicitly disabled
 
   useEffect(() => {
-    loadPendingInvites();
-    loadFamilyMembers();
-  }, []);
+    if (ENABLE_INVITES) {
+      loadPendingInvites();
+      loadFamilyMembers();
+    } else {
+      // Mock data for development
+      setPendingInvites([]);
+      setFamilyMembers([]);
+    }
+  }, [ENABLE_INVITES]);
 
   const loadPendingInvites = async () => {
+    if (!ENABLE_INVITES) return;
+    
     try {
       const response = await fetch(`${API_BASE}/auth/invites`, {
         headers: { 'X-User': user?.familyName || '' }
@@ -65,6 +74,8 @@ export const InviteManagerPane = () => {
   };
 
   const loadFamilyMembers = async () => {
+    if (!ENABLE_INVITES) return;
+    
     try {
       const response = await fetch(`${API_BASE}/auth/family/members`, {
         headers: { 'X-User': user?.familyName || '' }
@@ -79,6 +90,15 @@ export const InviteManagerPane = () => {
   };
 
   const handleSendInvite = async () => {
+    if (!ENABLE_INVITES) {
+      toast({
+        title: "Feature Disabled",
+        description: "Invite system is not enabled yet. Check back later!",
+        variant: "default"
+      });
+      return;
+    }
+
     if (!inviteForm.familyName || !inviteForm.email) {
       toast({
         title: "Invalid Input",
@@ -124,6 +144,15 @@ export const InviteManagerPane = () => {
   };
 
   const handleRevokeInvite = async (code: string) => {
+    if (!ENABLE_INVITES) {
+      toast({
+        title: "Feature Disabled",
+        description: "Invite system is not enabled yet",
+        variant: "default"
+      });
+      return;
+    }
+    
     try {
       const response = await fetch(`${API_BASE}/auth/revoke-invite`, {
         method: 'POST',
@@ -155,6 +184,15 @@ export const InviteManagerPane = () => {
   };
 
   const handleUpdateRole = async (familyName: string, newRole: string) => {
+    if (!ENABLE_INVITES) {
+      toast({
+        title: "Feature Disabled", 
+        description: "Family management is not enabled yet",
+        variant: "default"
+      });
+      return;
+    }
+    
     try {
       const response = await fetch(`${API_BASE}/auth/update-role`, {
         method: 'POST',
@@ -186,6 +224,15 @@ export const InviteManagerPane = () => {
   };
 
   const handleResetPassword = async (familyName: string) => {
+    if (!ENABLE_INVITES) {
+      toast({
+        title: "Feature Disabled",
+        description: "Family management is not enabled yet", 
+        variant: "default"
+      });
+      return;
+    }
+    
     try {
       const response = await fetch(`${API_BASE}/auth/reset-password`, {
         method: 'POST',
@@ -216,6 +263,15 @@ export const InviteManagerPane = () => {
   };
 
   const handleRemoveUser = async (familyName: string) => {
+    if (!ENABLE_INVITES) {
+      toast({
+        title: "Feature Disabled",
+        description: "Family management is not enabled yet",
+        variant: "default"
+      });
+      return;
+    }
+    
     try {
       const response = await fetch(`${API_BASE}/auth/remove-user`, {
         method: 'POST',
@@ -265,6 +321,11 @@ export const InviteManagerPane = () => {
         <Badge variant="secondary" className="text-xs">
           Admin Only
         </Badge>
+        {!ENABLE_INVITES && (
+          <Badge variant="outline" className="text-xs">
+            Preview Mode
+          </Badge>
+        )}
       </div>
 
       <Tabs defaultValue="invite" className="space-y-4">
