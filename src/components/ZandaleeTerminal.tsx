@@ -20,7 +20,6 @@ import { ManageFamilyPane } from './terminal/ManageFamilyPane';
 import { SharedPane } from './terminal/SharedPane';
 
 export const ZandaleeTerminal = () => {
-  console.log('[ZandaleeTerminal] Rendering...');
   const [activeTab, setActiveTab] = useState('chat');
   const { isHealthy } = useGateway();
   const { user } = useSession();
@@ -35,70 +34,61 @@ export const ZandaleeTerminal = () => {
     markAsSeen,
     recentEntries
   } = useSuperAdminAudit(isSuperAdmin);
-
-  console.log('[ZandaleeTerminal] About to render Tabs with activeTab:', activeTab);
   
   return (
-    <div className="flex flex-col min-h-[100dvh] w-screen bg-background">
+    <div className="flex flex-col min-h-[100dvh] w-full overflow-x-hidden bg-background">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-        {/* Header with title, status and navigation */}
-        <div className="flex-shrink-0 px-4 py-2 border-b sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
-          <div className="flex items-center gap-4 mb-2">
-            <h1 className="text-2xl md:text-3xl font-bold text-lcars-text-accent text-lcars-display">ZANDALEE TERMINAL</h1>
-            <Badge variant={isHealthy ? "default" : "destructive"}>
-              {isHealthy ? "GATEWAY CONNECTED" : "GATEWAY OFFLINE"}
-            </Badge>
+        {/* Header with Custom Navigation */}
+        <div className="flex-shrink-0 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex items-center justify-between p-3 sm:px-6">
+            <div className="flex items-center gap-4">
+              <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                ZANDALEE TERMINAL
+              </h1>
+              <Badge variant={isHealthy ? "default" : "destructive"} className="text-xs">
+                {isHealthy ? "GATEWAY CONNECTED" : "GATEWAY OFFLINE"}
+              </Badge>
+            </div>
           </div>
           
-          {/* Navigation Tabs */}
-          <TabsList className={`flex-shrink-0 flex flex-nowrap w-full overflow-x-auto gap-2 h-auto min-h-[3rem] whitespace-nowrap items-center`}>
-            <TabsTrigger value="chat" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-purple">
-              <MessageCircle className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">CHAT</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-blue">
-              <Settings className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">SETTINGS</span>
-            </TabsTrigger>
-            <TabsTrigger value="appcontrol" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-green">
-              <Code className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">APP CONTROL</span>
-            </TabsTrigger>
-            <TabsTrigger value="voice" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-orange">
-              <Volume2 className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">VOICE</span>
-            </TabsTrigger>
-            <TabsTrigger value="memories" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-yellow">
-              <Brain className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">MEMORIES</span>
-            </TabsTrigger>
-            <TabsTrigger value="mic" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-pink">
-              <Mic className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">MIC</span>
-            </TabsTrigger>
-            <TabsTrigger value="hands" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-cyan">
-              <Hand className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">HANDS</span>
-            </TabsTrigger>
-            <TabsTrigger value="docs" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-violet">
-              <FileText className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">DOCS</span>
-            </TabsTrigger>
-            
-            {canInviteUsers(user) && (
-              <TabsTrigger value="manage-family" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-red">
-                <Users className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-                <span className="hidden sm:inline truncate">MANAGE FAMILY</span>
-              </TabsTrigger>
-            )}
-            
-            <TabsTrigger value="shared" className="flex items-center gap-1 px-3 py-2 text-xs md:text-sm bg-lcars-teal">
-              <Share2 className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">SHARED</span>
-            </TabsTrigger>
-          </TabsList>
+          {/* Custom Tab Navigation */}
+          <div className="px-3 sm:px-6 pb-3">
+            <div className="flex flex-wrap gap-1 sm:gap-2 scrollbar-hide">
+              {[
+                { id: 'chat', label: 'CHAT', icon: MessageCircle, color: 'bg-lcars-purple' },
+                { id: 'settings', label: 'SETTINGS', icon: Settings, color: 'bg-lcars-blue' },
+                { id: 'appcontrol', label: 'APP CONTROL', icon: Code, color: 'bg-lcars-green' },
+                { id: 'voice', label: 'VOICE', icon: Volume2, color: 'bg-lcars-orange' },
+                { id: 'memories', label: 'MEMORIES', icon: Brain, color: 'bg-lcars-yellow' },
+                { id: 'mic', label: 'MIC', icon: Mic, color: 'bg-lcars-pink' },
+                { id: 'hands', label: 'HANDS', icon: Hand, color: 'bg-lcars-cyan' },
+                { id: 'docs', label: 'DOCS', icon: FileText, color: 'bg-lcars-violet' },
+                ...(canInviteUsers(user) ? [{ id: 'manage-family', label: 'FAMILY', icon: Users, color: 'bg-lcars-red' }] : []),
+                { id: 'shared', label: 'SHARED', icon: Share2, color: 'bg-lcars-teal' }
+              ].map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`
+                      inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 
+                      text-xs sm:text-sm font-bold rounded-full transition-all text-black
+                      ${activeTab === tab.id 
+                        ? 'bg-lcars-orange shadow-sm' 
+                        : `${tab.color} hover:bg-lcars-orange`
+                      }
+                    `}
+                  >
+                    <Icon className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span className="hidden xs:inline whitespace-nowrap">{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
-        
+
         {/* Super-Admin Audit Banner */}
         {isSuperAdmin && (
           <div className="flex-shrink-0 px-4">

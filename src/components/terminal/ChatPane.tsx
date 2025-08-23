@@ -561,7 +561,7 @@ export const ChatPane = () => {
       </Card>
 
       {/* Memory & Diary Side Panel - fixed height management */}
-      <Card className="w-full lg:w-80 flex flex-col h-full lg:h-full min-h-[400px] md:sticky md:top-2 md:max-h-[calc(100dvh-8rem)]">
+      <Card className="w-full lg:w-80 flex flex-col h-full lg:h-full min-h-[400px]">
         <CardHeader className="pb-3 px-6 pt-6 flex-shrink-0">
           <CardTitle className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
@@ -574,8 +574,8 @@ export const ChatPane = () => {
         
         <CardContent className="flex-1 flex flex-col p-6 pt-0 pb-6 min-h-0">
           <Tabs defaultValue="memories" className="flex-1 flex flex-col min-h-0">
-            <TabsList className="grid w-full grid-cols-2 h-8 mb-2 flex-shrink-0">
-              <TabsTrigger value="memories" className="text-xs">Memories</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 h-8 mb-2 flex-shrink-0 bg-muted/50">
+              <TabsTrigger value="memories" className="text-xs bg-lcars-blue text-black data-[state=active]:bg-lcars-orange">Memories</TabsTrigger>
               <TabsTrigger value="diary" className="text-xs">Diary</TabsTrigger>
             </TabsList>
             

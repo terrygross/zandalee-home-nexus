@@ -352,20 +352,20 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ isOpen, onClose 
 
         <div className="mt-6">
           <Tabs defaultValue="audio" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="audio" className="flex items-center gap-2">
+            <TabsList className="flex flex-wrap gap-1 p-1 bg-transparent w-full justify-start">
+              <TabsTrigger value="audio" className="flex items-center gap-2 px-3 py-2 bg-lcars-blue text-black data-[state=active]:bg-lcars-orange">
                 <Volume2 className="h-4 w-4" />
                 Audio
               </TabsTrigger>
-              <TabsTrigger value="llm" className="flex items-center gap-2">
+              <TabsTrigger value="llm" className="flex items-center gap-2 px-3 py-2 bg-lcars-purple text-black data-[state=active]:bg-lcars-pink">
                 <Brain className="h-4 w-4" />
                 AI Model
               </TabsTrigger>
-              <TabsTrigger value="ui" className="flex items-center gap-2">
+              <TabsTrigger value="ui" className="flex items-center gap-2 px-3 py-2 bg-lcars-yellow text-black data-[state=active]:bg-lcars-cyan">
                 <Monitor className="h-4 w-4" />
                 Interface
               </TabsTrigger>
-              <TabsTrigger value="avatar" className="flex items-center gap-2">
+              <TabsTrigger value="avatar" className="flex items-center gap-2 px-3 py-2 bg-lcars-violet text-black data-[state=active]:bg-lcars-green">
                 <User className="h-4 w-4" />
                 Avatar
               </TabsTrigger>

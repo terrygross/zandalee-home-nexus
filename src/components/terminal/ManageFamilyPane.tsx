@@ -295,19 +295,19 @@ export function ManageFamilyPane() {
       </div>
 
       <Tabs defaultValue="invite" className="space-y-4">
-        <div className="w-full overflow-x-auto">
-          <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="invite" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
+        <div className="w-full">
+          <TabsList className="flex flex-wrap gap-1 sm:gap-2 p-1 bg-transparent">
+            <TabsTrigger value="invite" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 bg-lcars-blue text-black data-[state=active]:bg-lcars-orange">
               <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden xs:inline">Invite Member</span>
               <span className="xs:hidden">Invite</span>
             </TabsTrigger>
-            <TabsTrigger value="pending" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
+            <TabsTrigger value="pending" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 bg-lcars-purple text-black data-[state=active]:bg-lcars-pink">
               <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden xs:inline">Pending Invites</span>
               <span className="xs:hidden">Pending</span>
             </TabsTrigger>
-            <TabsTrigger value="members" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
+            <TabsTrigger value="members" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 bg-lcars-yellow text-black data-[state=active]:bg-lcars-cyan">
               <Users className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden xs:inline">Family Members</span>
               <span className="xs:hidden">Members</span>

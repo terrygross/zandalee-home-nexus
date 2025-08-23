@@ -155,4 +155,14 @@
   .bg-lcars-cyan { background-color: hsl(var(--lcars-cyan)); }
   .bg-lcars-violet { background-color: hsl(var(--lcars-violet)); }
   .bg-lcars-teal { background-color: hsl(var(--lcars-teal)); }
+  
+  /* Hide scrollbars */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
