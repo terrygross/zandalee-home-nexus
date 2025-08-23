@@ -51,7 +51,9 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
   const loadDevices = async () => {
     setIsLoading(true);
     try {
-      const deviceList = await micList();
+      const deviceData = await micList();
+      // Handle both array format and object with devices property
+      const deviceList = Array.isArray(deviceData) ? deviceData : (deviceData?.devices || []);
       setDevices(deviceList);
     } catch (error) {
       toast({
@@ -85,9 +87,19 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
       clearInterval(progressInterval);
       setWizardProgress(100);
 
-      if (wizardResult.devices) {
-        setResults(wizardResult.devices);
-        setSelectedDevice(wizardResult.devices[0] || null);
+      if (wizardResult.results?.length > 0) {
+        // Map backend metrics to UI format
+        const mappedResults = wizardResult.results.map((r: any) => ({
+          id: r.id,
+          name: r.name,
+          SNR: r.snr_db,
+          voiced: r.voiced_ratio,
+          startDelay: r.start_delay_ms,
+          clip: r.clipping_pct,
+          score: r.score
+        }));
+        setResults(mappedResults);
+        setSelectedDevice(mappedResults[0] || null);
         setStep('results');
       } else {
         throw new Error('No results from wizard');
@@ -150,10 +162,10 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="w-[95vw] sm:w-auto max-w-4xl">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            <Settings className="w-5 h-5" />
+            <Settings className="w-3 h-3 sm:w-5 sm:h-5" />
             <span>Microphone Calibration Wizard</span>
           </DialogTitle>
         </DialogHeader>
@@ -167,7 +179,7 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
                     <span>Available Devices</span>
                     <Badge variant="secondary">
                       <Volume2 className="w-3 h-3 mr-1" />
-                      Wizard mutes TTS while running
+                      Guided calibration
                     </Badge>
                   </CardTitle>
                 </CardHeader>
@@ -182,7 +194,7 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
                       {devices.map((device) => (
                         <div key={device.id} className="flex items-center justify-between p-3 border rounded-lg">
                           <div className="flex items-center space-x-3">
-                            <Mic className="w-4 h-4" />
+                            <Mic className="w-3 h-3 sm:w-4 sm:h-4" />
                             <div>
                               <p className="font-medium">{device.name}</p>
                               <p className="text-sm text-muted-foreground">
@@ -205,7 +217,7 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
                   size="lg"
                   className="px-8"
                 >
-                  <Play className="w-4 h-4 mr-2" />
+                  <Play className="w-3 h-3 mr-2 sm:w-4 sm:h-4" />
                   Start Wizard
                 </Button>
               </div>
@@ -243,52 +255,52 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
                 </p>
               </div>
 
-              <div className="max-h-64 overflow-y-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead></TableHead>
-                      <TableHead>Device</TableHead>
-                      <TableHead>SNR (dB)</TableHead>
-                      <TableHead>Voiced %</TableHead>
-                      <TableHead>Start Delay (ms)</TableHead>
-                      <TableHead>Clip %</TableHead>
-                      <TableHead>Score</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+              <div className="max-h-64 overflow-x-auto overflow-y-auto p-1">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-2"></th>
+                      <th className="text-left p-2">Device</th>
+                      <th className="text-left p-2">SNR (dB)</th>
+                      <th className="text-left p-2">Voiced %</th>
+                      <th className="hidden sm:table-cell text-left p-2">Start Delay</th>
+                      <th className="hidden sm:table-cell text-left p-2">Clip</th>
+                      <th className="text-left p-2">Score</th>
+                    </tr>
+                  </thead>
+                  <tbody>
                     {results.map((result) => (
-                      <TableRow 
+                      <tr 
                         key={result.id}
-                        className={`cursor-pointer transition-colors ${
+                        className={`border-b cursor-pointer transition-colors ${
                           selectedDevice?.id === result.id 
                             ? 'bg-primary/10 border-primary' 
                             : 'hover:bg-muted/50'
                         }`}
                         onClick={() => setSelectedDevice(result)}
                       >
-                        <TableCell>
+                        <td className="p-2">
                           {selectedDevice?.id === result.id && (
-                            <Check className="w-4 h-4 text-green-500" />
+                            <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
                           )}
-                        </TableCell>
-                        <TableCell className="font-medium">{result.name}</TableCell>
-                        <TableCell>{result.SNR.toFixed(1)}</TableCell>
-                        <TableCell>{(result.voiced * 100).toFixed(1)}%</TableCell>
-                        <TableCell>{result.startDelay.toFixed(0)}</TableCell>
-                        <TableCell>{result.clip.toFixed(1)}%</TableCell>
-                        <TableCell className="font-semibold text-primary">
+                        </td>
+                        <td className="p-2 font-medium">{result.name}</td>
+                        <td className="p-2">{result.SNR.toFixed(1)}</td>
+                        <td className="p-2">{(result.voiced * 100).toFixed(1)}%</td>
+                        <td className="hidden sm:table-cell p-2">{result.startDelay.toFixed(0)} ms</td>
+                        <td className="hidden sm:table-cell p-2">{result.clip.toFixed(1)}%</td>
+                        <td className="p-2 font-semibold text-primary">
                           {(result.score * 100).toFixed(1)}
-                        </TableCell>
-                      </TableRow>
+                        </td>
+                      </tr>
                     ))}
-                  </TableBody>
-                </Table>
+                  </tbody>
+                </table>
               </div>
 
               <div className="flex justify-between items-center pt-4">
                 <Button variant="outline" onClick={resetWizard}>
-                  <AlertCircle className="w-4 h-4 mr-2" />
+                  <AlertCircle className="w-3 h-3 mr-2 sm:w-4 sm:h-4" />
                   Run Again
                 </Button>
                 <Button 
@@ -297,9 +309,9 @@ const MicWizard = ({ open, onOpenChange }: MicWizardProps) => {
                   className="px-8"
                 >
                   {isLoading ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-3 h-3 mr-2 animate-spin sm:w-4 sm:h-4" />
                   ) : (
-                    <Check className="w-4 h-4 mr-2" />
+                    <Check className="w-3 h-3 mr-2 sm:w-4 sm:h-4" />
                   )}
                   Apply & Save
                 </Button>

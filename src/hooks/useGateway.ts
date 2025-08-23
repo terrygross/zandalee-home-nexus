@@ -237,18 +237,26 @@ export const useGateway = () => {
     return response.json();
   };
 
-  const micList = async (): Promise<AudioDevice[]> => {
+  const micList = async (): Promise<any> => {
     try {
       const response = await fetch(`${API_BASE}/mic/list`);
       await handleResponse(response);
-      return response.json();
+      const resp = await response.json();
+      // Map backend shape to UI expectations
+      return {
+        ...resp,
+        devices: (resp.devices || []).map((d: any) => ({
+          ...d,
+          channels: d.channels ?? d.max_input_channels, // map max_input_channels → channels
+        })),
+      };
     } catch (error) {
       console.warn('Mic list endpoint not available, using mock data');
       throw error;
     }
   };
 
-  const micWizard = async (): Promise<{ devices: any[]; chosen?: any; persisted?: boolean }> => {
+  const micWizard = async (): Promise<{ ok: boolean; results: any[]; chosen?: any }> => {
     try {
       const response = await fetch(`${API_BASE}/mic/wizard`, {
         method: 'POST',
@@ -256,14 +264,16 @@ export const useGateway = () => {
         body: JSON.stringify({})
       });
       await handleResponse(response);
-      return response.json();
+      const resp = await response.json();
+      // Return exactly what backend gives - let component handle mapping
+      return { ok: resp.ok, results: resp.results ?? resp.devices ?? [], chosen: resp.chosen };
     } catch (error) {
       console.warn('Mic wizard endpoint not available');
       throw error;
     }
   };
 
-  const micUse = async (body: { id: number }): Promise<{ ok: boolean; id: number }> => {
+  const micUse = async (body: { id: number }): Promise<{ ok: boolean }> => {
     try {
       const response = await fetch(`${API_BASE}/mic/use`, {
         method: 'POST',
