@@ -35,7 +35,7 @@ export const ZandaleeTerminal = () => {
   
   return (
     <ProjectChatProvider>
-      <div className="flex flex-col h-[100dvh] w-full overflow-y-auto overflow-x-hidden bg-background">
+      <div className="flex flex-col h-[100dvh] w-full overflow-y-auto overflow-x-hidden bg-background scrollbar-hide">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
           {/* Sticky Header and Navigation Container */}
           <div className="sticky top-0 z-[100] flex-shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border no-anchor" style={{ top: 'env(safe-area-inset-top)' }}>

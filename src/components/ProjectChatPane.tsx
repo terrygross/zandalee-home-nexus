@@ -717,7 +717,7 @@ export const ProjectChatPane = () => {
           )}
 
           {/* Messages area with proper flex and overflow */}
-          <div className="flex-1 overflow-y-auto overscroll-contain space-y-4 mb-4 min-h-0 no-anchor">
+          <div className="flex-1 overflow-y-auto overscroll-contain space-y-4 mb-4 min-h-0 no-anchor scrollbar-hide">
             {!chat.activeThreadId ? (
               <div className="text-center text-muted-foreground py-8">
                 <MessageSquarePlus className="w-12 h-12 mx-auto mb-4 opacity-50" />
