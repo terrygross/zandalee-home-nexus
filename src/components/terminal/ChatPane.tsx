@@ -10,8 +10,8 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Send, User, Bot, Star, Search, Plus, Brain, BookOpen, Upload, Image, Heart } from 'lucide-react';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Send, User, Bot, Star, Search, Plus, Brain, BookOpen, Upload, Image, Heart, HelpCircle } from 'lucide-react';
 import { useGateway } from '@/hooks/useGateway';
 import { useToast } from '@/hooks/use-toast';
 
@@ -462,8 +462,7 @@ export const ChatPane = () => {
   };
 
   return (
-    <TooltipProvider>
-      <div className="h-full flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
+    <div className="h-full flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
       {/* Chat Section */}
       <Card className="flex-1 flex flex-col min-h-0">
         <CardHeader className="flex-shrink-0">
@@ -696,19 +695,22 @@ export const ChatPane = () => {
                 
                 <div className="grid grid-cols-2 gap-2 mb-2">
                   <div>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="text-[10px] text-muted-foreground mb-1 cursor-help hover:text-primary">Kind ?</div>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" align="start" className="max-w-xs text-xs z-50">
-                        <div className="space-y-1">
-                          <div><strong>Semantic:</strong> General knowledge and facts - your "encyclopedia" of the world.</div>
-                          <div><strong>Episodic:</strong> Personal experiences with details of what, where, and when.</div>
-                          <div><strong>Procedural:</strong> How to do things - skills like riding a bike (implicit memory).</div>
-                          <div><strong>Working:</strong> Temporary mental scratchpad for immediate use.</div>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
+                    <div className="flex items-center gap-1 mb-1">
+                      <span className="text-[10px] text-muted-foreground">Kind</span>
+                      <HoverCard>
+                        <HoverCardTrigger asChild>
+                          <HelpCircle className="w-3 h-3 text-muted-foreground cursor-help hover:text-primary" />
+                        </HoverCardTrigger>
+                        <HoverCardContent className="w-80 text-xs" side="top" align="start">
+                          <div className="space-y-2">
+                            <div><strong>Semantic:</strong> Long-term memory store of general knowledge, facts, concepts, and meanings. It's essentially our "encyclopedia" of the world, holding information that's not tied to specific personal experiences.</div>
+                            <div><strong>Episodic:</strong> The ability to recall personal experiences, including details of what happened, where it happened, and when it happened. It's a type of explicit or declarative memory, meaning that these memories are consciously retrieved and include contextual information like emotions associated with the event.</div>
+                            <div><strong>Procedural:</strong> A type of long-term memory that stores information about how to do things, like riding a bike or typing. It's considered implicit memory, meaning it doesn't require conscious effort to access and use these skills.</div>
+                            <div><strong>Working:</strong> A cognitive system that allows you to temporarily hold and manipulate information in your mind for immediate use, like remembering a phone number while dialing or following instructions while performing a task. It's often described as a mental scratchpad where you process and use information actively.</div>
+                          </div>
+                        </HoverCardContent>
+                      </HoverCard>
+                    </div>
                     <Select
                       value={newMemory.kind}
                       onValueChange={(value) => setNewMemory({ ...newMemory, kind: value })}
@@ -934,6 +936,5 @@ export const ChatPane = () => {
         </CardContent>
       </Card>
     </div>
-    </TooltipProvider>
   );
 };
