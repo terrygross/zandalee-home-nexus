@@ -92,16 +92,16 @@ export const ZandaleeTerminal = () => {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`
-                          inline-flex items-center gap-2 px-4 py-3 flex-shrink-0 min-w-[80px] sm:min-w-[100px]
-                          text-sm font-bold rounded-full transition-all text-black touch-manipulation
+                          inline-flex items-center gap-2 px-3 py-2.5 flex-shrink-0 min-w-[70px] sm:min-w-[90px] md:min-w-[100px]
+                          text-xs sm:text-sm font-bold rounded-full transition-all text-black touch-manipulation
                           ${activeTab === tab.id 
                             ? 'bg-lcars-orange shadow-sm' 
                             : `${tab.color} hover:bg-lcars-orange`
                           }
                         `}
                       >
-                        <Icon className="w-4 h-4 flex-shrink-0" />
-                        <span className="hidden sm:inline whitespace-nowrap text-sm">{tab.label}</span>
+                        <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                        <span className="hidden sm:inline whitespace-nowrap">{tab.label}</span>
                       </button>
                     );
                   })}
