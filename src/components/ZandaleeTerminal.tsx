@@ -7,7 +7,6 @@ import { useSession } from '@/contexts/SessionContext';
 import { useSuperAdminAudit } from '@/hooks/useSuperAdminAudit';
 import { SuperAdminAuditBanner } from '@/components/SuperAdminAuditBanner';
 import { ChatPane } from './terminal/ChatPane';
-import EnhancedChatInterface from './EnhancedChatInterface';
 import { SettingsPane } from './terminal/SettingsPane';
 import { MemoriesPane } from './terminal/MemoriesPane';
 import { MicWizardPane } from './terminal/MicWizardPane';
@@ -101,7 +100,7 @@ export const ZandaleeTerminal = () => {
         <div className="flex-1 flex flex-col min-h-0 px-4 py-1">
           <div className="flex-1 min-h-0 overflow-visible">
             <TabsContent value="chat" className="h-full m-0 overflow-visible">
-              <EnhancedChatInterface />
+              <ChatPane />
             </TabsContent>
             
             <TabsContent value="voice" className="h-full m-0 overflow-hidden">
