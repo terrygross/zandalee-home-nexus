@@ -475,22 +475,28 @@ const MemoryManager = () => {
               
               <div className="grid grid-cols-2 gap-2 mb-2">
                 <div>
-                  <div className="flex items-center gap-1 mb-1">
-                    <span className="text-[10px] text-text-muted">Kind</span>
-                    <HoverCard>
-                      <HoverCardTrigger asChild>
-                        <HelpCircle className="w-3 h-3 text-text-muted cursor-help hover:text-energy-cyan" />
-                      </HoverCardTrigger>
-                      <HoverCardContent className="w-80 text-xs" side="top" align="start">
-                        <div className="space-y-2">
-                          <div><strong>Semantic:</strong> Long-term memory store of general knowledge, facts, concepts, and meanings. It's essentially our "encyclopedia" of the world, holding information that's not tied to specific personal experiences.</div>
-                          <div><strong>Episodic:</strong> The ability to recall personal experiences, including details of what happened, where it happened, and when it happened. It's a type of explicit or declarative memory, meaning that these memories are consciously retrieved and include contextual information like emotions associated with the event.</div>
-                          <div><strong>Procedural:</strong> A type of long-term memory that stores information about how to do things, like riding a bike or typing. It's considered implicit memory, meaning it doesn't require conscious effort to access and use these skills.</div>
-                          <div><strong>Working:</strong> A cognitive system that allows you to temporarily hold and manipulate information in your mind for immediate use, like remembering a phone number while dialing or following instructions while performing a task. It's often described as a mental scratchpad where you process and use information actively.</div>
-                        </div>
-                      </HoverCardContent>
-                    </HoverCard>
-                  </div>
+                    <div className="flex items-center gap-1 mb-1">
+                      <span className="text-[10px] text-text-muted">Kind</span>
+                      <HoverCard>
+                        <HoverCardTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-auto p-0 text-text-muted hover:text-energy-cyan cursor-help"
+                          >
+                            <HelpCircle className="w-3 h-3" />
+                          </Button>
+                        </HoverCardTrigger>
+                        <HoverCardContent className="w-80 text-xs z-[100]" side="left" align="start">
+                          <div className="space-y-2">
+                            <div><strong>Semantic:</strong> Long-term memory store of general knowledge, facts, concepts, and meanings. It's essentially our "encyclopedia" of the world, holding information that's not tied to specific personal experiences.</div>
+                            <div><strong>Episodic:</strong> The ability to recall personal experiences, including details of what happened, where it happened, and when it happened. It's a type of explicit or declarative memory, meaning that these memories are consciously retrieved and include contextual information like emotions associated with the event.</div>
+                            <div><strong>Procedural:</strong> A type of long-term memory that stores information about how to do things, like riding a bike or typing. It's considered implicit memory, meaning it doesn't require conscious effort to access and use these skills.</div>
+                            <div><strong>Working:</strong> A cognitive system that allows you to temporarily hold and manipulate information in your mind for immediate use, like remembering a phone number while dialing or following instructions while performing a task. It's often described as a mental scratchpad where you process and use information actively.</div>
+                          </div>
+                        </HoverCardContent>
+                      </HoverCard>
+                    </div>
                   <Select
                     value={newMemory.kind}
                     onValueChange={(value) => setNewMemory({ ...newMemory, kind: value })}

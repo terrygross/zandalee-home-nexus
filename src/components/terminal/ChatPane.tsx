@@ -699,9 +699,15 @@ export const ChatPane = () => {
                       <span className="text-[10px] text-muted-foreground">Kind</span>
                       <HoverCard>
                         <HoverCardTrigger asChild>
-                          <HelpCircle className="w-3 h-3 text-muted-foreground cursor-help hover:text-primary" />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-auto p-0 text-muted-foreground hover:text-primary cursor-help"
+                          >
+                            <HelpCircle className="w-3 h-3" />
+                          </Button>
                         </HoverCardTrigger>
-                        <HoverCardContent className="w-80 text-xs" side="top" align="start">
+                        <HoverCardContent className="w-80 text-xs z-[100]" side="left" align="start">
                           <div className="space-y-2">
                             <div><strong>Semantic:</strong> Long-term memory store of general knowledge, facts, concepts, and meanings. It's essentially our "encyclopedia" of the world, holding information that's not tied to specific personal experiences.</div>
                             <div><strong>Episodic:</strong> The ability to recall personal experiences, including details of what happened, where it happened, and when it happened. It's a type of explicit or declarative memory, meaning that these memories are consciously retrieved and include contextual information like emotions associated with the event.</div>
