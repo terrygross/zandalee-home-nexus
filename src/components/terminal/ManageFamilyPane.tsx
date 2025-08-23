@@ -275,40 +275,42 @@ export function ManageFamilyPane() {
   }, [user]);
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Manage Family</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-xl sm:text-2xl font-bold">Manage Family</h2>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Invite new members and manage existing family accounts
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <Badge variant="outline" className="gap-2">
-            <UserCog className="w-4 h-4" />
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+          <Badge variant="outline" className="gap-2 text-xs sm:text-sm">
+            <UserCog className="w-3 h-3 sm:w-4 sm:h-4" />
             {user?.displayName}
           </Badge>
-          <Button variant="outline" onClick={logout}>
+          <Button variant="outline" size="sm" onClick={logout}>
             Sign Out
           </Button>
         </div>
       </div>
 
       <Tabs defaultValue="invite" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="invite" className="gap-2">
-            <Mail className="w-4 h-4" />
-            Invite Member
-          </TabsTrigger>
-          <TabsTrigger value="pending" className="gap-2">
-            <Mail className="w-4 h-4" />
-            Pending Invites
-          </TabsTrigger>
-          <TabsTrigger value="members" className="gap-2">
-            <Users className="w-4 h-4" />
-            Family Members
-          </TabsTrigger>
-        </TabsList>
+        <div className="w-full overflow-x-auto">
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="invite" className="gap-2">
+              <Mail className="w-4 h-4" />
+              Invite Member
+            </TabsTrigger>
+            <TabsTrigger value="pending" className="gap-2">
+              <Mail className="w-4 h-4" />
+              Pending Invites
+            </TabsTrigger>
+            <TabsTrigger value="members" className="gap-2">
+              <Users className="w-4 h-4" />
+              Family Members
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="invite">
           <InviteManager />
@@ -326,16 +328,16 @@ export function ManageFamilyPane() {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow>
+                    <TableRow className="text-xs sm:text-sm">
                       <TableHead>Family Name</TableHead>
-                      <TableHead>Email</TableHead>
+                      <TableHead className="hidden sm:table-cell">Email</TableHead>
                       <TableHead>Role</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>Expires</TableHead>
+                      <TableHead className="hidden md:table-cell">Created</TableHead>
+                      <TableHead className="hidden md:table-cell">Expires</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
+                  <TableBody className="text-xs sm:text-sm">
                     {loading ? (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center py-8">
@@ -352,14 +354,14 @@ export function ManageFamilyPane() {
                       pendingInvites.map((invite) => (
                         <TableRow key={invite.code}>
                           <TableCell className="font-medium">{invite.familyName}</TableCell>
-                          <TableCell>{invite.email}</TableCell>
+                          <TableCell className="hidden sm:table-cell break-all">{invite.email}</TableCell>
                           <TableCell>
-                            <Badge variant="outline">{invite.role}</Badge>
+                            <Badge variant="outline" className="text-xs">{invite.role}</Badge>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="hidden md:table-cell whitespace-nowrap">
                             {formatDistanceToNow(new Date(invite.createdAt))} ago
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="hidden md:table-cell whitespace-nowrap">
                             {formatDistanceToNow(new Date(invite.expiresAt))} from now
                           </TableCell>
                           <TableCell>
@@ -368,6 +370,7 @@ export function ManageFamilyPane() {
                               size="sm"
                               onClick={() => revokeInvite(invite.code)}
                               disabled={actionLoading === invite.code}
+                              className="text-xs"
                             >
                               {actionLoading === invite.code ? 'Revoking...' : 'Revoke'}
                             </Button>
@@ -394,15 +397,15 @@ export function ManageFamilyPane() {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow>
+                    <TableRow className="text-xs sm:text-sm">
                       <TableHead>Family Name</TableHead>
-                      <TableHead>Email</TableHead>
+                      <TableHead className="hidden sm:table-cell">Email</TableHead>
                       <TableHead>Role</TableHead>
-                      <TableHead>Joined</TableHead>
+                      <TableHead className="hidden md:table-cell">Joined</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
+                  <TableBody className="text-xs sm:text-sm">
                     {loading ? (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center py-8">
@@ -419,7 +422,7 @@ export function ManageFamilyPane() {
                       familyMembers.map((member) => (
                         <TableRow key={member.familyName}>
                           <TableCell className="font-medium">{member.familyName}</TableCell>
-                          <TableCell>{member.email}</TableCell>
+                          <TableCell className="hidden sm:table-cell break-all">{member.email}</TableCell>
                           <TableCell>
                             <Select
                               value={member.role}
@@ -428,7 +431,7 @@ export function ManageFamilyPane() {
                               }
                               disabled={member.familyName === user?.familyName || member.role === 'superadmin'}
                             >
-                              <SelectTrigger className="w-24">
+                              <SelectTrigger className="w-20 sm:w-24 text-xs sm:text-sm">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -440,18 +443,19 @@ export function ManageFamilyPane() {
                               </SelectContent>
                             </Select>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="hidden md:table-cell whitespace-nowrap">
                             {formatDistanceToNow(new Date(member.createdAt))} ago
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
                               <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => resetPassword(member.familyName)}
                                 disabled={actionLoading === `reset-${member.familyName}`}
+                                className="text-xs w-full sm:w-auto"
                               >
-                                <RotateCcw className="w-4 h-4" />
+                                <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4" />
                                 {actionLoading === `reset-${member.familyName}` ? 'Resetting...' : 'Reset'}
                               </Button>
                               {member.familyName !== user?.familyName && member.role !== 'superadmin' && (
@@ -460,8 +464,9 @@ export function ManageFamilyPane() {
                                   size="sm"
                                   onClick={() => removeUser(member.familyName)}
                                   disabled={actionLoading === `remove-${member.familyName}`}
+                                  className="text-xs w-full sm:w-auto"
                                 >
-                                  <UserX className="w-4 h-4" />
+                                  <UserX className="w-3 h-3 sm:w-4 sm:h-4" />
                                   {actionLoading === `remove-${member.familyName}` ? 'Removing...' : 'Remove'}
                                 </Button>
                               )}
