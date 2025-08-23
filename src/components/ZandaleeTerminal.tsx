@@ -115,7 +115,7 @@ export const ZandaleeTerminal = () => {
           <div className="hidden md:flex flex-col w-56 flex-shrink-0 border-r border-border pr-4 mr-4 gap-1">
             <button
               onClick={() => setActiveTab('chat')}
-              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
                 activeTab === 'chat' ? 'bg-lcars-purple text-black' : 'bg-lcars-purple/20 text-lcars-text-primary hover:bg-lcars-purple hover:text-black'
               }`}
               aria-selected={activeTab === 'chat'}
@@ -126,7 +126,7 @@ export const ZandaleeTerminal = () => {
             
             <button
               onClick={() => setActiveTab('settings')}
-              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
                 activeTab === 'settings' ? 'bg-lcars-blue text-black' : 'bg-lcars-blue/20 text-lcars-text-primary hover:bg-lcars-blue hover:text-black'
               }`}
               aria-selected={activeTab === 'settings'}
@@ -137,7 +137,7 @@ export const ZandaleeTerminal = () => {
             
             <button
               onClick={() => setActiveTab('appcontrol')}
-              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
                 activeTab === 'appcontrol' ? 'bg-lcars-green text-black' : 'bg-lcars-green/20 text-lcars-text-primary hover:bg-lcars-green hover:text-black'
               }`}
               aria-selected={activeTab === 'appcontrol'}
@@ -148,7 +148,7 @@ export const ZandaleeTerminal = () => {
             
             <button
               onClick={() => setActiveTab('voice')}
-              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
                 activeTab === 'voice' ? 'bg-lcars-orange text-black' : 'bg-lcars-orange/20 text-lcars-text-primary hover:bg-lcars-orange hover:text-black'
               }`}
               aria-selected={activeTab === 'voice'}
@@ -159,7 +159,7 @@ export const ZandaleeTerminal = () => {
             
             <button
               onClick={() => setActiveTab('memories')}
-              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
                 activeTab === 'memories' ? 'bg-lcars-yellow text-black' : 'bg-lcars-yellow/20 text-lcars-text-primary hover:bg-lcars-yellow hover:text-black'
               }`}
               aria-selected={activeTab === 'memories'}
@@ -170,7 +170,7 @@ export const ZandaleeTerminal = () => {
             
             <button
               onClick={() => setActiveTab('mic')}
-              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
                 activeTab === 'mic' ? 'bg-lcars-pink text-black' : 'bg-lcars-pink/20 text-lcars-text-primary hover:bg-lcars-pink hover:text-black'
               }`}
               aria-selected={activeTab === 'mic'}
@@ -181,7 +181,7 @@ export const ZandaleeTerminal = () => {
             
             <button
               onClick={() => setActiveTab('hands')}
-              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
                 activeTab === 'hands' ? 'bg-lcars-cyan text-black' : 'bg-lcars-cyan/20 text-lcars-text-primary hover:bg-lcars-cyan hover:text-black'
               }`}
               aria-selected={activeTab === 'hands'}
@@ -192,7 +192,7 @@ export const ZandaleeTerminal = () => {
             
             <button
               onClick={() => setActiveTab('docs')}
-              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
                 activeTab === 'docs' ? 'bg-lcars-violet text-black' : 'bg-lcars-violet/20 text-lcars-text-primary hover:bg-lcars-violet hover:text-black'
               }`}
               aria-selected={activeTab === 'docs'}
@@ -204,7 +204,7 @@ export const ZandaleeTerminal = () => {
             {canInviteUsers(user) && (
               <button
                 onClick={() => setActiveTab('manage-family')}
-                className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+                className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
                   activeTab === 'manage-family' ? 'bg-lcars-red text-black' : 'bg-lcars-red/20 text-lcars-text-primary hover:bg-lcars-red hover:text-black'
                 }`}
                 aria-selected={activeTab === 'manage-family'}
@@ -216,7 +216,7 @@ export const ZandaleeTerminal = () => {
             
             <button
               onClick={() => setActiveTab('shared')}
-              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold rounded transition-all lcars-button text-lcars ${
+              className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars ${
                 activeTab === 'shared' ? 'bg-lcars-teal text-black' : 'bg-lcars-teal/20 text-lcars-text-primary hover:bg-lcars-teal hover:text-black'
               }`}
               aria-selected={activeTab === 'shared'}
