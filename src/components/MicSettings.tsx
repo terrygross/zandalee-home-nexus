@@ -70,7 +70,7 @@ const MicSettings = () => {
           <div className="space-y-2">
             <Button
               onClick={() => setWizardOpen(true)}
-              className="w-full h-auto p-3 bg-energy-cyan/20 hover:bg-energy-cyan/30 border border-energy-cyan/30 flex items-center space-x-2 text-xs"
+              className="w-full min-h-[44px] p-3 bg-energy-cyan/20 hover:bg-energy-cyan/30 border border-energy-cyan/30 flex items-center space-x-2 text-xs sm:text-sm"
               variant="outline"
             >
               <Settings className="w-4 h-4 text-energy-cyan flex-shrink-0" />
@@ -83,7 +83,7 @@ const MicSettings = () => {
             <Button
               onClick={testVoice}
               disabled={isTestingVoice}
-              className="w-full h-auto p-3 bg-energy-pulse/20 hover:bg-energy-pulse/30 border border-energy-pulse/30 flex items-center space-x-2 text-xs"
+              className="w-full min-h-[44px] p-3 bg-energy-pulse/20 hover:bg-energy-pulse/30 border border-energy-pulse/30 flex items-center space-x-2 text-xs sm:text-sm"
               variant="outline"
             >
               <Volume2 className="w-4 h-4 text-energy-pulse flex-shrink-0" />
@@ -98,7 +98,7 @@ const MicSettings = () => {
             <Button
               onClick={listDevices}
               disabled={isListingDevices}
-              className="w-full h-auto p-3 bg-energy-glow/20 hover:bg-energy-glow/30 border border-energy-glow/30 flex items-center space-x-2 text-xs"
+              className="w-full min-h-[44px] p-3 bg-energy-glow/20 hover:bg-energy-glow/30 border border-energy-glow/30 flex items-center space-x-2 text-xs sm:text-sm"
               variant="outline"
             >
               <TestTube className="w-4 h-4 text-energy-glow flex-shrink-0" />

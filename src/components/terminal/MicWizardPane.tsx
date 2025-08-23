@@ -23,15 +23,15 @@ export const MicWizardPane = () => {
             THE MIC WIZARD WILL TEST ALL AVAILABLE MICROPHONES AND HELP YOU CHOOSE THE BEST ONE FOR VOICE INTERACTION.
           </p>
           
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <Badge variant="secondary" className="text-[10px] sm:text-xs px-2 py-1 whitespace-nowrap">
               <Settings className="w-3 h-3 mr-1" />
               AUTOMATIC CALIBRATION
             </Badge>
-            <Badge variant="outline">
+            <Badge variant="outline" className="text-[10px] sm:text-xs px-2 py-1 whitespace-nowrap">
               SNR TESTING
             </Badge>
-            <Badge variant="outline">
+            <Badge variant="outline" className="text-[10px] sm:text-xs px-2 py-1 whitespace-nowrap">
               VOICE QUALITY ANALYSIS
             </Badge>
           </div>
