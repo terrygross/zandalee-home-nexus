@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 
+// -------------------- API BASE --------------------
+const API_BASE =
+  import.meta.env.VITE_ZANDALEE_API_BASE?.replace(/\/+$/, "") ||
+  "http://127.0.0.1:11500";
+
 interface Message {
   id: string;
   role: 'user' | 'assistant' | 'system';
@@ -97,11 +102,6 @@ interface Config {
   };
 }
 
-// -------------------- API BASE --------------------
-const API_BASE =
-  import.meta.env.VITE_ZANDALEE_API_BASE?.replace(/\/+$/, "") ||
-  "http://127.0.0.1:11500";
-
 export const useZandaleeAPI = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [voiceMetrics, setVoiceMetrics] = useState<VoiceMetrics>({
@@ -173,6 +173,29 @@ export const useZandaleeAPI = () => {
     
     if (!response.ok) throw new Error('Failed to send message');
     return await response.json();
+  };
+
+  const chat = async (message: string, options: { model?: string; stream?: boolean } = {}): Promise<any> => {
+    try {
+      const response = await fetch(`${API_BASE}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: message }],
+          model: options.model,
+          stream: options.stream || false
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Chat request failed: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Chat error:', error);
+      throw error;
+    }
   };
 
   // Mic APIs
@@ -416,6 +439,7 @@ export const useZandaleeAPI = () => {
     // Core
     getStatus,
     speak,
+    chat,
     
     // Chat
     sendMessage,

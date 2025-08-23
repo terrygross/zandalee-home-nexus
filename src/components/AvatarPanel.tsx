@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Upload, User, X, Trash2, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useZandaleeAPI } from "@/hooks/useZandaleeAPI";
+
+// -------------------- API BASE --------------------
+const API_BASE =
+  import.meta.env.VITE_ZANDALEE_API_BASE?.replace(/\/+$/, "") ||
+  "http://127.0.0.1:11500";
 
 type ViewMode = 'fill' | 'fit';
 
@@ -40,10 +44,6 @@ const AvatarPanel = () => {
 
   const loadAvatars = async () => {
     try {
-      // -------------------- API BASE --------------------
-      const API_BASE =
-        import.meta.env.VITE_ZANDALEE_API_BASE?.replace(/\/+$/, "") ||
-        "http://127.0.0.1:11500";
       const response = await fetch(`${API_BASE}/avatar/list`);
       const data = await response.json();
       
@@ -57,7 +57,6 @@ const AvatarPanel = () => {
 
   const loadActiveAvatar = async () => {
     try {
-      const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
       const response = await fetch(`${API_BASE}/avatar/status`);
       const data = await response.json();
       
@@ -116,7 +115,6 @@ const AvatarPanel = () => {
       formData.append('file', file);
       formData.append('name', avatarName.trim());
 
-      const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
       const response = await fetch(`${API_BASE}/avatar/upload`, {
         method: 'POST',
         body: formData
@@ -153,7 +151,6 @@ const AvatarPanel = () => {
 
   const selectAvatar = async (avatarId: string) => {
     try {
-      const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
       const response = await fetch(`${API_BASE}/avatar/select`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -188,7 +185,6 @@ const AvatarPanel = () => {
     }
 
     try {
-      const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
       const response = await fetch(`${API_BASE}/avatar/${avatarId}`, {
         method: 'DELETE'
       });
