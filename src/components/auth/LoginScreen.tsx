@@ -52,6 +52,23 @@ export function LoginScreen({ onSwitchToRegister }: LoginScreenProps) {
     setLoading(true);
     
     try {
+      // Temporary admin bypass for dev owner
+      if (username.trim().toLowerCase() === 'terence gross' && pin === 'Tridam@5013') {
+        const adminUser = {
+          username: 'Terence Gross',
+          displayName: 'Terry (Admin)',
+          role: 'admin' as const
+        };
+        
+        login(adminUser, pin);
+        toast({
+          title: "Success",
+          description: `Welcome back, ${adminUser.displayName}!`
+        });
+        setLoading(false);
+        return;
+      }
+
       const baseUrl = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
       const response = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
