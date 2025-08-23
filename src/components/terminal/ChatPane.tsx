@@ -462,7 +462,7 @@ export const ChatPane = () => {
   };
 
   return (
-    <div className="h-full flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
+    <div className="h-full flex flex-col lg:flex-row gap-4 px-4 pb-4 pt-1 overflow-hidden">
       {/* Chat Section */}
       <Card className="flex-1 flex flex-col min-h-0">
         <CardHeader className="flex-shrink-0">

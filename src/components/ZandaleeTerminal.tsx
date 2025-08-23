@@ -204,7 +204,7 @@ export const ZandaleeTerminal = () => {
             {canInviteUsers(user) && (
               <button
                 onClick={() => setActiveTab('manage-family')}
-                className={`flex items-center gap-2 px-3 py-3 text-sm font-bold transition-all lcars-tab text-lcars whitespace-nowrap ${
+                className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all lcars-tab text-lcars whitespace-nowrap ${
                   activeTab === 'manage-family' ? 'bg-lcars-red text-black opacity-100' : 'bg-lcars-red text-black opacity-75 hover:opacity-100'
                 }`}
                 aria-selected={activeTab === 'manage-family'}
