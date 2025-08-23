@@ -462,7 +462,7 @@ export const ChatPane = () => {
   };
 
   return (
-    <div className="h-full flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
+    <div className="h-full flex flex-col lg:flex-row gap-4 p-4">
       {/* Chat Section */}
       <Card className="flex-1 flex flex-col min-h-0">
         <CardHeader className="flex-shrink-0">
@@ -561,7 +561,7 @@ export const ChatPane = () => {
       </Card>
 
       {/* Memory & Diary Side Panel - fixed height management */}
-      <Card className="w-full lg:w-80 flex flex-col h-full lg:h-full min-h-[400px]">
+      <Card className="w-full lg:w-80 flex flex-col h-full lg:h-full min-h-[400px] md:sticky md:top-2 md:max-h-[calc(100dvh-8rem)]">
         <CardHeader className="pb-3 px-6 pt-6 flex-shrink-0">
           <CardTitle className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">

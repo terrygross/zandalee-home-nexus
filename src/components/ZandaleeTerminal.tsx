@@ -111,8 +111,8 @@ export const ZandaleeTerminal = () => {
             </TabsTrigger>
           </TabsList>
 
-          <div className="flex-1 min-h-0 overflow-hidden">
-            <TabsContent value="chat" className="h-full m-0 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-visible">
+            <TabsContent value="chat" className="h-full m-0 overflow-visible">
               <ChatPane />
             </TabsContent>
             
