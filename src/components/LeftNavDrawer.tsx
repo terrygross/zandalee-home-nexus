@@ -7,7 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Menu, FolderPlus, Search, Star, Archive, Trash2, Pin, MessageSquare, Clock, Filter } from 'lucide-react';
+import { Menu, FolderPlus, Search, Star, Archive, Trash2, Pin, MessageSquare, Clock, Filter, MoreHorizontal } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { useProjectChat } from '@/contexts/ProjectChatContext';
 import { useToast } from '@/hooks/use-toast';
 import { Project, Thread } from '@/types/projects';
@@ -339,50 +340,68 @@ export const LeftNavDrawer: React.FC<LeftNavDrawerProps> = ({ onProjectChange })
                           <Archive className="w-3 h-3 text-muted-foreground" />
                         )}
                         
-                        {/* Actions */}
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="w-6 h-6 p-0"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              pinThread(thread.id, !thread.pinned);
-                            }}
-                          >
-                            <Pin className="w-3 h-3" />
-                          </Button>
-                          
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="w-6 h-6 p-0 text-destructive"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Chat</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to delete this conversation? This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => deleteThread(thread.id)}
-                                  className="bg-destructive text-destructive-foreground"
+                        {/* Kebab Menu */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"  
+                              className="w-6 h-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <MoreHorizontal className="w-3 h-3" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleSelectThread(thread)}>
+                              <MessageSquare className="w-4 h-4 mr-2" />
+                              Open Chat
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => pinThread(thread.id, !thread.pinned)}>
+                              <Pin className="w-4 h-4 mr-2" />
+                              {thread.pinned ? 'Unpin' : 'Pin'}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => archiveThread(thread.id, !thread.archived)}>
+                              <Archive className="w-4 h-4 mr-2" />
+                              {thread.archived ? 'Unarchive' : 'Archive'}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <DropdownMenuItem 
+                                  className="text-destructive focus:text-destructive"
+                                  onSelect={(e) => e.preventDefault()}
                                 >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Delete Chat
+                                </DropdownMenuItem>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Chat</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete this conversation? This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => {
+                                      deleteThread(thread.id);
+                                      // Navigate away if deleting current thread
+                                      if (thread.id === chat.activeThreadId) {
+                                        setActiveThread(null);
+                                      }
+                                    }}
+                                    className="bg-destructive text-destructive-foreground"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
                   </div>

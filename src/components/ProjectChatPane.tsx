@@ -11,7 +11,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { Send, User, Bot, MessageSquarePlus, Search, Download, Check, Paperclip, Star, Plus, Brain, BookOpen, Upload, Image, Heart, HelpCircle } from 'lucide-react';
+import { Send, User, Bot, MessageSquarePlus, Search, Download, Check, Paperclip, Star, Plus, Brain, BookOpen, Upload, Image, Heart, HelpCircle, MoreHorizontal, Pin, Archive, Trash2 } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useGateway } from '@/hooks/useGateway';
 import { useProjectChat } from '@/contexts/ProjectChatContext';
 import { useToast } from '@/hooks/use-toast';
@@ -86,13 +88,14 @@ export const ProjectChatPane = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const draftTimeoutRef = useRef<NodeJS.Timeout>();
   
-  const { chat, projects, getThreadMessages, addMessage, saveDraft, getDraft, clearDraft, createThread, setActiveThread } = useProjectChat();
+  const { chat, projects, getThreadMessages, addMessage, saveDraft, getDraft, clearDraft, createThread, setActiveThread, pinThread, archiveThread, deleteThread } = useProjectChat();
   const { chat: gatewayChat, speak, memoryLearn, memorySearch, isHealthy, getConfig } = useGateway();
   const { toast } = useToast();
 
   const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
 
   const activeProject = projects.list.find(p => p.id === projects.activeProjectId);
+  const activeThread = chat.threads.find(t => t.id === chat.activeThreadId);
   const currentMessages = chat.activeThreadId ? getThreadMessages(chat.activeThreadId) : [];
 
   const scrollToBottom = () => {
@@ -580,9 +583,66 @@ export const ProjectChatPane = () => {
                   {activeProject.name}
                 </Badge>
               )}
+              {activeThread && (
+                <Badge variant="outline" className="text-xs">
+                  {activeThread.title || 'Untitled Chat'}
+                </Badge>
+              )}
             </CardTitle>
             
             <div className="flex items-center gap-2">
+              {/* Current Thread Actions */}
+              {activeThread && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <MoreHorizontal className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => pinThread(activeThread.id, !activeThread.pinned)}>
+                      <Pin className="w-4 h-4 mr-2" />
+                      {activeThread.pinned ? 'Unpin' : 'Pin'} Chat
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => archiveThread(activeThread.id, !activeThread.archived)}>
+                      <Archive className="w-4 h-4 mr-2" />
+                      {activeThread.archived ? 'Unarchive' : 'Archive'} Chat
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem 
+                          className="text-destructive focus:text-destructive"
+                          onSelect={(e) => e.preventDefault()}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete Chat
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Chat</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete this conversation? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => {
+                              deleteThread(activeThread.id);
+                              setActiveThread(null);
+                            }}
+                            className="bg-destructive text-destructive-foreground"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
               <Button
                 variant="outline"
                 size="sm"
