@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Send, User, Bot, Star, Search, Plus, Brain, BookOpen, Upload, Image, Heart } from 'lucide-react';
 import { useGateway } from '@/hooks/useGateway';
 import { useToast } from '@/hooks/use-toast';
@@ -694,7 +695,21 @@ export const ChatPane = () => {
                 
                 <div className="grid grid-cols-2 gap-2 mb-2">
                   <div>
-                    <div className="text-[10px] text-muted-foreground mb-1">Kind</div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="text-[10px] text-muted-foreground mb-1 cursor-help">Kind</div>
+                        </TooltipTrigger>
+                        <TooltipContent side="left" className="max-w-xs text-xs">
+                          <div className="space-y-2">
+                            <div><strong>Semantic:</strong> Long-term memory of general knowledge, facts, and concepts - your "encyclopedia" of the world.</div>
+                            <div><strong>Episodic:</strong> Personal experiences with details of what, where, and when something happened.</div>
+                            <div><strong>Procedural:</strong> How to do things - skills like riding a bike or typing (implicit memory).</div>
+                            <div><strong>Working:</strong> Temporary mental scratchpad for immediate use, like remembering a phone number while dialing.</div>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <Select
                       value={newMemory.kind}
                       onValueChange={(value) => setNewMemory({ ...newMemory, kind: value })}
