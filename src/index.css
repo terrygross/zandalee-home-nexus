@@ -92,14 +92,20 @@
   
   /* LCARS Tab - rounded rectangle shape */
   .lcars-tab {
-    @apply font-bold text-black border-none;
+    @apply font-bold border-none;
+    @apply bg-lcars-bg-tertiary text-lcars-text-secondary;
     border-radius: 15px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
+    transition: all 0.2s ease;
   }
   
   .lcars-tab[data-state="active"] {
     @apply bg-lcars-blue text-black;
+  }
+  
+  .lcars-tab:hover:not([data-state="active"]) {
+    @apply bg-lcars-bg-secondary text-lcars-text-primary;
   }
   
   /* LCARS Input - rounded rectangle */
