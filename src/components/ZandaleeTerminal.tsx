@@ -1,11 +1,9 @@
-
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { MessageCircle, Settings, Mic, Hand, FileText, Brain, Volume2, Code, Users, Share2 } from 'lucide-react';
+import { MessageCircle, Settings, Mic, Hand, FileText, Brain, Volume2, Share2 } from 'lucide-react';
 import { useGateway } from '@/hooks/useGateway';
 import { useSession } from '@/contexts/SessionContext';
-import { canInviteUsers } from '@/utils/roleGuards';
 import { useSuperAdminAudit } from '@/hooks/useSuperAdminAudit';
 import { SuperAdminAuditBanner } from '@/components/SuperAdminAuditBanner';
 import { ChatPane } from './terminal/ChatPane';
@@ -15,8 +13,6 @@ import { MicWizardPane } from './terminal/MicWizardPane';
 import { HandsPane } from './terminal/HandsPane';
 import { DocsPane } from './terminal/DocsPane';
 import { VoicePane } from './terminal/VoicePane';
-import { AppControlPane } from './terminal/AppControlPane';
-import { ManageFamilyPane } from './terminal/ManageFamilyPane';
 import { SharedPane } from './terminal/SharedPane';
 
 export const ZandaleeTerminal = () => {
@@ -56,15 +52,13 @@ export const ZandaleeTerminal = () => {
             <div className="flex flex-wrap gap-1 sm:gap-2 scrollbar-hide">
               {[
                 { id: 'chat', label: 'CHAT', icon: MessageCircle, color: 'bg-lcars-purple' },
-                { id: 'settings', label: 'SETTINGS', icon: Settings, color: 'bg-lcars-blue' },
-                { id: 'appcontrol', label: 'APP CONTROL', icon: Code, color: 'bg-lcars-green' },
                 { id: 'voice', label: 'VOICE', icon: Volume2, color: 'bg-lcars-orange' },
                 { id: 'memories', label: 'MEMORIES', icon: Brain, color: 'bg-lcars-yellow' },
                 { id: 'mic', label: 'MIC', icon: Mic, color: 'bg-lcars-pink' },
                 { id: 'hands', label: 'HANDS', icon: Hand, color: 'bg-lcars-cyan' },
                 { id: 'docs', label: 'DOCS', icon: FileText, color: 'bg-lcars-violet' },
-                ...(canInviteUsers(user) ? [{ id: 'manage-family', label: 'FAMILY', icon: Users, color: 'bg-lcars-red' }] : []),
-                { id: 'shared', label: 'SHARED', icon: Share2, color: 'bg-lcars-teal' }
+                { id: 'shared', label: 'SHARED', icon: Share2, color: 'bg-lcars-teal' },
+                { id: 'settings', label: 'SETTINGS', icon: Settings, color: 'bg-lcars-blue' }
               ].map((tab) => {
                 const Icon = tab.icon;
                 return (
@@ -109,14 +103,6 @@ export const ZandaleeTerminal = () => {
               <ChatPane />
             </TabsContent>
             
-            <TabsContent value="settings" className="h-full m-0 overflow-hidden">
-              <SettingsPane />
-            </TabsContent>
-            
-            <TabsContent value="appcontrol" className="h-full m-0 overflow-hidden">
-              <AppControlPane />
-            </TabsContent>
-            
             <TabsContent value="voice" className="h-full m-0 overflow-hidden">
               <VoicePane />
             </TabsContent>
@@ -137,14 +123,12 @@ export const ZandaleeTerminal = () => {
               <DocsPane />
             </TabsContent>
             
-            {canInviteUsers(user) && (
-              <TabsContent value="manage-family" className="h-full m-0 overflow-hidden">
-                <ManageFamilyPane />
-              </TabsContent>
-            )}
-            
             <TabsContent value="shared" className="h-full m-0 overflow-hidden">
               <SharedPane />
+            </TabsContent>
+
+            <TabsContent value="settings" className="h-full m-0 overflow-hidden">
+              <SettingsPane />
             </TabsContent>
           </div>
         </div>
