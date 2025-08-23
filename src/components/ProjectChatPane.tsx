@@ -18,8 +18,8 @@ export const ProjectChatPane = ({ selectedProject }: ProjectChatPaneProps) => {
       </div>
 
       {/* Memory Manager - Bottom on mobile (order-2), right side on desktop */}
-      <div className="w-full md:w-80 lg:w-96 flex-shrink-0 order-2 md:order-2 min-h-0">
-        <div className="h-full md:h-full scrollbar-hide overflow-y-auto">
+      <div className="w-full md:w-80 lg:w-96 flex-shrink-0 order-2 md:order-2 min-h-0 mt-4 md:mt-0">
+        <div className="h-auto md:h-full overflow-visible md:overflow-y-auto scrollbar-hide">
           <MemoryManager />
         </div>
       </div>
