@@ -122,19 +122,20 @@ export const SettingsPane = () => {
 
           <div className="space-y-2">
             <Label htmlFor="apiKey">API Key</Label>
-            <div className="relative">
+            <div className="flex gap-2">
               <Input
                 id="apiKey"
                 type={showApiKey ? 'text' : 'password'}
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 placeholder="sk-..."
+                className="flex-1"
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="absolute right-2 top-1/2 -translate-y-1/2"
+                className="px-3 h-10 flex-shrink-0"
                 onClick={() => setShowApiKey(!showApiKey)}
               >
                 {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -167,12 +168,21 @@ export const SettingsPane = () => {
             )}
           </div>
 
-          <div className="flex space-x-2">
-            <Button onClick={saveConfig} disabled={loading}>
+          <div className="flex flex-wrap gap-2">
+            <Button 
+              onClick={saveConfig} 
+              disabled={loading}
+              className="h-9 px-4 text-xs sm:h-10 sm:px-6 sm:text-sm"
+            >
               {loading ? 'Saving...' : 'Save Configuration'}
             </Button>
-            <Button variant="outline" onClick={testConnection} disabled={testStatus === 'testing'}>
-              <TestTube className="w-4 h-4 mr-2" />
+            <Button 
+              variant="outline" 
+              onClick={testConnection} 
+              disabled={testStatus === 'testing'}
+              className="h-9 px-4 text-xs sm:h-10 sm:px-6 sm:text-sm"
+            >
+              <TestTube className="w-3 h-3 mr-1 sm:w-4 sm:h-4 sm:mr-2" />
               Test Connection
             </Button>
           </div>
