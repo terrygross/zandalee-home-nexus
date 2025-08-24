@@ -18,8 +18,7 @@ export const LeftNavDrawer = () => {
         className="h-full w-80 mt-0 rounded-none fixed left-0 z-[200] bg-background border-r"
         style={{ 
           top: 'var(--terminal-header-height, 0px)',
-          bottom: 0,
-          insetY: 'unset'
+          bottom: 0
         }}
       >
         <DrawerHeader>
