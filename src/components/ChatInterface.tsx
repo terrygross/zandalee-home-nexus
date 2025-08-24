@@ -1,10 +1,10 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send } from 'lucide-react';
+import { Send, Volume2, VolumeX } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useZandaleeAPI } from '@/hooks/useZandaleeAPI';
 
 interface Message {
   id: string;
@@ -18,14 +18,37 @@ const ChatInterface = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [lastEnterTime, setLastEnterTime] = useState<number>(0);
+  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { speak } = useZandaleeAPI();
 
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const handleSpeak = async (message: Message) => {
+    if (speakingMessageId === message.id) {
+      // If already speaking this message, stop it (we can't actually stop but we'll clear the state)
+      setSpeakingMessageId(null);
+      return;
+    }
+
+    try {
+      setSpeakingMessageId(message.id);
+      await speak(message.content);
+    } catch (error) {
+      toast({
+        title: 'Speech Error',
+        description: 'Failed to speak message',
+        variant: 'destructive',
+      });
+    } finally {
+      setSpeakingMessageId(null);
+    }
+  };
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -112,10 +135,29 @@ const ChatInterface = () => {
                       : 'bg-muted text-muted-foreground'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                  <p className="text-xs opacity-70 mt-1">
-                    {message.timestamp.toLocaleTimeString()}
-                  </p>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                      <p className="text-xs opacity-70 mt-1">
+                        {message.timestamp.toLocaleTimeString()}
+                      </p>
+                    </div>
+                    {message.sender === 'assistant' && (
+                      <Button
+                        onClick={() => handleSpeak(message)}
+                        size="sm"
+                        variant="ghost"
+                        className="p-1 h-6 w-6 hover:bg-background/20 flex-shrink-0"
+                        disabled={speakingMessageId !== null}
+                      >
+                        {speakingMessageId === message.id ? (
+                          <VolumeX className="w-3 h-3" />
+                        ) : (
+                          <Volume2 className="w-3 h-3" />
+                        )}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))
