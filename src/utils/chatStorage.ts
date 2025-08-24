@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 import { useLocalStorage } from 'usehooks-ts';
 
@@ -9,6 +8,12 @@ export interface ChatMessage {
   timestamp: string;
 }
 
+export interface ChatSnapshot {
+  id: string;
+  title: string;
+  createdAt: string;
+}
+
 export interface ChatItem {
   id: string;
   title: string;
@@ -16,6 +21,10 @@ export interface ChatItem {
   createdAt: string;
   updatedAt: string;
   messages: ChatMessage[];
+  pinned?: boolean;
+  archived?: boolean;
+  note?: string;
+  snapshots?: ChatSnapshot[];
 }
 
 export interface ProjectItem {
@@ -26,15 +35,18 @@ export interface ProjectItem {
   createdAt: string;
   updatedAt: string;
   chatIds: string[];
-  chats: ChatItem[];
+  chats: string[];
+  archived?: boolean;
 }
 
 export interface ChatStore {
   items: ChatItem[];
+  activeChatId?: string | null;
 }
 
 export interface ProjectStore {
   items: ProjectItem[];
+  selectedProjectId?: string | null;
 }
 
 const initialChatStore: ChatStore = { items: [] };
