@@ -1,8 +1,10 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Volume2, VolumeX } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useZandaleeAPI } from '@/hooks/useZandaleeAPI';
 
@@ -19,6 +21,7 @@ const ChatInterface = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [lastEnterTime, setLastEnterTime] = useState<number>(0);
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
+  const [ttsEnabled, setTtsEnabled] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { speak } = useZandaleeAPI();
@@ -30,6 +33,8 @@ const ChatInterface = () => {
   }, [messages]);
 
   const handleSpeak = async (message: Message) => {
+    if (!ttsEnabled) return;
+    
     if (speakingMessageId === message.id) {
       // If already speaking this message, stop it (we can't actually stop but we'll clear the state)
       setSpeakingMessageId(null);
@@ -49,6 +54,16 @@ const ChatInterface = () => {
       setSpeakingMessageId(null);
     }
   };
+
+  // Auto-speak new assistant messages if TTS is enabled
+  useEffect(() => {
+    if (ttsEnabled && messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.sender === 'assistant' && !speakingMessageId) {
+        handleSpeak(lastMessage);
+      }
+    }
+  }, [messages, ttsEnabled]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -109,8 +124,18 @@ const ChatInterface = () => {
   return (
     <div className="h-full flex flex-col lcars-card border-2 border-accent/30 bg-card p-4 relative z-10">
       {/* Chat Header */}
-      <div className="flex-shrink-0 pb-4">
+      <div className="flex-shrink-0 pb-4 flex items-center justify-between">
         <h2 className="text-xl font-bold text-primary">CHAT</h2>
+        
+        {/* TTS Toggle */}
+        <div className="flex items-center gap-2 bg-accent/20 border border-accent/50 rounded-lg px-3 py-1">
+          <span className="text-sm font-medium text-primary">TTS</span>
+          <Switch
+            checked={ttsEnabled}
+            onCheckedChange={setTtsEnabled}
+            className="data-[state=checked]:bg-energy-cyan"
+          />
+        </div>
       </div>
 
       {/* Messages Area */}
