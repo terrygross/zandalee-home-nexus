@@ -1,7 +1,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -17,6 +17,7 @@ const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [lastEnterTime, setLastEnterTime] = useState<number>(0);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -64,9 +65,21 @@ const ChatInterface = () => {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
+    if (e.key === 'Enter') {
+      const currentTime = Date.now();
+      
+      // If Enter was pressed within 500ms of the last Enter, send the message
+      if (currentTime - lastEnterTime < 500) {
+        e.preventDefault();
+        handleSend();
+        setLastEnterTime(0);
+      } else {
+        // First Enter - just record the time and allow new line
+        setLastEnterTime(currentTime);
+      }
+    } else {
+      // Reset the timer if any other key is pressed
+      setLastEnterTime(0);
     }
   };
 
@@ -99,7 +112,7 @@ const ChatInterface = () => {
                       : 'bg-muted text-muted-foreground'
                   }`}
                 >
-                  <p className="text-sm">{message.content}</p>
+                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                   <p className="text-xs opacity-70 mt-1">
                     {message.timestamp.toLocaleTimeString()}
                   </p>
@@ -120,19 +133,20 @@ const ChatInterface = () => {
       {/* Input Area */}
       <div className="flex-shrink-0 pt-4">
         <div className="flex gap-2">
-          <Input
+          <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Type a message..."
+            onKeyDown={handleKeyPress}
+            placeholder="Type a message... Hit enter once for a new line, hit enter twice to send"
             disabled={isLoading}
-            className="flex-1"
+            className="flex-1 min-h-[60px] max-h-[120px] resize-none"
+            rows={2}
           />
           <Button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
             size="sm"
-            className="px-3"
+            className="px-3 self-end"
           >
             <Send className="w-4 h-4" />
           </Button>
