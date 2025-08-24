@@ -14,7 +14,10 @@ export const ChatPane = () => {
 
   // Load last tab on mount
   useState(() => {
-    setActiveTab(getLastTab());
+    const lastTab = getLastTab();
+    if (lastTab) {
+      setActiveTab(lastTab);
+    }
   });
 
   const handleTabChange = (tab: 'history' | 'projects') => {
@@ -64,6 +67,7 @@ export const ChatPane = () => {
             variant="outline"
             size="sm"
             onClick={() => toggleDrawer('history')}
+            className="shadow-md"
           >
             <History className="w-4 h-4 mr-2" />
             History
@@ -72,6 +76,7 @@ export const ChatPane = () => {
             variant="outline"
             size="sm"
             onClick={() => toggleDrawer('projects')}
+            className="shadow-md"
           >
             <FolderOpen className="w-4 h-4 mr-2" />
             Projects
