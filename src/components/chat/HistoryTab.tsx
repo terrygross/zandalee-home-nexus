@@ -50,8 +50,10 @@ export const HistoryTab = () => {
     const newChat: ChatItem = {
       id: `chat_${Date.now()}`,
       title: 'New Chat',
+      projectId: 'default',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      messages: [],
     };
     
     const newStore = {

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,8 +57,11 @@ export const ProjectsTab = () => {
     const newProject: ProjectItem = {
       id: `project_${Date.now()}`,
       name: name.trim(),
+      title: name.trim(),
+      description: '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      chatIds: [],
       chats: [],
     };
 
@@ -84,7 +88,7 @@ export const ProjectsTab = () => {
       ...projectStore,
       items: projectStore.items.map(p =>
         p.id === projectId
-          ? { ...p, name: newName, updatedAt: new Date().toISOString() }
+          ? { ...p, name: newName, title: newName, updatedAt: new Date().toISOString() }
           : p
       ),
     };
