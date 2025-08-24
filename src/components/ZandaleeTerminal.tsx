@@ -134,14 +134,14 @@ export const ZandaleeTerminal = () => {
               <div className="border-2 border-border rounded-[20px] p-1 overflow-hidden">
                 <div className="flex w-full gap-1">
                   {[
-                    { id: 'chat', label: 'CHAT', icon: MessageCircle, color: 'bg-lcars-purple' },
-                    { id: 'voice', label: 'VOICE', icon: Volume2, color: 'bg-lcars-orange' },
-                    { id: 'memories', label: 'MEMORIES', icon: Brain, color: 'bg-lcars-yellow' },
-                    { id: 'mic', label: 'MIC', icon: Mic, color: 'bg-lcars-pink' },
-                    { id: 'hands', label: 'HANDS', icon: Hand, color: 'bg-lcars-cyan' },
-                    { id: 'docs', label: 'DOCS', icon: FileText, color: 'bg-lcars-violet' },
-                    { id: 'shared', label: 'SHARED', icon: Share2, color: 'bg-lcars-teal' },
-                    { id: 'settings', label: 'SETTINGS', icon: Settings, color: 'bg-lcars-blue' }
+                    { id: 'chat', label: 'CHAT', shortLabel: 'CHAT', icon: MessageCircle, color: 'bg-lcars-purple' },
+                    { id: 'voice', label: 'VOICE', shortLabel: 'VOICE', icon: Volume2, color: 'bg-lcars-orange' },
+                    { id: 'memories', label: 'MEMORIES', shortLabel: 'MEM', icon: Brain, color: 'bg-lcars-yellow' },
+                    { id: 'mic', label: 'MIC', shortLabel: 'MIC', icon: Mic, color: 'bg-lcars-pink' },
+                    { id: 'hands', label: 'HANDS', shortLabel: 'HANDS', icon: Hand, color: 'bg-lcars-cyan' },
+                    { id: 'docs', label: 'DOCS', shortLabel: 'DOCS', icon: FileText, color: 'bg-lcars-violet' },
+                    { id: 'shared', label: 'SHARED', shortLabel: 'SHARE', icon: Share2, color: 'bg-lcars-teal' },
+                    { id: 'settings', label: 'SETTINGS', shortLabel: 'SET', icon: Settings, color: 'bg-lcars-blue' }
                    ].filter(tab => {
                      // Hide Settings tab for non-admin users
                      if (tab.id === 'settings' && user?.role !== 'superadmin' && user?.role !== 'admin') {
@@ -164,7 +164,8 @@ export const ZandaleeTerminal = () => {
                         `}
                       >
                         <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-                        <span className="hidden md:inline whitespace-nowrap truncate">{tab.label}</span>
+                        <span className="hidden sm:inline whitespace-nowrap truncate">{tab.label}</span>
+                        <span className="sm:hidden text-[10px] leading-tight text-center">{tab.shortLabel}</span>
                       </button>
                     );
                   })}
