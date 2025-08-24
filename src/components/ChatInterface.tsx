@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -130,10 +129,13 @@ const ChatInterface = () => {
         {/* TTS Toggle */}
         <div className="flex items-center gap-2 bg-accent/20 border border-accent/50 rounded-lg px-3 py-1">
           <span className="text-sm font-medium text-primary">TTS</span>
+          <span className={`text-xs font-bold ${ttsEnabled ? 'text-lcars-green' : 'text-lcars-red'}`}>
+            {ttsEnabled ? 'ON' : 'OFF'}
+          </span>
           <Switch
             checked={ttsEnabled}
             onCheckedChange={setTtsEnabled}
-            className="data-[state=checked]:bg-energy-cyan"
+            className="data-[state=checked]:bg-lcars-green data-[state=unchecked]:bg-lcars-red"
           />
         </div>
       </div>
