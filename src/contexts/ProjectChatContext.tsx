@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Project, Thread, ChatMessage, ProjectsStore, ChatStore } from '@/types/projects';
 import { useSession } from './SessionContext';
@@ -205,9 +206,10 @@ export const ProjectChatProvider: React.FC<ProjectChatProviderProps> = ({ childr
       }
     }));
     
-    // Update thread title from first user message
+    // Update thread title from first user message - safely handle undefined content
     if (message.role === 'user' && !getThreadMessages(threadId).some(m => m.role === 'user')) {
-      const title = message.content.slice(0, 60) + (message.content.length > 60 ? '...' : '');
+      const messageContent = message.content || '';
+      const title = messageContent.slice(0, 60) + (messageContent.length > 60 ? '...' : '');
       setChat(prev => ({
         ...prev,
         threads: prev.threads.map(t => t.id === threadId ? { ...t, title, updatedAt: new Date().toISOString() } : t)
