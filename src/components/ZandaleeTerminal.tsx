@@ -1,7 +1,9 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { MessageCircle, Settings, Mic, Hand, FileText, Brain, Volume2, Share2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { MessageCircle, Settings, Mic, Hand, FileText, Brain, Volume2, Share2, Plus } from 'lucide-react';
 import { useGateway } from '@/hooks/useGateway';
 import { useSession } from '@/contexts/SessionContext';
 import { useGatewayWS } from '@/hooks/useGatewayWS';
@@ -9,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useSuperAdminAudit } from '@/hooks/useSuperAdminAudit';
 import { SuperAdminAuditBanner } from '@/components/SuperAdminAuditBanner';
 import { ProjectChatProvider } from '@/contexts/ProjectChatContext';
-import { LeftNavDrawer } from '@/components/LeftNavDrawer';
+import { useChatStorage } from '@/utils/chatStorage';
 import { ChatPane } from './terminal/ChatPane';
 import { SettingsPane } from './terminal/SettingsPane';
 import { MemoriesPane } from './terminal/MemoriesPane';
@@ -25,6 +27,7 @@ export const ZandaleeTerminal = () => {
   const { isHealthy } = useGateway();
   const { user } = useSession();
   const { toast } = useToast();
+  const { createNewChat } = useChatStorage();
 
   // WebSocket for permission events
   useGatewayWS((evt) => {
@@ -47,7 +50,7 @@ export const ZandaleeTerminal = () => {
     recentEntries
   } = useSuperAdminAudit(isSuperAdmin);
 
-  // Measure header height and set CSS variable for left drawer
+  // Measure header height
   useEffect(() => {
     const updateHeaderHeight = () => {
       if (headerRef.current) {
@@ -62,7 +65,15 @@ export const ZandaleeTerminal = () => {
     return () => {
       window.removeEventListener('resize', updateHeaderHeight);
     };
-  }, [entries, hasNewAttempts]); // Re-measure when audit banner appears/disappears
+  }, [entries, hasNewAttempts]);
+
+  const handleNewChat = () => {
+    const chatId = createNewChat();
+    toast({
+      title: "New Chat Created",
+      description: "Started a new conversation",
+    });
+  };
   
   return (
     <ProjectChatProvider>
@@ -77,7 +88,13 @@ export const ZandaleeTerminal = () => {
             {/* Header */}
             <div className="flex items-center justify-between p-3 sm:px-6 border-b border-border/50">
               <div className="flex items-center gap-4">
-                <LeftNavDrawer />
+                <Button
+                  onClick={handleNewChat}
+                  className="bg-lcars-purple hover:bg-lcars-pink text-black font-bold px-4 py-2 rounded-full"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Chat
+                </Button>
                 <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                   ZANDALEE TERMINAL
                 </h1>
