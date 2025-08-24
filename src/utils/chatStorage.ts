@@ -121,6 +121,79 @@ export const useChatStorage = () => {
     return newProjectId;
   };
 
+  // Delete chat function
+  const deleteChat = (chatId: string) => {
+    const chatStore = getChatStore();
+    const updatedStore: ChatStore = {
+      ...chatStore,
+      items: chatStore.items.filter(chat => chat.id !== chatId),
+      activeChatId: chatStore.activeChatId === chatId ? null : chatStore.activeChatId
+    };
+    setChatStore(updatedStore);
+  };
+
+  // Delete project function
+  const deleteProject = (projectId: string) => {
+    const projectStore = getProjectStore();
+    const updatedStore: ProjectStore = {
+      ...projectStore,
+      items: projectStore.items.filter(project => project.id !== projectId),
+      selectedProjectId: projectStore.selectedProjectId === projectId ? null : projectStore.selectedProjectId
+    };
+    setProjectStore(updatedStore);
+  };
+
+  // Duplicate chat function
+  const duplicateChat = (chatId: string) => {
+    const chatStore = getChatStore();
+    const originalChat = chatStore.items.find(chat => chat.id === chatId);
+    if (!originalChat) return;
+
+    const newChatId = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const duplicatedChat: ChatItem = {
+      ...originalChat,
+      id: newChatId,
+      title: `${originalChat.title} (Copy)`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    const updatedStore: ChatStore = {
+      ...chatStore,
+      items: [duplicatedChat, ...chatStore.items]
+    };
+
+    setChatStore(updatedStore);
+  };
+
+  // Rename chat function
+  const renameChat = (chatId: string, newTitle: string) => {
+    const chatStore = getChatStore();
+    const updatedStore: ChatStore = {
+      ...chatStore,
+      items: chatStore.items.map(chat => 
+        chat.id === chatId 
+          ? { ...chat, title: newTitle, updatedAt: new Date().toISOString() }
+          : chat
+      )
+    };
+    setChatStore(updatedStore);
+  };
+
+  // Rename project function
+  const renameProject = (projectId: string, newName: string) => {
+    const projectStore = getProjectStore();
+    const updatedStore: ProjectStore = {
+      ...projectStore,
+      items: projectStore.items.map(project => 
+        project.id === projectId 
+          ? { ...project, name: newName, updatedAt: new Date().toISOString() }
+          : project
+      )
+    };
+    setProjectStore(updatedStore);
+  };
+
   // Helper function to move chat to project
   const moveChatToProject = (chatId: string, projectId: string) => {
     const projectStore = getProjectStore();
@@ -157,6 +230,11 @@ export const useChatStorage = () => {
     setLastTab,
     createNewChat,
     createProject,
+    deleteChat,
+    deleteProject,
+    duplicateChat,
+    renameChat,
+    renameProject,
     moveChatToProject,
   };
 };

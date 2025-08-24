@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,8 +38,7 @@ export const MemoriesPane = () => {
 
   // Filter chats and projects based on search
   const filteredChats = chatStore.items.filter(chat =>
-    chat.title.toLowerCase().includes(chatSearchQuery.toLowerCase()) ||
-    chat.messages?.some(msg => msg.content.toLowerCase().includes(chatSearchQuery.toLowerCase()))
+    chat.title.toLowerCase().includes(chatSearchQuery.toLowerCase())
   );
 
   const filteredProjects = projectStore.items.filter(project =>
@@ -166,7 +166,7 @@ export const MemoriesPane = () => {
                         <div className="flex-1 min-w-0">
                           <h4 className="font-medium truncate text-sm">{chat.title}</h4>
                           <p className="text-xs text-muted-foreground">
-                            {new Date(chat.updated_at).toLocaleDateString()} • {chat.messages?.length || 0} messages
+                            {new Date(chat.updatedAt).toLocaleDateString()}
                           </p>
                         </div>
                         <DropdownMenu>
@@ -236,7 +236,7 @@ export const MemoriesPane = () => {
                         <div className="flex-1 min-w-0">
                           <h4 className="font-medium truncate text-sm">{project.name}</h4>
                           <p className="text-xs text-muted-foreground">
-                            {new Date(project.updated_at).toLocaleDateString()} • {project.chats?.length || 0} chats
+                            {new Date(project.updatedAt).toLocaleDateString()} • {project.chats?.length || 0} chats
                           </p>
                         </div>
                         <DropdownMenu>
@@ -380,7 +380,7 @@ export const MemoriesPane = () => {
                             <div className="flex-1 min-w-0">
                               <h4 className="font-medium truncate text-sm">{chat.title}</h4>
                               <p className="text-xs text-muted-foreground">
-                                {new Date(chat.updated_at).toLocaleDateString()} • {chat.messages?.length || 0} messages
+                                {new Date(chat.updatedAt).toLocaleDateString()}
                               </p>
                             </div>
                             <DropdownMenu>
@@ -450,7 +450,7 @@ export const MemoriesPane = () => {
                             <div className="flex-1 min-w-0">
                               <h4 className="font-medium truncate text-sm">{project.name}</h4>
                               <p className="text-xs text-muted-foreground">
-                                {new Date(project.updated_at).toLocaleDateString()} • {project.chats?.length || 0} chats
+                                {new Date(project.updatedAt).toLocaleDateString()} • {project.chats?.length || 0} chats
                               </p>
                             </div>
                             <DropdownMenu>
