@@ -1,240 +1,156 @@
+import { v4 as uuidv4 } from 'uuid';
+import { useLocalStorage } from 'usehooks-ts';
 
-import { useSession } from '@/contexts/SessionContext';
+interface ChatMessage {
+  id: string;
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+}
 
-export interface ChatItem {
+interface ChatItem {
   id: string;
   title: string;
+  projectId: string;
   createdAt: string;
-  updatedAt: string;
-  pinned?: boolean;
-  archived?: boolean;
-  note?: string;
-  snapshots?: Array<{
-    id: string;
-    title: string;
-    createdAt: string;
-  }>;
+  messages: ChatMessage[];
 }
 
-export interface ChatStore {
-  activeChatId: string | null;
-  items: ChatItem[];
-}
-
-export interface ProjectItem {
+interface ProjectItem {
   id: string;
-  name: string;
+  title: string;
+  description: string;
   createdAt: string;
   updatedAt: string;
-  archived?: boolean;
-  chats: string[];
+  chatIds: string[];
 }
 
-export interface ProjectStore {
-  selectedProjectId: string | null;
-  items: ProjectItem[];
+interface ChatStore {
+  chats: { [chatId: string]: ChatItem };
 }
+
+interface ProjectStore {
+  projects: { [projectId: string]: ProjectItem };
+}
+
+const initialChatStore: ChatStore = { chats: {} };
+const initialProjectStore: ProjectStore = { projects: {} };
+
+const CHAT_STORAGE_KEY = 'zandalee-chats';
+const PROJECT_STORAGE_KEY = 'zandalee-projects';
+
+const getChatStore = (): ChatStore => {
+  try {
+    const storedChats = localStorage.getItem(CHAT_STORAGE_KEY);
+    return storedChats ? JSON.parse(storedChats) : initialChatStore;
+  } catch (error) {
+    console.error("Error retrieving chats from localStorage:", error);
+    return initialChatStore;
+  }
+};
+
+const setChatStore = (store: ChatStore): void => {
+  try {
+    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(store));
+  } catch (error) {
+    console.error("Error setting chats to localStorage:", error);
+  }
+};
+
+const getProjectStore = (): ProjectStore => {
+  try {
+    const storedProjects = localStorage.getItem(PROJECT_STORAGE_KEY);
+    return storedProjects ? JSON.parse(storedProjects) : initialProjectStore;
+  } catch (error) {
+    console.error("Error retrieving projects from localStorage:", error);
+    return initialProjectStore;
+  }
+};
+
+const setProjectStore = (store: ProjectStore): void => {
+  try {
+    localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(store));
+  } catch (error) {
+    console.error("Error setting projects to localStorage:", error);
+  }
+};
 
 export const useChatStorage = () => {
-  const { user } = useSession();
-  const userId = user?.familyName || 'default';
-
-  const getChatStore = (): ChatStore => {
-    try {
-      const stored = localStorage.getItem(`zandalee.${userId}.chats`);
-      return stored ? JSON.parse(stored) : { activeChatId: null, items: [] };
-    } catch {
-      return { activeChatId: null, items: [] };
-    }
-  };
-
-  const setChatStore = (store: ChatStore) => {
-    localStorage.setItem(`zandalee.${userId}.chats`, JSON.stringify(store));
-  };
-
-  const getProjectStore = (): ProjectStore => {
-    try {
-      const stored = localStorage.getItem(`zandalee.${userId}.projects`);
-      return stored ? JSON.parse(stored) : { selectedProjectId: null, items: [] };
-    } catch {
-      return { selectedProjectId: null, items: [] };
-    }
-  };
-
-  const setProjectStore = (store: ProjectStore) => {
-    localStorage.setItem(`zandalee.${userId}.projects`, JSON.stringify(store));
-  };
-
-  const getLastTab = (): 'history' | 'projects' => {
-    try {
-      const stored = localStorage.getItem(`zandalee.${userId}.lastTab`);
-      return stored === 'projects' ? 'projects' : 'history';
-    } catch {
-      return 'history';
-    }
-  };
-
-  const setLastTab = (tab: 'history' | 'projects') => {
-    localStorage.setItem(`zandalee.${userId}.lastTab`, tab);
-  };
-
-  // Create new chat function
   const createNewChat = (): string => {
-    const chatStore = getChatStore();
-    const newChatId = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+    const chatId = `chat-${Date.now()}`;
     const newChat: ChatItem = {
-      id: newChatId,
-      title: 'New Chat',
+      id: chatId,
+      title: "New Chat",
+      projectId: 'default',
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      messages: [],
     };
 
-    const updatedStore: ChatStore = {
-      activeChatId: newChatId,
-      items: [newChat, ...chatStore.items]
-    };
+    const store = getChatStore();
+    store.chats[chatId] = newChat;
+    setChatStore(store);
 
-    setChatStore(updatedStore);
-    return newChatId;
+    return chatId;
   };
 
-  // Create new project function
-  const createProject = (name = 'New Project'): string => {
-    const projectStore = getProjectStore();
-    const newProjectId = `project_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    const newProject: ProjectItem = {
-      id: newProjectId,
-      name,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      chats: []
-    };
-
-    const updatedStore: ProjectStore = {
-      selectedProjectId: newProjectId,
-      items: [newProject, ...projectStore.items]
-    };
-
-    setProjectStore(updatedStore);
-    return newProjectId;
-  };
-
-  // Delete chat function
-  const deleteChat = (chatId: string) => {
-    const chatStore = getChatStore();
-    const updatedStore: ChatStore = {
-      ...chatStore,
-      items: chatStore.items.filter(chat => chat.id !== chatId),
-      activeChatId: chatStore.activeChatId === chatId ? null : chatStore.activeChatId
-    };
-    setChatStore(updatedStore);
-  };
-
-  // Delete project function
-  const deleteProject = (projectId: string) => {
-    const projectStore = getProjectStore();
-    const updatedStore: ProjectStore = {
-      ...projectStore,
-      items: projectStore.items.filter(project => project.id !== projectId),
-      selectedProjectId: projectStore.selectedProjectId === projectId ? null : projectStore.selectedProjectId
-    };
-    setProjectStore(updatedStore);
-  };
-
-  // Duplicate chat function
-  const duplicateChat = (chatId: string) => {
-    const chatStore = getChatStore();
-    const originalChat = chatStore.items.find(chat => chat.id === chatId);
-    if (!originalChat) return;
-
-    const newChatId = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const duplicatedChat: ChatItem = {
-      ...originalChat,
-      id: newChatId,
-      title: `${originalChat.title} (Copy)`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    const updatedStore: ChatStore = {
-      ...chatStore,
-      items: [duplicatedChat, ...chatStore.items]
-    };
-
-    setChatStore(updatedStore);
-  };
-
-  // Rename chat function
-  const renameChat = (chatId: string, newTitle: string) => {
-    const chatStore = getChatStore();
-    const updatedStore: ChatStore = {
-      ...chatStore,
-      items: chatStore.items.map(chat => 
-        chat.id === chatId 
-          ? { ...chat, title: newTitle, updatedAt: new Date().toISOString() }
-          : chat
-      )
-    };
-    setChatStore(updatedStore);
-  };
-
-  // Rename project function
-  const renameProject = (projectId: string, newName: string) => {
-    const projectStore = getProjectStore();
-    const updatedStore: ProjectStore = {
-      ...projectStore,
-      items: projectStore.items.map(project => 
-        project.id === projectId 
-          ? { ...project, name: newName, updatedAt: new Date().toISOString() }
-          : project
-      )
-    };
-    setProjectStore(updatedStore);
-  };
-
-  // Helper function to move chat to project
-  const moveChatToProject = (chatId: string, projectId: string) => {
-    const projectStore = getProjectStore();
-    const project = projectStore.items.find(p => p.id === projectId);
-    
-    if (!project) return false;
-
-    // Add chat to project if not already there
-    if (!project.chats.includes(chatId)) {
-      const updatedProject = {
-        ...project,
-        chats: [...project.chats, chatId],
-        updatedAt: new Date().toISOString()
-      };
-
-      const updatedProjectStore = {
-        ...projectStore,
-        items: projectStore.items.map(p => p.id === projectId ? updatedProject : p)
-      };
-
-      setProjectStore(updatedProjectStore);
-      return true;
+  const addMessageToChat = (chatId: string, message: ChatMessage): void => {
+    const store = getChatStore();
+    if (store.chats[chatId]) {
+      store.chats[chatId].messages.push(message);
+      setChatStore(store);
+    } else {
+      console.warn(`Chat with id ${chatId} not found.`);
     }
+  };
 
-    return false;
+  const getChatMessages = (chatId: string): ChatMessage[] => {
+    const store = getChatStore();
+    return store.chats[chatId]?.messages || [];
+  };
+
+  const getChat = (chatId: string): ChatItem | undefined => {
+     const store = getChatStore();
+     return store.chats[chatId];
+  };
+
+  const setChatTitle = (chatId: string, title: string): void => {
+    const store = getChatStore();
+    if (store.chats[chatId]) {
+      store.chats[chatId].title = title;
+      setChatStore(store);
+    }
+  };
+
+  const getAllChats = (): ChatItem[] => {
+    const store = getChatStore();
+    return Object.values(store.chats);
+  };
+
+  const createNewProject = (): string => {
+    const projectId = `project-${Date.now()}`;
+    const newProject: ProjectItem = {
+      id: projectId,
+      title: "New Project",
+      description: "",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      chatIds: []
+    };
+    
+    const store = getProjectStore();
+    store.projects[projectId] = newProject;
+    setProjectStore(store);
+    
+    return projectId;
   };
 
   return {
-    getChatStore,
-    setChatStore,
-    getProjectStore,
-    setProjectStore,
-    getLastTab,
-    setLastTab,
     createNewChat,
-    createProject,
-    deleteChat,
-    deleteProject,
-    duplicateChat,
-    renameChat,
-    renameProject,
-    moveChatToProject,
+    addMessageToChat,
+    getChatMessages,
+    getChat,
+    setChatTitle,
+    getAllChats,
+    createNewProject,
   };
 };

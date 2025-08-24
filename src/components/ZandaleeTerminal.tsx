@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Settings, Mic, Hand, FileText, Brain, Volume2, Share2, Plus } from 'lucide-react';
+import { MessageCircle, Settings, Mic, Hand, FileText, Brain, Volume2, Share2, Plus, FolderPlus } from 'lucide-react';
 import { useGateway } from '@/hooks/useGateway';
 import { useSession } from '@/contexts/SessionContext';
 import { useGatewayWS } from '@/hooks/useGatewayWS';
@@ -27,7 +27,7 @@ export const ZandaleeTerminal = () => {
   const { isHealthy } = useGateway();
   const { user } = useSession();
   const { toast } = useToast();
-  const { createNewChat } = useChatStorage();
+  const { createNewChat, createNewProject } = useChatStorage();
 
   // WebSocket for permission events
   useGatewayWS((evt) => {
@@ -74,6 +74,14 @@ export const ZandaleeTerminal = () => {
       description: "Started a new conversation",
     });
   };
+
+  const handleNewProject = () => {
+    const projectId = createNewProject();
+    toast({
+      title: "New Project Created",
+      description: "Started a new project",
+    });
+  };
   
   return (
     <ProjectChatProvider>
@@ -87,20 +95,37 @@ export const ZandaleeTerminal = () => {
           >
             {/* Header */}
             <div className="flex items-center justify-between p-3 sm:px-6 border-b border-border/50">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
                 <Button
                   onClick={handleNewChat}
-                  className="bg-lcars-purple hover:bg-lcars-pink text-black font-bold px-4 py-2 rounded-full"
+                  size="sm"
+                  className="bg-lcars-purple hover:bg-lcars-pink text-black font-bold px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-full flex-shrink-0"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Chat
+                  <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                  <span className="hidden xs:inline">NEW </span>CHAT
                 </Button>
-                <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                
+                <Button
+                  onClick={handleNewProject}
+                  size="sm"
+                  className="bg-lcars-cyan hover:bg-lcars-teal text-black font-bold px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-full flex-shrink-0"
+                >
+                  <FolderPlus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                  <span className="hidden xs:inline">NEW </span>PROJECT
+                </Button>
+                
+                <h1 className="text-sm sm:text-lg md:text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent flex-shrink-0">
                   ZANDALEE TERMINAL
                 </h1>
-                <Badge variant={isHealthy ? "default" : "destructive"} className="text-xs">
-                  {isHealthy ? "GATEWAY CONNECTED" : "GATEWAY OFFLINE"}
-                </Badge>
+              </div>
+              
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="text-center">
+                  <div className="text-xs font-bold text-muted-foreground">GATEWAY</div>
+                  <Badge variant={isHealthy ? "default" : "destructive"} className="text-xs px-2 py-0.5">
+                    {isHealthy ? "ONLINE" : "OFFLINE"}
+                  </Badge>
+                </div>
               </div>
             </div>
           
