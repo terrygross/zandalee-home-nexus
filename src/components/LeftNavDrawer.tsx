@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Menu, Home, Settings, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { Drawer, DrawerTrigger, SideDrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 
 export const LeftNavDrawer = () => {
   const [open, setOpen] = useState(false);
@@ -14,11 +14,11 @@ export const LeftNavDrawer = () => {
           <Menu className="h-5 w-5" />
         </Button>
       </DrawerTrigger>
-      <DrawerContent 
-        className="h-full w-80 mt-0 rounded-none fixed left-0 z-[200] bg-background border-r"
+      <SideDrawerContent 
+        className="fixed left-0 inset-y-0 w-80 rounded-none bg-background border-r z-[200]"
         style={{ 
           top: 'var(--terminal-header-height, 0px)',
-          bottom: 0
+          height: 'calc(100vh - var(--terminal-header-height, 0px))'
         }}
       >
         <DrawerHeader>
@@ -46,7 +46,7 @@ export const LeftNavDrawer = () => {
             Logout
           </Button>
         </div>
-      </DrawerContent>
+      </SideDrawerContent>
     </Drawer>
   );
 };

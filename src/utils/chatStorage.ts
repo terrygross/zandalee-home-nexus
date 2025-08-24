@@ -99,6 +99,28 @@ export const useChatStorage = () => {
     return newChatId;
   };
 
+  // Create new project function
+  const createProject = (name = 'New Project'): string => {
+    const projectStore = getProjectStore();
+    const newProjectId = `project_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const newProject: ProjectItem = {
+      id: newProjectId,
+      name,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      chats: []
+    };
+
+    const updatedStore: ProjectStore = {
+      selectedProjectId: newProjectId,
+      items: [newProject, ...projectStore.items]
+    };
+
+    setProjectStore(updatedStore);
+    return newProjectId;
+  };
+
   // Helper function to move chat to project
   const moveChatToProject = (chatId: string, projectId: string) => {
     const projectStore = getProjectStore();
@@ -134,6 +156,7 @@ export const useChatStorage = () => {
     getLastTab,
     setLastTab,
     createNewChat,
+    createProject,
     moveChatToProject,
   };
 };

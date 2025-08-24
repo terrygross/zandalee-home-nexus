@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { Drawer as DrawerPrimitive } from "vaul"
 
@@ -52,6 +53,27 @@ const DrawerContent = React.forwardRef<
   </DrawerPortal>
 ))
 DrawerContent.displayName = "DrawerContent"
+
+// New SideDrawerContent component that doesn't force bottom-sheet positioning
+const SideDrawerContent = React.forwardRef<
+  React.ElementRef<typeof DrawerPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>
+>(({ className, children, ...props }, ref) => (
+  <DrawerPortal>
+    <DrawerOverlay />
+    <DrawerPrimitive.Content
+      ref={ref}
+      className={cn(
+        "fixed z-50 flex h-auto flex-col border bg-background",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </DrawerPrimitive.Content>
+  </DrawerPortal>
+))
+SideDrawerContent.displayName = "SideDrawerContent"
 
 const DrawerHeader = ({
   className,
@@ -109,6 +131,7 @@ export {
   DrawerTrigger,
   DrawerClose,
   DrawerContent,
+  SideDrawerContent,
   DrawerHeader,
   DrawerFooter,
   DrawerTitle,

@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from 'react';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { Drawer, SideDrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { HistoryTab } from './HistoryTab';
 import { ProjectsTab } from './ProjectsTab';
@@ -16,7 +17,7 @@ interface ChatDrawerProps {
 }
 
 export const ChatDrawer = ({ open, onOpenChange, activeTab, onTabChange }: ChatDrawerProps) => {
-  const { createNewChat } = useChatStorage();
+  const { createNewChat, createProject, getChatStore } = useChatStorage();
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -49,17 +50,32 @@ export const ChatDrawer = ({ open, onOpenChange, activeTab, onTabChange }: ChatD
     console.log('Created new chat:', chatId);
   };
 
+  const handleCreateProject = () => {
+    const projectId = createProject();
+    console.log('Created new project:', projectId);
+    onTabChange('projects');
+  };
+
+  // Get recent chats for preview
+  const recentChats = getChatStore().items.slice(0, 3);
+
   return (
     <Drawer open={open} onOpenChange={onOpenChange} direction="right">
-      <DrawerContent className="h-full w-[360px] md:w-[420px] mt-0 rounded-none fixed inset-y-0 right-0 z-[200] bg-background border-l">
-        {/* LCARS styled header */}
+      <SideDrawerContent 
+        className="fixed right-0 inset-y-0 w-[360px] md:w-[420px] rounded-none bg-background border-l z-[200]"
+        style={{ 
+          top: 'var(--terminal-header-height, 0px)',
+          height: 'calc(100vh - var(--terminal-header-height, 0px))'
+        }}
+      >
+        {/* LCARS styled container */}
         <div className="border-2 border-blue-500 rounded-2xl m-2 bg-background flex flex-col h-[calc(100%-1rem)]">
           <DrawerHeader className="border-b border-blue-500/30 flex-shrink-0">
             <DrawerTitle className="text-blue-400 font-bold">CHATS & PROJECTS</DrawerTitle>
           </DrawerHeader>
           
-          {/* Button List Interface - like in your reference image */}
-          <div className="p-4 space-y-3 flex-1 overflow-hidden flex flex-col">
+          {/* Always-visible LCARS action buttons */}
+          <div className="p-4 space-y-3 flex-shrink-0">
             {/* New Chat Button */}
             <div className="relative">
               <Button
@@ -99,7 +115,17 @@ export const ChatDrawer = ({ open, onOpenChange, activeTab, onTabChange }: ChatD
                 variant="outline"
               >
                 Projects
-                <Plus className="absolute right-12 w-5 h-5 text-blue-400" />
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCreateProject();
+                  }}
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-12 h-8 w-8 p-0 rounded-full hover:bg-blue-500/20"
+                >
+                  <Plus className="w-5 h-5 text-blue-400" />
+                </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -115,7 +141,7 @@ export const ChatDrawer = ({ open, onOpenChange, activeTab, onTabChange }: ChatD
                     <DropdownMenuItem onClick={() => onTabChange('projects')}>
                       View Projects
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleCreateProject}>
                       New Project
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -154,53 +180,50 @@ export const ChatDrawer = ({ open, onOpenChange, activeTab, onTabChange }: ChatD
               </Button>
             </div>
 
-            {/* Example Chat Entry - Super Cars */}
-            <div className="relative">
-              <Button
-                className="w-full h-12 bg-background hover:bg-blue-500/10 border-2 border-blue-500 rounded-full text-blue-400 font-bold justify-start px-6 relative"
-                variant="outline"
-              >
-                Super Cars
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost" 
-                      size="sm" 
-                      className="absolute right-2 h-8 w-8 p-0 rounded-full hover:bg-blue-500/20"
-                    >
-                      <MoreHorizontal className="w-4 h-4 text-blue-400" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-background border-blue-500 z-[300]">
-                    <DropdownMenuItem>
-                      Open Chat
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      Rename
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </Button>
-            </div>
+            {/* Recent Chats Preview */}
+            {recentChats.map((chat) => (
+              <div key={chat.id} className="relative">
+                <Button
+                  className="w-full h-12 bg-background hover:bg-blue-500/10 border-2 border-blue-500 rounded-full text-blue-400 font-bold justify-start px-6 relative truncate"
+                  variant="outline"
+                >
+                  {chat.title}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost" 
+                        size="sm" 
+                        className="absolute right-2 h-8 w-8 p-0 rounded-full hover:bg-blue-500/20"
+                      >
+                        <MoreHorizontal className="w-4 h-4 text-blue-400" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-background border-blue-500 z-[300]">
+                      <DropdownMenuItem>
+                        Open Chat
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        Rename
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </Button>
+              </div>
+            ))}
+          </div>
 
-            {/* Content Area - Conditional Rendering */}
-            {activeTab === 'history' && (
-              <div className="flex-1 min-h-0">
-                <HistoryTab />
-              </div>
-            )}
-            
-            {activeTab === 'projects' && (
-              <div className="flex-1 min-h-0">
-                <ProjectsTab />
-              </div>
-            )}
+          {/* Scrollable Content Area for History/Projects tabs */}
+          <div className="flex-1 min-h-0 px-4 pb-4">
+            <ScrollArea className="h-full">
+              {activeTab === 'history' && <HistoryTab />}
+              {activeTab === 'projects' && <ProjectsTab />}
+            </ScrollArea>
           </div>
         </div>
-      </DrawerContent>
+      </SideDrawerContent>
     </Drawer>
   );
 };
