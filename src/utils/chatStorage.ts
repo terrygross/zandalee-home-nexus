@@ -78,6 +78,33 @@ export const useChatStorage = () => {
     localStorage.setItem(`zandalee.${userId}.lastTab`, tab);
   };
 
+  // Helper function to move chat to project
+  const moveChatToProject = (chatId: string, projectId: string) => {
+    const projectStore = getProjectStore();
+    const project = projectStore.items.find(p => p.id === projectId);
+    
+    if (!project) return false;
+
+    // Add chat to project if not already there
+    if (!project.chats.includes(chatId)) {
+      const updatedProject = {
+        ...project,
+        chats: [...project.chats, chatId],
+        updatedAt: new Date().toISOString()
+      };
+
+      const updatedProjectStore = {
+        ...projectStore,
+        items: projectStore.items.map(p => p.id === projectId ? updatedProject : p)
+      };
+
+      setProjectStore(updatedProjectStore);
+      return true;
+    }
+
+    return false;
+  };
+
   return {
     getChatStore,
     setChatStore,
@@ -85,5 +112,6 @@ export const useChatStorage = () => {
     setProjectStore,
     getLastTab,
     setLastTab,
+    moveChatToProject,
   };
 };

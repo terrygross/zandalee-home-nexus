@@ -1,12 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Search, Download, MoreHorizontal, Pin, Archive, Trash2, Copy, Edit2, FolderOpen, BookmarkPlus } from 'lucide-react';
+import { Plus, Search, Download, MoreHorizontal, Pin, Archive, Trash2, Copy, Edit2, FolderOpen, BookmarkPlus, MoveRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useChatStorage, ChatItem, ChatStore } from '@/utils/chatStorage';
 
@@ -20,7 +19,7 @@ export const HistoryTab = () => {
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving'>('saved');
   const [lastSaveTime, setLastSaveTime] = useState<Date>(new Date());
   
-  const { getChatStore, setChatStore: saveChatStore } = useChatStorage();
+  const { getChatStore, setChatStore: saveChatStore, getProjectStore, moveChatToProject } = useChatStorage();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -221,7 +220,18 @@ export const HistoryTab = () => {
     toast({ title: 'Chat opened' });
   };
 
-  // Filter and sort chats
+  const handleMoveChatToProject = (chatId: string, projectId: string) => {
+    const success = moveChatToProject(chatId, projectId);
+    if (success) {
+      toast({ title: 'Chat moved to project' });
+    } else {
+      toast({ title: 'Chat already in project' });
+    }
+  };
+
+  const projectStore = getProjectStore();
+  const availableProjects = projectStore.items.filter(p => !p.archived);
+
   const filteredChats = chatStore.items
     .filter(chat => {
       if (!showArchived && chat.archived) return false;
@@ -249,61 +259,64 @@ export const HistoryTab = () => {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header Controls */}
-      <div className="p-4 border-b space-y-3">
-        <div className="flex gap-2">
-          <Button onClick={startNewChat} size="sm" className="flex-1">
-            <Plus className="w-4 h-4 mr-2" />
-            New Chat
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => console.log('Export all as markdown')}>
-                Export All (Markdown)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => console.log('Export all as JSON')}>
-                Export All (JSON)
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+      {/* Sticky Header Controls with LCARS styling */}
+      <div className="sticky top-0 bg-background border-2 border-blue-500 rounded-2xl m-2 z-10">
+        <div className="p-4 space-y-3">
+          <div className="flex gap-2">
+            <Button onClick={startNewChat} size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700 border border-blue-500 rounded-full font-bold">
+              <Plus className="w-4 h-4 mr-2" />
+              NEW CHAT
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="border-blue-500 rounded-full">
+                  <Download className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-background border-blue-500 z-[300]">
+                <DropdownMenuItem onClick={() => console.log('Export all as markdown')}>
+                  Export All (Markdown)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => console.log('Export all as JSON')}>
+                  Export All (JSON)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
-        <div className="relative">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search chats..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8"
-          />
-        </div>
+          <div className="relative">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-blue-400" />
+            <Input
+              placeholder="Search chats..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 border-blue-500 rounded-full"
+            />
+          </div>
 
-        <div className="flex gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                Sort: {sortMode === 'recent' ? 'Recent' : sortMode === 'oldest' ? 'Oldest' : 'A-Z'}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setSortMode('recent')}>Recent</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSortMode('oldest')}>Oldest</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSortMode('a-z')}>A-Z</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          
-          <Button
-            variant={showArchived ? "default" : "outline"}
-            size="sm"
-            onClick={() => setShowArchived(!showArchived)}
-          >
-            {showArchived ? 'Hide' : 'Show'} Archived
-          </Button>
+          <div className="flex gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="border-blue-500 rounded-full">
+                  Sort: {sortMode === 'recent' ? 'Recent' : sortMode === 'oldest' ? 'Oldest' : 'A-Z'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-background border-blue-500 z-[300]">
+                <DropdownMenuItem onClick={() => setSortMode('recent')}>Recent</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortMode('oldest')}>Oldest</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortMode('a-z')}>A-Z</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            <Button
+              variant={showArchived ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowArchived(!showArchived)}
+              className="border-blue-500 rounded-full"
+            >
+              {showArchived ? 'Hide' : 'Show'} Archived
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -313,22 +326,22 @@ export const HistoryTab = () => {
           {filteredChats.map((chat) => (
             <div
               key={chat.id}
-              className={`p-3 rounded-lg border ${
-                chatStore.activeChatId === chat.id ? 'bg-accent border-primary' : 'hover:bg-accent/50'
+              className={`p-3 rounded-2xl border-2 border-blue-500/30 ${
+                chatStore.activeChatId === chat.id ? 'bg-blue-500/10 border-blue-500' : 'hover:bg-blue-500/5 hover:border-blue-500/50'
               } ${chat.archived ? 'opacity-60' : ''}`}
             >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-medium truncate">{chat.title}</h4>
-                    {chat.pinned && <Pin className="w-3 h-3 text-primary" />}
+                    {chat.pinned && <Pin className="w-3 h-3 text-blue-400" />}
                     {chat.archived && <Archive className="w-3 h-3 text-muted-foreground" />}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {new Date(chat.updatedAt).toLocaleString()}
                   </p>
                   {chat.snapshots && chat.snapshots.length > 0 && (
-                    <Badge variant="secondary" className="mt-1 text-xs">
+                    <Badge variant="secondary" className="mt-1 text-xs border-blue-500/30">
                       {chat.snapshots.length} snapshots
                     </Badge>
                   )}
@@ -336,11 +349,11 @@ export const HistoryTab = () => {
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full border border-blue-500/30 hover:bg-blue-500/10">
                       <MoreHorizontal className="w-3 h-3" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="bg-background border-blue-500 z-[300]">
                     <DropdownMenuItem onClick={() => openChat(chat.id)}>
                       <FolderOpen className="w-4 h-4 mr-2" />
                       Open
@@ -364,6 +377,27 @@ export const HistoryTab = () => {
                       <Pin className="w-4 h-4 mr-2" />
                       {chat.pinned ? 'Unpin' : 'Pin'}
                     </DropdownMenuItem>
+                    
+                    {/* Move to Project submenu */}
+                    {availableProjects.length > 0 && (
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger>
+                          <MoveRight className="w-4 h-4 mr-2" />
+                          Move to Project
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent className="bg-background border-blue-500 z-[400]">
+                          {availableProjects.map((project) => (
+                            <DropdownMenuItem
+                              key={project.id}
+                              onClick={() => handleMoveChatToProject(chat.id, project.id)}
+                            >
+                              {project.name}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuSubContent>
+                      </DropdownMenuSub>
+                    )}
+                    
                     <DropdownMenuItem onClick={() => archiveChat(chat.id)}>
                       <Archive className="w-4 h-4 mr-2" />
                       {chat.archived ? 'Restore' : 'Archive'}
@@ -387,24 +421,25 @@ export const HistoryTab = () => {
                 </DropdownMenu>
               </div>
 
-              {/* Notes */}
+              {/* Notes section */}
               {editingNote === chat.id ? (
                 <div className="mt-2 space-y-2">
                   <Textarea
                     value={noteText}
                     onChange={(e) => setNoteText(e.target.value)}
                     placeholder="Add a note..."
-                    className="text-xs"
+                    className="text-xs border-blue-500/30 rounded-xl"
                     rows={2}
                   />
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => updateChatNote(chat.id, noteText)}>
+                    <Button size="sm" onClick={() => updateChatNote(chat.id, noteText)} className="rounded-full">
                       Save
                     </Button>
                     <Button 
                       size="sm" 
                       variant="ghost" 
                       onClick={() => setEditingNote(null)}
+                      className="rounded-full"
                     >
                       Cancel
                     </Button>
@@ -455,7 +490,7 @@ export const HistoryTab = () => {
       </ScrollArea>
 
       {/* Status */}
-      <div className="p-2 border-t">
+      <div className="p-2 border-t border-blue-500/30">
         <p className="text-xs text-muted-foreground text-center">
           {saveStatus === 'saving' ? 'Saving...' : `Saved • ${Math.floor((Date.now() - lastSaveTime.getTime()) / 1000)}s ago`}
         </p>

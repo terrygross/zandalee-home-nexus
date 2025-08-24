@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -268,62 +267,71 @@ export const ProjectsTab = () => {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header Controls */}
-      <div className="p-4 border-b space-y-3">
-        <div className="flex gap-2">
-          <Button onClick={createProject} size="sm" className="flex-1">
-            <Plus className="w-4 h-4 mr-2" />
-            New Project
-          </Button>
-          <input
-            type="file"
-            accept=".json"
-            onChange={importProjects}
-            className="hidden"
-            id="import-projects"
-          />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => document.getElementById('import-projects')?.click()}
-          >
-            <Upload className="w-4 h-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={exportAllProjects}>
-            <Download className="w-4 h-4" />
-          </Button>
-        </div>
+      {/* Sticky Header Controls with LCARS styling */}
+      <div className="sticky top-0 bg-background border-2 border-blue-500 rounded-2xl m-2 z-10">
+        <div className="p-4 space-y-3">
+          <div className="flex gap-2">
+            <Button onClick={createProject} size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700 border border-blue-500 rounded-full font-bold">
+              <Plus className="w-4 h-4 mr-2" />
+              NEW PROJECT
+            </Button>
+            <input
+              type="file"
+              accept=".json"
+              onChange={importProjects}
+              className="hidden"
+              id="import-projects"
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => document.getElementById('import-projects')?.click()}
+              className="border-blue-500 rounded-full"
+            >
+              <Upload className="w-4 h-4" />
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={exportAllProjects}
+              className="border-blue-500 rounded-full"
+            >
+              <Download className="w-4 h-4" />
+            </Button>
+          </div>
 
-        <div className="relative">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search projects..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8"
-          />
-        </div>
+          <div className="relative">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-blue-400" />
+            <Input
+              placeholder="Search projects..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 border-blue-500 rounded-full"
+            />
+          </div>
 
-        <div className="flex gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                Sort: {sortMode === 'recent' ? 'Recent' : 'A-Z'}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setSortMode('recent')}>Recent</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSortMode('a-z')}>A-Z</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          
-          <Button
-            variant={showArchived ? "default" : "outline"}
-            size="sm"
-            onClick={() => setShowArchived(!showArchived)}
-          >
-            {showArchived ? 'Hide' : 'Show'} Archived
-          </Button>
+          <div className="flex gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="border-blue-500 rounded-full">
+                  Sort: {sortMode === 'recent' ? 'Recent' : 'A-Z'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-background border-blue-500 z-[300]">
+                <DropdownMenuItem onClick={() => setSortMode('recent')}>Recent</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortMode('a-z')}>A-Z</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            <Button
+              variant={showArchived ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowArchived(!showArchived)}
+              className="border-blue-500 rounded-full"
+            >
+              {showArchived ? 'Hide' : 'Show'} Archived
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -337,8 +345,8 @@ export const ProjectsTab = () => {
             return (
               <div
                 key={project.id}
-                className={`rounded-lg border ${
-                  projectStore.selectedProjectId === project.id ? 'bg-accent border-primary' : 'hover:bg-accent/50'
+                className={`rounded-2xl border-2 border-blue-500/30 ${
+                  projectStore.selectedProjectId === project.id ? 'bg-blue-500/10 border-blue-500' : 'hover:bg-blue-500/5 hover:border-blue-500/50'
                 } ${project.archived ? 'opacity-60' : ''}`}
               >
                 <Collapsible open={isExpanded} onOpenChange={() => toggleProjectExpanded(project.id)}>
@@ -346,7 +354,7 @@ export const ProjectsTab = () => {
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <CollapsibleTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-5 w-5 p-0">
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0 rounded-full border border-blue-500/30 hover:bg-blue-500/10">
                             {isExpanded ? (
                               <ChevronDown className="w-3 h-3" />
                             ) : (
@@ -361,10 +369,10 @@ export const ProjectsTab = () => {
                               {projectChats.length} chats
                             </p>
                             {project.archived && (
-                              <Badge variant="secondary" className="text-xs">Archived</Badge>
+                              <Badge variant="secondary" className="text-xs border-blue-500/30">Archived</Badge>
                             )}
                             {projectStore.selectedProjectId === project.id && (
-                              <Badge variant="default" className="text-xs">Active</Badge>
+                              <Badge variant="default" className="text-xs bg-blue-600">Active</Badge>
                             )}
                           </div>
                         </div>
@@ -372,11 +380,11 @@ export const ProjectsTab = () => {
 
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full border border-blue-500/30 hover:bg-blue-500/10">
                             <MoreHorizontal className="w-3 h-3" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="bg-background border-blue-500 z-[300]">
                           <DropdownMenuItem onClick={() => selectProject(project.id)}>
                             <FolderOpen className="w-4 h-4 mr-2" />
                             Select Project
@@ -412,14 +420,14 @@ export const ProjectsTab = () => {
                     </div>
 
                     <CollapsibleContent>
-                      <div className="mt-3 pt-3 border-t space-y-2">
+                      <div className="mt-3 pt-3 border-t border-blue-500/30 space-y-2">
                         {projectChats.length === 0 ? (
                           <p className="text-xs text-muted-foreground">No chats in this project</p>
                         ) : (
                           projectChats.map((chat) => (
                             <div
                               key={chat.id}
-                              className="flex items-center justify-between p-2 rounded bg-accent/30 hover:bg-accent/50"
+                              className="flex items-center justify-between p-2 rounded-xl bg-blue-500/5 hover:bg-blue-500/10 border border-blue-500/20"
                             >
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm truncate">{chat.title}</p>
@@ -427,7 +435,7 @@ export const ProjectsTab = () => {
                                   {new Date(chat.updatedAt).toLocaleDateString()}
                                 </p>
                               </div>
-                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0 rounded-full">
                                 <MoreHorizontal className="w-3 h-3" />
                               </Button>
                             </div>
@@ -458,7 +466,7 @@ export const ProjectsTab = () => {
       </ScrollArea>
 
       {/* Status */}
-      <div className="p-2 border-t">
+      <div className="p-2 border-t border-blue-500/30">
         <p className="text-xs text-muted-foreground text-center">
           {saveStatus === 'saving' ? 'Saving...' : `Saved • ${Math.floor((Date.now() - lastSaveTime.getTime()) / 1000)}s ago`}
         </p>

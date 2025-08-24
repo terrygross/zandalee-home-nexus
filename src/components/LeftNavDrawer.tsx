@@ -14,7 +14,14 @@ export const LeftNavDrawer = () => {
           <Menu className="h-5 w-5" />
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="h-full w-80 mt-0 rounded-none fixed inset-y-0 left-0 z-[200] bg-background border-r">
+      <DrawerContent 
+        className="h-full w-80 mt-0 rounded-none fixed left-0 z-[200] bg-background border-r"
+        style={{ 
+          top: 'var(--terminal-header-height, 0px)',
+          bottom: 0,
+          insetY: 'unset'
+        }}
+      >
         <DrawerHeader>
           <DrawerTitle>Navigation</DrawerTitle>
         </DrawerHeader>

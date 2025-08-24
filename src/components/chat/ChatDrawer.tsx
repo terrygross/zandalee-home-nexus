@@ -42,24 +42,40 @@ export const ChatDrawer = ({ open, onOpenChange, activeTab, onTabChange }: ChatD
   return (
     <Drawer open={open} onOpenChange={onOpenChange} direction="right">
       <DrawerContent className="h-full w-[360px] md:w-[420px] mt-0 rounded-none fixed inset-y-0 right-0 z-[200] bg-background border-l">
-        <DrawerHeader className="border-b">
-          <DrawerTitle>Chat Management</DrawerTitle>
-        </DrawerHeader>
-        
-        <Tabs value={activeTab} onValueChange={(value) => onTabChange(value as 'history' | 'projects')} className="flex flex-col h-full">
-          <TabsList className="grid w-full grid-cols-2 m-2">
-            <TabsTrigger value="history">History</TabsTrigger>
-            <TabsTrigger value="projects">Projects</TabsTrigger>
-          </TabsList>
+        {/* LCARS styled header */}
+        <div className="border-2 border-blue-500 rounded-2xl m-2 bg-background">
+          <DrawerHeader className="border-b border-blue-500/30">
+            <DrawerTitle className="text-blue-400 font-bold">CHATS & PROJECTS</DrawerTitle>
+          </DrawerHeader>
           
-          <TabsContent value="history" className="flex-1 min-h-0 m-0">
-            <HistoryTab />
-          </TabsContent>
-          
-          <TabsContent value="projects" className="flex-1 min-h-0 m-0">
-            <ProjectsTab />
-          </TabsContent>
-        </Tabs>
+          <Tabs value={activeTab} onValueChange={(value) => onTabChange(value as 'history' | 'projects')} className="flex flex-col h-full">
+            {/* LCARS styled tab list */}
+            <div className="p-2 border-b border-blue-500/30">
+              <TabsList className="grid w-full grid-cols-2 bg-blue-500/10 border border-blue-500/30 rounded-full p-1">
+                <TabsTrigger 
+                  value="history" 
+                  className="rounded-full data-[state=active]:bg-blue-500 data-[state=active]:text-white font-bold text-xs"
+                >
+                  CHAT HISTORY
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="projects" 
+                  className="rounded-full data-[state=active]:bg-blue-500 data-[state=active]:text-white font-bold text-xs"
+                >
+                  PROJECTS +
+                </TabsTrigger>
+              </TabsList>
+            </div>
+            
+            <TabsContent value="history" className="flex-1 min-h-0 m-0">
+              <HistoryTab />
+            </TabsContent>
+            
+            <TabsContent value="projects" className="flex-1 min-h-0 m-0">
+              <ProjectsTab />
+            </TabsContent>
+          </Tabs>
+        </div>
       </DrawerContent>
     </Drawer>
   );

@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { MessageCircle, Settings, Mic, Hand, FileText, Brain, Volume2, Share2 } from 'lucide-react';
@@ -22,6 +21,7 @@ import { SharedPane } from './terminal/SharedPane';
 
 export const ZandaleeTerminal = () => {
   const [activeTab, setActiveTab] = useState('chat');
+  const headerRef = useRef<HTMLDivElement>(null);
   const { isHealthy } = useGateway();
   const { user } = useSession();
   const { toast } = useToast();
@@ -46,13 +46,34 @@ export const ZandaleeTerminal = () => {
     markAsSeen,
     recentEntries
   } = useSuperAdminAudit(isSuperAdmin);
+
+  // Measure header height and set CSS variable for left drawer
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      if (headerRef.current) {
+        const height = headerRef.current.offsetHeight;
+        document.documentElement.style.setProperty('--terminal-header-height', `${height}px`);
+      }
+    };
+
+    updateHeaderHeight();
+    window.addEventListener('resize', updateHeaderHeight);
+    
+    return () => {
+      window.removeEventListener('resize', updateHeaderHeight);
+    };
+  }, [entries, hasNewAttempts]); // Re-measure when audit banner appears/disappears
   
   return (
     <ProjectChatProvider>
       <div className="flex flex-col h-[100dvh] w-full overflow-hidden bg-background">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Sticky Header and Navigation Container */}
-          <div className="sticky top-0 z-[100] flex-shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border" style={{ top: 'env(safe-area-inset-top)' }}>
+          <div 
+            ref={headerRef}
+            className="sticky top-0 z-[100] flex-shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border" 
+            style={{ top: 'env(safe-area-inset-top)' }}
+          >
             {/* Header */}
             <div className="flex items-center justify-between p-3 sm:px-6 border-b border-border/50">
               <div className="flex items-center gap-4">
