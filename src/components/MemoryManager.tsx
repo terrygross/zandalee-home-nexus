@@ -440,7 +440,7 @@ const MemoryManager = () => {
             </div>
 
             {/* Add Memory Form - Fixed at bottom with proper spacing */}
-            <div className="bg-space-surface/20 border border-energy-cyan/30 rounded-md p-2 flex-shrink-0">
+            <div className="bg-space-surface/20 border border-energy-cyan/30 rounded-lg p-2 flex-shrink-0">
               <div className="text-xs text-energy-cyan mb-2 font-medium">Add Memory</div>
               
               <Textarea
@@ -658,7 +658,7 @@ const MemoryManager = () => {
             </div>
 
             {/* Add Diary Form - Fixed at bottom with proper spacing */}
-            <div className="bg-space-surface/20 border border-energy-cyan/30 rounded-md p-2 flex-shrink-0">
+            <div className="bg-space-surface/20 border border-energy-cyan/30 rounded-lg p-2 flex-shrink-0">
               <div className="text-xs text-energy-cyan mb-2 font-medium">Add Diary Entry</div>
               
               <Textarea
