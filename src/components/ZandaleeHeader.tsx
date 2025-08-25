@@ -1,11 +1,29 @@
 
-import { Brain, Cpu, Activity, Settings } from "lucide-react";
+import { Brain, Cpu, Activity, Settings, Sun, Moon, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SettingsDrawer } from "./SettingsDrawer";
 import { useState } from "react";
+import { useTheme } from "next-themes";
 
 const ZandaleeHeader = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+
+  const cycleTheme = () => {
+    if (theme === 'dark') {
+      setTheme('light');
+    } else if (theme === 'light') {
+      setTheme('system');
+    } else {
+      setTheme('dark');
+    }
+  };
+
+  const getThemeIcon = () => {
+    if (theme === 'light') return <Sun className="w-4 h-4" />;
+    if (theme === 'dark') return <Moon className="w-4 h-4" />;
+    return <Monitor className="w-4 h-4" />;
+  };
 
   return (
     <div className="glass-panel p-6">
@@ -38,6 +56,16 @@ const ZandaleeHeader = () => {
           <div className="text-text-muted text-sm">
             v1.0.0
           </div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 hover:bg-energy-cyan/20 hover:text-energy-cyan border border-transparent hover:border-energy-cyan/30 transition-all duration-200"
+            title="Toggle Theme"
+            onClick={cycleTheme}
+          >
+            {getThemeIcon()}
+          </Button>
 
           <Button
             variant="ghost"
