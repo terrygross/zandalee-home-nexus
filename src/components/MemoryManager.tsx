@@ -487,7 +487,7 @@ const MemoryManager = () => {
                             size="sm"
                             className="h-auto p-1 bg-red-500 hover:bg-red-600 rounded-full border border-energy-blue"
                           >
-                            <HelpCircle className="w-3 h-3 text-yellow-400" />
+                            <HelpCircle className="w-3 h-3 text-yellow-400 font-bold" />
                           </Button>
                         </HoverCardTrigger>
                         <HoverCardContent className="w-80 text-xs z-[100]" side="left" align="start">
