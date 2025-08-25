@@ -1,8 +1,9 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Settings, Mic, Hand, FileText, Brain, Volume2, Share2, Plus, FolderPlus } from 'lucide-react';
+import { MessageCircle, Settings, Mic, Hand, FileText, Brain, Volume2, Share2, Plus, FolderPlus, Sun, Moon, Monitor } from 'lucide-react';
 import { useGateway } from '@/hooks/useGateway';
 import { useSession } from '@/contexts/SessionContext';
 import { useGatewayWS } from '@/hooks/useGatewayWS';
@@ -11,6 +12,7 @@ import { useSuperAdminAudit } from '@/hooks/useSuperAdminAudit';
 import { SuperAdminAuditBanner } from '@/components/SuperAdminAuditBanner';
 import { ProjectChatProvider } from '@/contexts/ProjectChatContext';
 import { useChatStorage } from '@/utils/chatStorage';
+import { useTheme } from 'next-themes';
 import { ChatPane } from './terminal/ChatPane';
 import { SettingsPane } from './terminal/SettingsPane';
 import { MemoriesPane } from './terminal/MemoriesPane';
@@ -27,6 +29,7 @@ export const ZandaleeTerminal = () => {
   const { user } = useSession();
   const { toast } = useToast();
   const { createNewChat, createNewProject } = useChatStorage();
+  const { theme, setTheme } = useTheme();
 
   // WebSocket for permission events
   useGatewayWS((evt) => {
@@ -81,6 +84,22 @@ export const ZandaleeTerminal = () => {
       description: "Started a new project",
     });
   };
+
+  const cycleTheme = () => {
+    if (theme === 'dark') {
+      setTheme('light');
+    } else if (theme === 'light') {
+      setTheme('system');
+    } else {
+      setTheme('dark');
+    }
+  };
+
+  const getThemeIcon = () => {
+    if (theme === 'light') return <Sun className="w-4 h-4" />;
+    if (theme === 'dark') return <Moon className="w-4 h-4" />;
+    return <Monitor className="w-4 h-4" />;
+  };
   
   return (
     <ProjectChatProvider>
@@ -119,6 +138,17 @@ export const ZandaleeTerminal = () => {
               </div>
               
               <div className="flex items-center gap-2 flex-shrink-0">
+                <Button
+                  onClick={cycleTheme}
+                  size="sm"
+                  variant="outline"
+                  className="flex items-center gap-2 bg-lcars-cyan hover:bg-lcars-teal text-black font-bold px-2 sm:px-3 py-1.5 text-xs rounded-full"
+                  title="Toggle Theme"
+                >
+                  {getThemeIcon()}
+                  <span className="hidden sm:inline">THEME</span>
+                </Button>
+                
                 <div className="text-center">
                   <div className="text-xs font-bold text-muted-foreground">GATEWAY</div>
                   <Badge variant={isHealthy ? "default" : "destructive"} className="text-xs px-2 py-0.5">
