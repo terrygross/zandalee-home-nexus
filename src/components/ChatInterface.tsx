@@ -157,7 +157,7 @@ const ChatInterface = () => {
         <h2 className="text-xl font-bold text-primary">CHAT</h2>
         
         {/* TTS Toggle */}
-        <div className="flex items-center gap-2 bg-accent/20 border border-accent/50 rounded-lg px-3 py-1">
+        <div className="flex items-center gap-2 bg-accent/20 border border-accent/50 rounded-full px-4 py-2">
           <span className="text-sm font-medium text-primary">TTS</span>
           <span className={`text-xs font-bold ${ttsEnabled ? 'text-lcars-green' : 'text-lcars-red'}`}>
             {ttsEnabled ? 'ON' : 'OFF'}
