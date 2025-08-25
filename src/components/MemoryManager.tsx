@@ -485,7 +485,7 @@ const MemoryManager = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-auto p-1 bg-red-500 hover:bg-red-600 rounded-sm border border-energy-blue"
+                            className="h-auto p-1 bg-red-500 hover:bg-red-600 rounded-full border border-energy-blue"
                           >
                             <HelpCircle className="w-3 h-3 text-yellow-400" />
                           </Button>
