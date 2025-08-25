@@ -1,5 +1,3 @@
-
-
 import { useState, useRef, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -156,8 +154,8 @@ export const ZandaleeTerminal = () => {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`
-                          flex-1 inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-2.5 min-w-0
-                          text-xs sm:text-sm font-bold rounded-full transition-all text-black touch-manipulation
+                          flex-1 inline-flex items-center justify-center gap-1 px-1 md:px-3 py-2.5 min-w-0
+                          text-xs md:text-sm font-bold rounded-full transition-all text-black touch-manipulation
                           ${activeTab === tab.id 
                             ? 'bg-lcars-orange shadow-sm' 
                             : `${tab.color} hover:bg-lcars-orange`
@@ -165,7 +163,7 @@ export const ZandaleeTerminal = () => {
                         `}
                       >
                         <Icon className="w-4 h-4 flex-shrink-0" />
-                        <span className="hidden sm:inline whitespace-nowrap">{tab.label}</span>
+                        <span className="hidden md:inline whitespace-nowrap overflow-hidden text-ellipsis">{tab.label}</span>
                       </button>
                     );
                   })}
@@ -230,4 +228,3 @@ export const ZandaleeTerminal = () => {
     </ProjectChatProvider>
   );
 };
-
