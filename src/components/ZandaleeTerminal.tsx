@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -100,8 +101,8 @@ export const ZandaleeTerminal = () => {
                   size="sm"
                   className="bg-lcars-purple hover:bg-lcars-pink text-black font-bold px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-full flex-shrink-0"
                 >
-                  <Plus className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2 flex-shrink-0" />
-                  <span className="hidden sm:inline">NEW CHAT</span>
+                  <Plus className="w-3 h-3 sm:w-4 sm:h-4 xs:mr-2 flex-shrink-0" />
+                  <span className="hidden xs:inline">NEW CHAT</span>
                 </Button>
                 
                 <Button
@@ -109,8 +110,8 @@ export const ZandaleeTerminal = () => {
                   size="sm"
                   className="bg-lcars-cyan hover:bg-lcars-teal text-black font-bold px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-full flex-shrink-0"
                 >
-                  <FolderPlus className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2 flex-shrink-0" />
-                  <span className="hidden sm:inline">NEW PROJECT</span>
+                  <FolderPlus className="w-3 h-3 sm:w-4 sm:h-4 xs:mr-2 flex-shrink-0" />
+                  <span className="hidden xs:inline">NEW PROJECT</span>
                 </Button>
                 
                 <h1 className="text-sm sm:text-lg md:text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent flex-shrink-0">
@@ -154,8 +155,8 @@ export const ZandaleeTerminal = () => {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`
-                          flex-1 inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-2.5 min-w-0
-                          text-xs sm:text-sm font-bold rounded-full transition-all text-black touch-manipulation
+                          flex-1 inline-flex items-center justify-center gap-1 px-2 xs:px-3 py-2.5 min-w-0
+                          text-xs xs:text-sm font-bold rounded-full transition-all text-black touch-manipulation
                           ${activeTab === tab.id 
                             ? 'bg-lcars-orange shadow-sm' 
                             : `${tab.color} hover:bg-lcars-orange`
@@ -163,7 +164,7 @@ export const ZandaleeTerminal = () => {
                         `}
                       >
                         <Icon className="w-4 h-4 flex-shrink-0" />
-                        <span className="hidden sm:inline whitespace-nowrap">{tab.label}</span>
+                        <span className="hidden xs:inline whitespace-nowrap">{tab.label}</span>
                       </button>
                     );
                   })}
