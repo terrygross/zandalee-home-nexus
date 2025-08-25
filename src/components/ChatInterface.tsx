@@ -6,6 +6,7 @@ import { Send, Volume2, VolumeX } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useZandaleeAPI } from '@/hooks/useZandaleeAPI';
+import { useGateway } from '@/hooks/useGateway';
 
 interface Message {
   id: string;
@@ -24,6 +25,7 @@ const ChatInterface = () => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { speak } = useZandaleeAPI();
+  const { askAndSpeak, askLLM } = useGateway();
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -75,25 +77,44 @@ const ChatInterface = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const messageText = input.trim();
     setInput('');
     setIsLoading(true);
 
     try {
-      // Simulate AI response
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      let assistantText: string;
       
+      if (ttsEnabled) {
+        // Use chat+tts endpoint
+        const { text } = await askAndSpeak(messageText);
+        assistantText = text;
+      } else {
+        // Use LLM-only endpoint when TTS is disabled
+        const { text } = await askLLM(messageText);
+        assistantText = text;
+      }
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `I received your message: "${userMessage.content}"`,
+        content: assistantText,
         sender: 'assistant',
         timestamp: new Date(),
       };
 
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: `Sorry — chat failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        sender: 'assistant',
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+      
       toast({
-        title: 'Error',
-        description: 'Failed to send message',
+        title: 'Chat Error',
+        description: 'Failed to get response from assistant',
         variant: 'destructive',
       });
     } finally {

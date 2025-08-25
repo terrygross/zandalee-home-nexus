@@ -1,3 +1,4 @@
+
 // -------------------- useGateway.ts --------------------
 import { useMemo, useState, useEffect } from "react";
 
@@ -11,6 +12,54 @@ async function j<T>(r: Response): Promise<T> {
     throw new Error(`HTTP ${r.status} ${r.statusText} ${txt}`);
   }
   return (await r.json()) as T;
+}
+
+// New unified helper for chat+tts
+async function askAndSpeak(message: string): Promise<{ text: string }> {
+  const resp = await fetch(`${API_BASE}/speak`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: message }),
+  });
+
+  if (!resp.ok) {
+    const err = await resp.text().catch(() => "");
+    throw new Error(`speak failed: ${resp.status} ${err}`);
+  }
+
+  const data = await resp.json().catch(() => ({} as any));
+  const text =
+    (typeof data.reply === "string" && data.reply.trim()) ||
+    (typeof data.spoken === "string" && data.spoken.trim()) ||
+    "Sorry, I couldn't generate a reply.";
+
+  return { text };
+}
+
+// LLM-only fallback using /api/chat
+async function askLLM(message: string, model?: string): Promise<{ text: string }> {
+  const resp = await fetch(`${API_BASE}/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: "user", content: message }],
+      stream: false,
+    }),
+  });
+  if (!resp.ok) {
+    const err = await resp.text().catch(() => "");
+    throw new Error(`chat failed: ${resp.status} ${err}`);
+  }
+  const js = await resp.json().catch(() => ({}));
+  // extract the assistant text robustly:
+  const text =
+    js?.message?.content ||
+    js?.choices?.[0]?.message?.content ||
+    js?.reply ||
+    js?.text ||
+    "";
+  return { text: text || "Sorry, I couldn't generate a reply." };
 }
 
 export function useGateway() {
@@ -165,6 +214,9 @@ export function useGateway() {
       // net + permissions
       openUrl, netFetch, netDownload,
       permExecute, permRequest, permPending, permApprove, permDeny,
+      // New unified helpers
+      askAndSpeak,
+      askLLM,
     };
   }, []);
 
