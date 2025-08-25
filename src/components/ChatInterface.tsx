@@ -23,14 +23,23 @@ const ChatInterface = () => {
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const [ttsEnabled, setTtsEnabled] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { speak } = useZandaleeAPI();
   const { askAndSpeak, askLLM } = useGateway();
 
+  // Auto-scroll to bottom when messages change
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-    }
+    const scrollToBottom = () => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+
+    // Small delay to ensure the DOM has updated
+    const timeoutId = setTimeout(scrollToBottom, 100);
+    
+    return () => clearTimeout(timeoutId);
   }, [messages]);
 
   const handleSpeak = async (message: Message) => {
@@ -217,6 +226,8 @@ const ChatInterface = () => {
               </div>
             </div>
           )}
+          {/* Invisible div to scroll to */}
+          <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
 
