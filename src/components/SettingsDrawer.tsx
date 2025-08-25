@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -132,6 +132,7 @@ const DEFAULT_CONFIGS = {
 
 export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ isOpen, onClose }) => {
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
   const [loading, setLoading] = useState(false);
   const [backendAvailable, setBackendAvailable] = useState(true);
   
@@ -553,9 +554,9 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ isOpen, onClose 
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="theme">Theme</Label>
-                    <Select value={uiConfig.theme} onValueChange={(value) => setUIConfig({...uiConfig, theme: value})}>
+                    <Select value={theme} onValueChange={setTheme}>
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="Select theme" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="light">Light</SelectItem>

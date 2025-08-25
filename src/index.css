@@ -19,13 +19,13 @@
     /* Add missing LCARS colors */
     --lcars-teal: 174 100% 50%;         /* Teal accent */
     
-    /* LCARS Backgrounds */
+    /* LCARS Backgrounds - Dark Theme */
     --lcars-bg-primary: 240 10% 8%;     /* Deep space black */
     --lcars-bg-secondary: 240 8% 12%;   /* Panel background */
     --lcars-bg-tertiary: 240 6% 15%;    /* Card background */
     --lcars-bg-panel: 240 8% 10%;       /* Main panel */
     
-    /* LCARS Text */
+    /* LCARS Text - Dark Theme */
     --lcars-text-primary: 199 89% 85%;  /* Light blue text */
     --lcars-text-secondary: 199 50% 70%; /* Medium blue text */
     --lcars-text-muted: 199 30% 50%;    /* Dim blue text */
@@ -53,6 +53,37 @@
     --ring: var(--lcars-orange);
     --radius: 0rem;
   }
+
+  /* Light Theme Override */
+  .light {
+    /* Light Backgrounds */
+    --lcars-bg-primary: 0 0% 95%;       /* Light gray */
+    --lcars-bg-secondary: 0 0% 90%;     /* Panel background */
+    --lcars-bg-tertiary: 0 0% 85%;      /* Card background */
+    --lcars-bg-panel: 0 0% 92%;         /* Main panel */
+    
+    /* Light Text */
+    --lcars-text-primary: 240 20% 15%;  /* Dark text */
+    --lcars-text-secondary: 240 15% 25%; /* Medium dark text */
+    --lcars-text-muted: 240 10% 45%;    /* Muted text */
+    --lcars-text-accent: 17 100% 35%;   /* Darker orange accent text */
+    
+    /* Update mapped variables for light theme */
+    --background: var(--lcars-bg-primary);
+    --foreground: var(--lcars-text-primary);
+    --card: var(--lcars-bg-panel);
+    --card-foreground: var(--lcars-text-primary);
+    --popover: var(--lcars-bg-secondary);
+    --popover-foreground: var(--lcars-text-primary);
+    --primary-foreground: var(--lcars-bg-primary);
+    --secondary: var(--lcars-bg-tertiary);
+    --secondary-foreground: var(--lcars-text-secondary);
+    --muted: var(--lcars-bg-tertiary);
+    --muted-foreground: var(--lcars-text-muted);
+    --accent-foreground: var(--lcars-text-primary);
+    --destructive-foreground: var(--lcars-text-primary);
+    --input: var(--lcars-bg-tertiary);
+  }
 }
 
 @layer base {
@@ -73,6 +104,10 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Orbitron', 'Courier Prime', monospace;
+  }
+
+  /* Dynamic background gradient that works with both themes */
+  body {
     background: linear-gradient(45deg, hsl(var(--lcars-bg-primary)) 0%, hsl(var(--lcars-bg-secondary)) 100%);
   }
 }
