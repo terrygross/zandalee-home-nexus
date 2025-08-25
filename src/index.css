@@ -48,7 +48,7 @@
     --accent-foreground: var(--lcars-text-primary);
     --destructive: var(--lcars-red);
     --destructive-foreground: var(--lcars-text-primary);
-    --border: 199 50% 30%;
+    --border: var(--lcars-blue);
     --input: var(--lcars-bg-tertiary);
     --ring: var(--lcars-orange);
     --radius: 0rem;
@@ -137,11 +137,24 @@
     letter-spacing: 0.15em;
   }
   
-  /* LCARS Card - rounded corner panel */
+  /* LCARS Card - rounded corner panel with consistent border */
   .lcars-card {
     @apply bg-card;
     border-radius: 20px;
     border: 2px solid hsl(var(--lcars-blue));
+  }
+
+  /* Glass Panel - consistent with Memory & Diary styling */
+  .glass-panel {
+    @apply bg-card;
+    border-radius: 20px;
+    border: 2px solid hsl(var(--lcars-blue));
+  }
+
+  /* Ensure all Card components have consistent borders */
+  .card, [class*="card"] {
+    border: 2px solid hsl(var(--lcars-blue)) !important;
+    border-radius: 20px;
   }
 }
 
