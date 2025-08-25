@@ -485,9 +485,9 @@ const MemoryManager = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-auto p-0 text-text-muted hover:text-energy-cyan cursor-help"
+                            className="h-auto p-1 bg-red-500 hover:bg-red-600 rounded-sm border border-energy-blue"
                           >
-                            <HelpCircle className="w-3 h-3" />
+                            <HelpCircle className="w-3 h-3 text-yellow-400" />
                           </Button>
                         </HoverCardTrigger>
                         <HoverCardContent className="w-80 text-xs z-[100]" side="left" align="start">
@@ -536,6 +536,7 @@ const MemoryManager = () => {
                 </div>
               </div>
 
+              {/* Tags section */}
               <div className="mb-2">
                 <div className="text-[10px] text-text-muted mb-1">Tags</div>
                 <Input
@@ -546,6 +547,7 @@ const MemoryManager = () => {
                 />
               </div>
               
+              {/* Sliders section */}
               <div className="grid grid-cols-2 gap-2 mb-2">
                 <div>
                   <div className="text-[10px] text-text-muted mb-1">
