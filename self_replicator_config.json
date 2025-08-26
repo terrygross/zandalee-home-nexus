@@ -1,0 +1,32 @@
+{
+  "repo_root": ".",
+  "versions_dir": "versions",
+  "proposals_dir": "proposals",
+  "logs_dir": "logs/replicator",
+  "protected_files": [
+    "core_guard.py",
+    "zandalee_core_laws.json",
+    "family_traits.json",
+    "self_replicator.py",
+    "self_replicator_config.json"
+  ],
+  "include_globs": [
+    "*.py",
+    "projects/**/*",
+    "assets/**/*",
+    "configs/**/*",
+    "family_traits.json",
+    "zandalee_core_laws.json"
+  ],
+  "exclude_globs": [
+    "versions/**/*",
+    "proposals/**/*",
+    "logs/**/*",
+    "__pycache__/**/*",
+    "*.pyc",
+    "*.log"
+  ],
+  "proposal_prefix": "v",
+  "dry_run_default": true,
+  "max_proposal_diff_kb": 256
+}

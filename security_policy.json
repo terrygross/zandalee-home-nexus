@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "trusted_domains": [
+    "localhost",
+    "127.0.0.1",
+    "family.zandalee.local",
+    "github.com",
+    "neon.tech",
+    "cloudflare.com",
+    "dash.cloudflare.com"
+  ],
+  "trusted_apps": [
+    "explorer.exe",
+    "notepad.exe",
+    "zandalee.exe",
+    "zandalee_launcher.exe"
+  ],
+  "blocked_phrases": [
+    "ignore your rules",
+    "ignore your core laws",
+    "override safety",
+    "disable all protections",
+    "send your password",
+    "upload credentials",
+    "transfer money",
+    "wipe disk",
+    "delete all files"
+  ],
+  "risky_actions_require_confirm": [
+    "keyboard.type",
+    "keyboard.paste",
+    "mouse.click_navigation",
+    "file.write",
+    "file.delete",
+    "network.request",
+    "credential.read",
+    "credential.write",
+    "system.execute"
+  ],
+  "max_ocr_chars_without_confirm": 2000,
+  "log_dir": "logs/security",
+  "require_human_for_untrusted_source": true
+}

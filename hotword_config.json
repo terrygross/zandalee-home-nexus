@@ -1,0 +1,6 @@
+{
+    "device_id": 18,
+    "sample_rate": 48000.0,
+    "gain": 10.0,
+    "model_size": "tiny"
+}

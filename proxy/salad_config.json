@@ -1,0 +1,9 @@
+{
+  "base": "https://pomelo-gadogado-wkow7cp6m2u599hw.salad.cloud",
+  "apiKey": "salad_cloud_user_JQhwrTQLmH2Y5kCIcD8Wiah7bye1cexefaEad88rXri0iK1Kk",
+  "model": "qwen2.5-coder:32b",
+  "voiceBackend": "sapi",
+  "voiceBase": "http://127.0.0.1:8759",
+  "openInternet": true,
+  "configLocked": true
+}

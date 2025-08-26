@@ -1,0 +1,15 @@
+{
+  "u_0001": {
+    "id": "u_0001",
+    "email": "superadmin@local",
+    "name": "Super Admin",
+    "family": "Zandalee",
+    "role": "superadmin",
+    "pw": {
+      "salt": "e6a38efc463462083f107d23ae798d98",
+      "hash": "f9be7bb64cff27635ff57c0f060556e2e8653eb29b52326d61eee1d0cacf959e"
+    },
+    "created_s": 1756041059,
+    "home_dir": "C:\\Users\\teren\\Documents\\Zandalee\\data\\family\\SuperAdmin"
+  }
+}

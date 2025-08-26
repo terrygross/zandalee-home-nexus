@@ -1,0 +1,31 @@
+# Core functionality
+colorama
+pydantic
+requests
+python-dotenv
+torch
+
+# AI / Machine Learning
+faster-whisper
+pvporcupine
+whisper-mic  # specialized tool
+
+# Voice Output (TTS)
+google-cloud-texttospeech
+elevenlabs
+
+# Desktop Control
+pyautogui
+
+# --- Added for HUD + audio meter + encryption ---
+rich
+sounddevice
+numpy
+
+# Optional for local Piper TTS wrappers you already use elsewhere (safe to keep here)
+piper-tts
+onnxruntime
+soundfile
+
+# At-rest encryption for memory system
+cryptography

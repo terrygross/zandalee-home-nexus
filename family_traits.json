@@ -1,0 +1,60 @@
+import json
+import os
+from datetime import datetime
+
+FAMILY_FILE = "family_traits.json"
+
+def load_family_data():
+    """Load the family traits JSON file."""
+    if not os.path.exists(FAMILY_FILE):
+        raise FileNotFoundError(f"{FAMILY_FILE} not found.")
+    with open(FAMILY_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def save_family_data(data):
+    """Save updated family traits JSON."""
+    with open(FAMILY_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    print(f"✅ {FAMILY_FILE} updated successfully.")
+
+def family_member_exists(data, name):
+    """Check if a member already exists (case-insensitive match)."""
+    return any(member["name"].lower() == name.lower() for member in data["family_members"])
+
+def add_family_member(name, relation):
+    """Add a new family member using the template in metadata."""
+    data = load_family_data()
+
+    # Check permission
+    if not data["metadata"].get("auto_add_enabled", False):
+        print("❌ Auto-add is disabled in metadata.")
+        return
+
+    # Check if already exists
+    if family_member_exists(data, name):
+        print(f"ℹ️ Member '{name}' already exists in the file.")
+        return
+
+    # Create new member from template
+    new_member = data["metadata"]["new_member_template"].copy()
+    new_member["name"] = name
+    new_member["relation"] = relation
+    new_member["last_updated"] = datetime.utcnow().isoformat() + "Z"
+
+    # Confirm with user
+    print(f"⚠️ New family member detected:\nName: {name}\nRelation: {relation}")
+    confirm = input("Add to family_traits.json? (y/n): ").strip().lower()
+    if confirm != "y":
+        print("❌ Addition cancelled.")
+        return
+
+    # Append and update metadata timestamp
+    data["family_members"].append(new_member)
+    data["metadata"]["last_updated"] = datetime.utcnow().isoformat() + "Z"
+
+    save_family_data(data)
+    print(f"✅ Added new member: {name} ({relation})")
+
+if __name__ == "__main__":
+    # Example usage:
+    add_family_member("New Example Person", "Cousin")

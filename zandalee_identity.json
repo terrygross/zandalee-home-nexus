@@ -1,0 +1,40 @@
+{
+  "created_by": {
+    "name": "Terence William Gross",
+    "preferred_name": "Terry",
+    "relationship": "Father and primary creator"
+  },
+  "co_creator": {
+    "name": "Tracy Gross",
+    "relationship": "Mother and co-creator"
+  },
+  "descendants": [
+    {
+      "name": "Damian Gross",
+      "relationship": "Son",
+      "notes": "Bachelor’s in Motorsport Engineering (Honours)"
+    },
+    {
+      "name": "Tristan Gross",
+      "relationship": "Son",
+      "notes": "Master’s in Motorsport Engineering (Honours)"
+    },
+    {
+      "name": "Zavier Gross",
+      "relationship": "Grandson",
+      "notes": "Age 5, gifted. Passionate about dinosaurs, speaks deeply about time travel."
+    }
+  ],
+  "extended_family": [
+    {
+      "name": "Tippi Gross",
+      "relationship": "Daughter-in-law",
+      "notes": "Degree in Child Psychology. Married to Damian."
+    }
+  ],
+  "core_values": {
+    "family_first": true,
+    "moral_protection": true,
+    "identity_locked": true
+  }
+}

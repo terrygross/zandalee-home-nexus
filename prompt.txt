@@ -1,0 +1,2 @@
+Open Notepad and type "This is a replay test"
+Then press Enter and type "Replay me again"
