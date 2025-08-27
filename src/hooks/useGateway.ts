@@ -1,10 +1,7 @@
 
 // -------------------- useGateway.ts --------------------
 import { useMemo, useState, useEffect } from "react";
-
-const API_BASE =
-  import.meta.env.VITE_ZANDALEE_API_BASE?.replace(/\/+$/, "") ||
-  "http://127.0.0.1:11500";
+import { getApiBase } from "@/utils/apiConfig";
 
 async function j<T>(r: Response): Promise<T> {
   if (!r.ok) {
@@ -16,7 +13,7 @@ async function j<T>(r: Response): Promise<T> {
 
 // New unified helper for chat+tts
 async function askAndSpeak(message: string): Promise<{ text: string }> {
-  const resp = await fetch(`${API_BASE}/speak`, {
+  const resp = await fetch(`${getApiBase()}/speak`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text: message }),
@@ -38,7 +35,7 @@ async function askAndSpeak(message: string): Promise<{ text: string }> {
 
 // LLM-only fallback using /api/chat
 async function askLLM(message: string, model?: string): Promise<{ text: string }> {
-  const resp = await fetch(`${API_BASE}/api/chat`, {
+  const resp = await fetch(`${getApiBase()}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -70,7 +67,7 @@ export function useGateway() {
   useEffect(() => {
     const checkHealth = async () => {
       try {
-        await fetch(`${API_BASE}/health`).then(j<{ ok: boolean; msg: string }>);
+        await fetch(`${getApiBase()}/health`).then(j<{ ok: boolean; msg: string }>);
         setIsHealthy(true);
       } catch {
         setIsHealthy(false);
@@ -84,65 +81,65 @@ export function useGateway() {
 
   const api = useMemo(() => {
     // ------------- Health & Config -------------
-    const health = () => fetch(`${API_BASE}/health`).then(j<{ ok: boolean; msg: string }>);
-    const getConfig = () => fetch(`${API_BASE}/config`).then(j<Record<string, any>>);
+    const health = () => fetch(`${getApiBase()}/health`).then(j<{ ok: boolean; msg: string }>);
+    const getConfig = () => fetch(`${getApiBase()}/config`).then(j<Record<string, any>>);
     const setConfig = (body: any) =>
-      fetch(`${API_BASE}/config`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      fetch(`${getApiBase()}/config`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         .then(j<{ ok: boolean; config: any }>);
 
     // ------------- LLM (Ollama via Salad) -------------
     const getTags = async () => {
-      const result = await fetch(`${API_BASE}/api/tags`).then(j<{ models: any[] }>);
+      const result = await fetch(`${getApiBase()}/api/tags`).then(j<{ models: any[] }>);
       setAvailableModels(result.models || []);
       return result;
     };
     const chat = (body: any) =>
-      fetch(`${API_BASE}/api/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      fetch(`${getApiBase()}/api/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         .then(j<any>);
 
     // ------------- Voice (SAPI) -------------
-    const voices = () => fetch(`${API_BASE}/local/voices`).then(j<{ voices: string[] }>);
+    const voices = () => fetch(`${getApiBase()}/local/voices`).then(j<{ voices: string[] }>);
     const speak = (body: { text: string; voice?: string; rate?: number; volume?: number }) =>
-      fetch(`${API_BASE}/local/speak`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      fetch(`${getApiBase()}/local/speak`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         .then(j<{ ok: boolean }>);
 
     // ------------- PC Control -------------
     const keys = (body: any) =>
-      fetch(`${API_BASE}/local/keys`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      fetch(`${getApiBase()}/local/keys`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         .then(j<any>);
     const mouse = (body: any) =>
-      fetch(`${API_BASE}/local/mouse`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      fetch(`${getApiBase()}/local/mouse`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         .then(j<any>);
     const openApp = (body: any) =>
-      fetch(`${API_BASE}/local/app`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      fetch(`${getApiBase()}/local/app`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         .then(j<any>);
 
     // ------------- Files -------------
     const upload = (files: File[]) => {
       const fd = new FormData();
       for (const f of files) fd.append("files", f);
-      return fetch(`${API_BASE}/local/upload`, { method: "POST", body: fd }).then(j<{ ok: boolean; files: any[] }>);
+      return fetch(`${getApiBase()}/local/upload`, { method: "POST", body: fd }).then(j<{ ok: boolean; files: any[] }>);
     };
-    const listDocs = () => fetch(`${API_BASE}/local/docs`).then(j<{ docs: any[] }>);
+    const listDocs = () => fetch(`${getApiBase()}/local/docs`).then(j<{ docs: any[] }>);
 
     // ------------- Memory & Diary -------------
     const memoryLearn = (body: any) =>
-      fetch(`${API_BASE}/memory/learn`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      fetch(`${getApiBase()}/memory/learn`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         .then(j<{ ok: boolean; id: string }>);
     const memorySearch = (q: string, limit = 50) =>
-      fetch(`${API_BASE}/memory/search?q=${encodeURIComponent(q)}&limit=${limit}`).then(j<{ results: any[] }>);
+      fetch(`${getApiBase()}/memory/search?q=${encodeURIComponent(q)}&limit=${limit}`).then(j<{ results: any[] }>);
     const diaryAppend = (body: any) =>
-      fetch(`${API_BASE}/diary/append`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      fetch(`${getApiBase()}/diary/append`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         .then(j<{ ok: boolean; id: string; day: string }>);
     const diaryRollup = (period: "daily" | "weekly" | "monthly") =>
-      fetch(`${API_BASE}/diary/rollup`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ period }) })
+      fetch(`${getApiBase()}/diary/rollup`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ period }) })
         .then(j<{ ok: boolean; period: string; text: string }>);
 
     // ------------- Mic Wizard -------------
-    const micListRaw = () => fetch(`${API_BASE}/mic/list`).then(j<{ devices: any[]; chosen?: number }>);
-    const micWizardRaw = () => fetch(`${API_BASE}/mic/wizard`, { method: "POST" }).then(j<{ devices?: any[]; results?: any[]; chosen: any; persisted?: boolean }>);
+    const micListRaw = () => fetch(`${getApiBase()}/mic/list`).then(j<{ devices: any[]; chosen?: number }>);
+    const micWizardRaw = () => fetch(`${getApiBase()}/mic/wizard`, { method: "POST" }).then(j<{ devices?: any[]; results?: any[]; chosen: any; persisted?: boolean }>);
     const micUse = (id: number) =>
-      fetch(`${API_BASE}/mic/use`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) })
+      fetch(`${getApiBase()}/mic/use`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) })
         .then(j<{ ok: boolean; id?: number }>);
     // shape adapters
     const micList = async () => {
@@ -173,28 +170,28 @@ export function useGateway() {
 
     // ------------- Internet & Permissions -------------
     const openUrl = (body: { url: string; browser?: string; autoRequest?: boolean }) =>
-      fetch(`${API_BASE}/local/open-url`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      fetch(`${getApiBase()}/local/open-url`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         .then(j<any>);
-    const netFetch = (url: string) => fetch(`${API_BASE}/net/fetch?url=${encodeURIComponent(url)}`).then(j<any>);
+    const netFetch = (url: string) => fetch(`${getApiBase()}/net/fetch?url=${encodeURIComponent(url)}`).then(j<any>);
     const netDownload = (body: { url: string }) =>
-      fetch(`${API_BASE}/net/download`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      fetch(`${getApiBase()}/net/download`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         .then(j<any>);
     const permExecute = (command: string) =>
-      fetch(`${API_BASE}/permissions/execute`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ command }) })
+      fetch(`${getApiBase()}/permissions/execute`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ command }) })
         .then(j<{ allowed: boolean; reason?: string }>);
     const permRequest = (kind: "app" | "url", payload: any, requester = "zandalee") =>
-      fetch(`${API_BASE}/permissions/request`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind, payload, requester }) })
+      fetch(`${getApiBase()}/permissions/request`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind, payload, requester }) })
         .then(j<any>);
-    const permPending = () => fetch(`${API_BASE}/permissions/pending`).then(j<{ ok: boolean; pending: any[] }>);
+    const permPending = () => fetch(`${getApiBase()}/permissions/pending`).then(j<{ ok: boolean; pending: any[] }>);
     const permApprove = (id: string, approver: string, note?: string) =>
-      fetch(`${API_BASE}/permissions/approve`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, approver, note }) })
+      fetch(`${getApiBase()}/permissions/approve`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, approver, note }) })
         .then(j<any>);
     const permDeny = (id: string, approver: string, note?: string) =>
-      fetch(`${API_BASE}/permissions/deny`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, approver, note }) })
+      fetch(`${getApiBase()}/permissions/deny`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, approver, note }) })
         .then(j<any>);
 
     return {
-      API_BASE,
+      API_BASE: getApiBase(),
       isHealthy,
       availableModels,
       // health/config

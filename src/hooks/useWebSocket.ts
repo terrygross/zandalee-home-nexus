@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from '@/contexts/SessionContext';
+import { getWsBase } from '@/utils/apiConfig';
 
 interface PermissionEvent {
   type: 'permission';
@@ -12,8 +13,6 @@ interface WebSocketMessage {
   [key: string]: any;
 }
 
-const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
-
 export const useWebSocket = () => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -23,8 +22,7 @@ export const useWebSocket = () => {
   const connect = useCallback(() => {
     if (socket?.readyState === WebSocket.OPEN) return;
 
-    const wsUrl = API_BASE.replace('http', 'ws') + '/ws';
-    const ws = new WebSocket(wsUrl);
+    const ws = new WebSocket(getWsBase());
 
     ws.onopen = () => {
       setIsConnected(true);
