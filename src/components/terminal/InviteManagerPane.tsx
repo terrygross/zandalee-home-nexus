@@ -1,23 +1,19 @@
 import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Users, Mail, Clock, Shield, Trash2, Key, RotateCcw } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
+import { Plus, Trash2, UserPlus, Mail, Shield, Users, Key, RefreshCw, AlertCircle } from 'lucide-react';
 import { useSession } from '@/contexts/SessionContext';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { formatDistanceToNow } from 'date-fns';
+import { getApiBase } from "@/utils/apiConfig";
 
-interface PendingInvite {
-  code: string;
-  familyName: string;
+interface Invite {
+  id: string;
   email: string;
-  role: 'superadmin' | 'admin' | 'adult' | 'kid' | 'guest';
+  role: string;
+  status: string;
   createdAt: string;
   expiresAt: string;
 }
@@ -25,576 +21,478 @@ interface PendingInvite {
 interface FamilyMember {
   familyName: string;
   email: string;
-  role: 'superadmin' | 'admin' | 'adult' | 'kid' | 'guest';
-  createdAt: string;
+  role: string;
+  isOnline: boolean;
+  lastActive: string;
 }
 
-export const InviteManagerPane = () => {
-  const [inviteForm, setInviteForm] = useState({
-    familyName: '',
-    email: '',
-    role: 'adult' as 'superadmin' | 'admin' | 'adult' | 'kid' | 'guest'
-  });
-  const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>([]);
+export function InviteManagerPane() {
+  const [invites, setInvites] = useState<Invite[]>([]);
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [inviteCode, setInviteCode] = useState<string | null>(null);
-
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState('adult');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const { toast } = useToast();
   const { user } = useSession();
 
-  const ENABLE_INVITES = import.meta.env.VITE_ENABLE_INVITES !== 'false'; // Default enabled unless explicitly disabled
+  const ENABLE_INVITES = import.meta.env.VITE_ENABLE_INVITES !== 'false';
 
-  useEffect(() => {
-    if (ENABLE_INVITES) {
-      loadPendingInvites();
-      loadFamilyMembers();
-    } else {
-      // Mock data for development
-      setPendingInvites([]);
-      setFamilyMembers([]);
-    }
-  }, [ENABLE_INVITES]);
+  // Only show invite manager to admin/superadmin roles
+  if (!user || (user.role !== 'admin' && user.role !== 'superadmin')) {
+    return (
+      <div className="p-6 text-center">
+        <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-400" />
+        <h3 className="text-lg font-semibold text-space-lightest mb-2">Access Denied</h3>
+        <p className="text-text-muted">You don't have permission to manage family invitations.</p>
+      </div>
+    );
+  }
 
-  const loadPendingInvites = async () => {
-    if (!ENABLE_INVITES) return;
-    
+  if (!ENABLE_INVITES) {
+    return (
+      <div className="p-6 text-center">
+        <Users className="w-8 h-8 mx-auto mb-4 text-text-muted" />
+        <h3 className="text-lg font-semibold text-space-lightest mb-2">Invites Disabled</h3>
+        <p className="text-text-muted">Family invitations are currently disabled in the configuration.</p>
+      </div>
+    );
+  }
+
+  // Fetch invites
+  const fetchInvites = async () => {
     try {
-      const response = await fetch(`${getApiBase()}/auth/invites`, {
-        headers: { 'X-User': user?.familyName || '' }
-      });
-      const data = await response.json();
-      if (data.ok) {
-        setPendingInvites(data.invites || []);
+      setIsLoading(true);
+      const response = await fetch(`${getApiBase()}/auth/invites`);
+
+      if (response.ok) {
+        const data = await response.json();
+        setInvites(data.invites || []);
       }
     } catch (error) {
-      console.error('Failed to load pending invites:', error);
+      console.error('Failed to fetch invites:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const loadFamilyMembers = async () => {
-    if (!ENABLE_INVITES) return;
-    
+  // Fetch family members
+  const fetchFamilyMembers = async () => {
     try {
-      const response = await fetch(`${getApiBase()}/auth/family/members`, {
-        headers: { 'X-User': user?.familyName || '' }
-      });
-      const data = await response.json();
-      if (data.ok) {
+      const response = await fetch(`${getApiBase()}/auth/family/members`);
+
+      if (response.ok) {
+        const data = await response.json();
         setFamilyMembers(data.users || []);
       }
     } catch (error) {
-      console.error('Failed to load family members:', error);
+      console.error('Failed to fetch family members:', error);
     }
   };
 
-  const handleSendInvite = async () => {
-    if (!ENABLE_INVITES) {
+  // Load data on component mount
+  useEffect(() => {
+    const loadData = async () => {
+      setIsInitialLoading(true);
+      await Promise.all([
+        fetchInvites(),
+        fetchFamilyMembers(),
+      ]);
+      setIsInitialLoading(false);
+    };
+
+    loadData();
+  }, []);
+
+  // Send invitation
+  const sendInvitation = async () => {
+    if (!email.trim()) {
       toast({
-        title: "Feature Disabled",
-        description: "Invite system is not enabled yet. Check back later!",
-        variant: "default"
+        title: "Error",
+        description: "Please enter an email address",
+        variant: "destructive",
       });
       return;
     }
 
-    if (!inviteForm.familyName || !inviteForm.email) {
-      toast({
-        title: "Invalid Input",
-        description: "Please fill in all required fields",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setLoading(true);
     try {
+      setIsLoading(true);
       const response = await fetch(`${getApiBase()}/auth/invite`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-User': user?.familyName || ''
         },
-        body: JSON.stringify(inviteForm)
+        body: JSON.stringify({
+          familyName: user.familyName,
+          email: email.trim(),
+          role,
+        }),
       });
 
-      const data = await response.json();
-      if (data.ok) {
-        setInviteCode(data.code);
-        setInviteForm({ familyName: '', email: '', role: 'adult' });
-        loadPendingInvites();
+      if (response.ok) {
         toast({
-          title: "Invite Sent",
-          description: `Invitation sent to ${inviteForm.email}`,
+          title: "Success",
+          description: `Invitation sent to ${email}`,
         });
+        setEmail('');
+        fetchInvites(); // Refresh invites
       } else {
-        throw new Error(data.error || 'Failed to send invite');
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to send invitation');
       }
     } catch (error) {
-      console.error('Failed to send invite:', error);
+      console.error('Failed to send invitation:', error);
       toast({
-        title: "Invite Failed",
-        description: error instanceof Error ? error.message : "Could not send invitation",
-        variant: "destructive"
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to send invitation',
+        variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const handleRevokeInvite = async (code: string) => {
-    if (!ENABLE_INVITES) {
-      toast({
-        title: "Feature Disabled",
-        description: "Invite system is not enabled yet",
-        variant: "default"
-      });
-      return;
-    }
-    
+  // Revoke invitation
+  const revokeInvitation = async (inviteCode: string) => {
     try {
+      setIsLoading(true);
       const response = await fetch(`${getApiBase()}/auth/revoke-invite`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-User': user?.familyName || ''
         },
-        body: JSON.stringify({ code })
+        body: JSON.stringify({
+          code: inviteCode,
+        }),
       });
 
-      const data = await response.json();
-      if (data.ok) {
-        loadPendingInvites();
+      if (response.ok) {
         toast({
-          title: "Invite Revoked",
-          description: "Invitation has been revoked",
+          title: "Success",
+          description: "Invitation revoked",
         });
+        fetchInvites(); // Refresh invites
       } else {
-        throw new Error(data.error || 'Failed to revoke invite');
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to revoke invitation');
       }
     } catch (error) {
-      console.error('Failed to revoke invite:', error);
+      console.error('Failed to revoke invitation:', error);
       toast({
-        title: "Revoke Failed",
-        description: error instanceof Error ? error.message : "Could not revoke invitation",
-        variant: "destructive"
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to revoke invitation',
+        variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleUpdateRole = async (familyName: string, newRole: string) => {
-    if (!ENABLE_INVITES) {
-      toast({
-        title: "Feature Disabled", 
-        description: "Family management is not enabled yet",
-        variant: "default"
-      });
-      return;
-    }
-    
+  // Update member role
+  const updateMemberRole = async (familyName: string, newRole: string) => {
     try {
+      setIsLoading(true);
       const response = await fetch(`${getApiBase()}/auth/update-role`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-User': user?.familyName || ''
         },
-        body: JSON.stringify({ familyName, role: newRole })
+        body: JSON.stringify({
+          familyName,
+          role: newRole,
+        }),
       });
 
-      const data = await response.json();
-      if (data.ok) {
-        loadFamilyMembers();
+      if (response.ok) {
         toast({
-          title: "Role Updated",
-          description: `${familyName}'s role updated to ${newRole}`,
+          title: "Success",
+          description: "Member role updated",
         });
+        fetchFamilyMembers(); // Refresh members
       } else {
-        throw new Error(data.error || 'Failed to update role');
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update role');
       }
     } catch (error) {
       console.error('Failed to update role:', error);
       toast({
-        title: "Update Failed",
-        description: error instanceof Error ? error.message : "Could not update role",
-        variant: "destructive"
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to update role',
+        variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleResetPassword = async (familyName: string) => {
-    if (!ENABLE_INVITES) {
-      toast({
-        title: "Feature Disabled",
-        description: "Family management is not enabled yet", 
-        variant: "default"
-      });
-      return;
-    }
-    
+  // Reset member password
+  const resetMemberPassword = async (familyName: string) => {
     try {
+      setIsLoading(true);
       const response = await fetch(`${getApiBase()}/auth/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-User': user?.familyName || ''
         },
-        body: JSON.stringify({ familyName })
+        body: JSON.stringify({
+          familyName,
+        }),
       });
 
-      const data = await response.json();
-      if (data.ok) {
+      if (response.ok) {
+        const data = await response.json();
         toast({
-          title: "Password Reset",
-          description: `New temporary password: ${data.tempPasswordOrPin}`,
+          title: "Success",
+          description: `Password reset. New password: ${data.tempPasswordOrPin}`,
         });
       } else {
-        throw new Error(data.error || 'Failed to reset password');
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to reset password');
       }
     } catch (error) {
       console.error('Failed to reset password:', error);
       toast({
-        title: "Reset Failed",
-        description: error instanceof Error ? error.message : "Could not reset password",
-        variant: "destructive"
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to reset password',
+        variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleRemoveUser = async (familyName: string) => {
-    if (!ENABLE_INVITES) {
-      toast({
-        title: "Feature Disabled",
-        description: "Family management is not enabled yet",
-        variant: "default"
-      });
-      return;
-    }
-    
+  // Remove member
+  const removeMember = async (familyName: string) => {
     try {
+      setIsLoading(true);
       const response = await fetch(`${getApiBase()}/auth/remove-user`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-User': user?.familyName || ''
         },
-        body: JSON.stringify({ familyName })
+        body: JSON.stringify({
+          familyName,
+        }),
       });
 
-      const data = await response.json();
-      if (data.ok) {
-        loadFamilyMembers();
+      if (response.ok) {
         toast({
-          title: "User Removed",
-          description: `${familyName} has been removed from the family`,
+          title: "Success",
+          description: "Member removed from family",
         });
+        fetchFamilyMembers(); // Refresh members
       } else {
-        throw new Error(data.error || 'Failed to remove user');
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to remove member');
       }
     } catch (error) {
-      console.error('Failed to remove user:', error);
+      console.error('Failed to remove member:', error);
       toast({
-        title: "Remove Failed",
-        description: error instanceof Error ? error.message : "Could not remove user",
-        variant: "destructive"
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to remove member',
+        variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const getRoleBadgeVariant = (role: string) => {
-    switch (role) {
-      case 'superadmin': return 'destructive';
-      case 'admin': return 'default';
-      case 'adult': return 'secondary';
-      case 'kid': return 'outline';
-      case 'guest': return 'outline';
-      default: return 'secondary';
-    }
-  };
+  if (isInitialLoading) {
+    return (
+      <div className="p-6 text-center">
+        <RefreshCw className="w-8 h-8 mx-auto mb-4 text-energy-cyan animate-spin" />
+        <p className="text-text-muted">Loading family management...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center gap-2">
-        <Users className="w-6 h-6" />
-        <h2 className="text-2xl font-bold">Family Management</h2>
-        <Badge variant="secondary" className="text-xs">
-          Admin Only
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-space-lightest">Family Management</h2>
+          <p className="text-text-muted">Invite and manage family members</p>
+        </div>
+        <Badge variant="secondary" className="bg-energy-cyan/20 text-energy-cyan border-energy-cyan/30">
+          <Users className="w-3 h-3 mr-1" />
+          {familyMembers.length} member{familyMembers.length !== 1 ? 's' : ''}
         </Badge>
-        {!ENABLE_INVITES && (
-          <Badge variant="outline" className="text-xs">
-            Preview Mode
-          </Badge>
-        )}
       </div>
 
-      <Tabs defaultValue="invite" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="invite">
-            <UserPlus className="w-4 h-4 mr-2" />
-            Send Invite
-          </TabsTrigger>
-          <TabsTrigger value="pending">
-            <Clock className="w-4 h-4 mr-2" />
-            Pending Invites ({pendingInvites.length})
-          </TabsTrigger>
-          <TabsTrigger value="members">
-            <Users className="w-4 h-4 mr-2" />
+      {/* Send Invitation */}
+      <Card className="bg-space-mid border-space-light">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-space-lightest">
+            <UserPlus className="w-5 h-5" />
+            Send Invitation
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <Input
+                type="email"
+                placeholder="Enter email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="bg-space-darker border-space-light text-space-lightest"
+                disabled={isLoading}
+              />
+            </div>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="px-3 py-2 bg-space-darker border border-space-light rounded-md text-space-lightest"
+              disabled={isLoading}
+            >
+              <option value="adult">Adult</option>
+              <option value="kid">Kid</option>
+              <option value="guest">Guest</option>
+              {user.role === 'superadmin' && <option value="admin">Admin</option>}
+            </select>
+            <Button
+              onClick={sendInvitation}
+              disabled={isLoading || !email.trim()}
+              className="bg-energy-cyan hover:bg-energy-cyan/80 text-space-darker"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Invite
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Pending Invitations */}
+      <Card className="bg-space-mid border-space-light">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-space-lightest">
+            <Mail className="w-5 h-5" />
+            Pending Invitations ({invites.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {invites.length === 0 ? (
+            <p className="text-text-muted text-center py-4">No pending invitations</p>
+          ) : (
+            <ScrollArea className="h-48">
+              <div className="space-y-3">
+                {invites.map((invite) => (
+                  <div
+                    key={invite.id}
+                    className="flex items-center justify-between p-3 bg-space-darker rounded-lg border border-space-light"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Mail className="w-4 h-4 text-text-muted" />
+                      <div>
+                        <p className="text-space-lightest font-medium">{invite.email}</p>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            {invite.role}
+                          </Badge>
+                          <Badge
+                            variant={invite.status === 'pending' ? 'secondary' : 'default'}
+                            className="text-xs"
+                          >
+                            {invite.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => revokeInvitation(invite.id)}
+                      disabled={isLoading}
+                      className="text-red-400 hover:text-red-300 hover:bg-red-400/20"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Family Members */}
+      <Card className="bg-space-mid border-space-light">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-space-lightest">
+            <Users className="w-5 h-5" />
             Family Members ({familyMembers.length})
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="invite">
-          <Card>
-            <CardHeader>
-              <CardTitle>Send Family Invitation</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="familyName">Family Name *</Label>
-                  <Input
-                    id="familyName"
-                    placeholder="Enter family member name"
-                    value={inviteForm.familyName}
-                    onChange={(e) => setInviteForm({ ...inviteForm, familyName: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email">Email Address *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter email address"
-                    value={inviteForm.email}
-                    onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <Label htmlFor="role">Role</Label>
-                <Select
-                  value={inviteForm.role}
-                  onValueChange={(value: any) => setInviteForm({ ...inviteForm, role: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="adult">Adult</SelectItem>
-                    <SelectItem value="kid">Kid</SelectItem>
-                    <SelectItem value="guest">Guest</SelectItem>
-                    {user?.role === 'superadmin' && (
-                      <>
-                        <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="superadmin">Super Admin</SelectItem>
-                      </>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <Button 
-                onClick={handleSendInvite} 
-                disabled={loading}
-                className="w-full"
-              >
-                <Mail className="w-4 h-4 mr-2" />
-                {loading ? 'Sending...' : 'Send Invitation'}
-              </Button>
-
-              {inviteCode && (
-                <div className="p-4 bg-muted rounded-lg">
-                  <div className="font-medium mb-2">Invitation Code Generated:</div>
-                  <div className="font-mono text-sm bg-background p-2 rounded border">
-                    {inviteCode}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {familyMembers.length === 0 ? (
+            <p className="text-text-muted text-center py-4">No family members</p>
+          ) : (
+            <ScrollArea className="h-64">
+              <div className="space-y-3">
+                {familyMembers.map((member) => (
+                  <div
+                    key={member.familyName}
+                    className="flex items-center justify-between p-3 bg-space-darker rounded-lg border border-space-light"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${member.isOnline ? 'bg-green-400' : 'bg-gray-400'}`} />
+                      <div>
+                        <p className="text-space-lightest font-medium">{member.familyName}</p>
+                        <p className="text-text-muted text-sm">{member.email}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs">
+                            {member.role}
+                          </Badge>
+                          {!member.isOnline && (
+                            <span className="text-xs text-text-muted">
+                              Last active: {new Date(member.lastActive).toLocaleDateString()}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={member.role}
+                        onChange={(e) => updateMemberRole(member.familyName, e.target.value)}
+                        className="px-2 py-1 text-xs bg-space-light border border-space-light rounded text-space-lightest"
+                        disabled={isLoading || member.familyName === user.familyName}
+                      >
+                        <option value="adult">Adult</option>
+                        <option value="kid">Kid</option>
+                        <option value="guest">Guest</option>
+                        {user.role === 'superadmin' && <option value="admin">Admin</option>}
+                        {user.role === 'superadmin' && <option value="superadmin">Super Admin</option>}
+                      </select>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => resetMemberPassword(member.familyName)}
+                        disabled={isLoading || member.familyName === user.familyName}
+                        className="text-yellow-400 hover:text-yellow-300 hover:bg-yellow-400/20"
+                        title="Reset Password"
+                      >
+                        <Key className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeMember(member.familyName)}
+                        disabled={isLoading || member.familyName === user.familyName}
+                        className="text-red-400 hover:text-red-300 hover:bg-red-400/20"
+                        title="Remove Member"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="text-sm text-muted-foreground mt-2">
-                    Share this code with the invitee for registration.
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="pending">
-          <Card>
-            <CardHeader>
-              <CardTitle>Pending Invitations</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {pendingInvites.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p>No pending invitations</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Family Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Expires</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {pendingInvites.map((invite) => (
-                        <TableRow key={invite.code}>
-                          <TableCell className="font-medium">{invite.familyName}</TableCell>
-                          <TableCell>{invite.email}</TableCell>
-                          <TableCell>
-                            <Badge variant={getRoleBadgeVariant(invite.role)}>
-                              {invite.role}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {formatDistanceToNow(new Date(invite.expiresAt))} left
-                          </TableCell>
-                          <TableCell>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="outline" size="sm">
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Revoke Invitation</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Are you sure you want to revoke the invitation for {invite.familyName}?
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleRevokeInvite(invite.code)}>
-                                    Revoke
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="members">
-          <Card>
-            <CardHeader>
-              <CardTitle>Family Members</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {familyMembers.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p>No family members found</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Family Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Joined</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {familyMembers.map((member) => (
-                        <TableRow key={member.familyName}>
-                          <TableCell className="font-medium">
-                            {member.familyName}
-                            {member.familyName === user?.familyName && (
-                              <Badge variant="outline" className="ml-2 text-xs">You</Badge>
-                            )}
-                          </TableCell>
-                          <TableCell>{member.email}</TableCell>
-                          <TableCell>
-                            <Select
-                              value={member.role}
-                              onValueChange={(newRole) => handleUpdateRole(member.familyName, newRole)}
-                              disabled={member.familyName === user?.familyName}
-                            >
-                              <SelectTrigger className="w-32">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="adult">Adult</SelectItem>
-                                <SelectItem value="kid">Kid</SelectItem>
-                                <SelectItem value="guest">Guest</SelectItem>
-                                {user?.role === 'superadmin' && (
-                                  <>
-                                    <SelectItem value="admin">Admin</SelectItem>
-                                    <SelectItem value="superadmin">Super Admin</SelectItem>
-                                  </>
-                                )}
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell>
-                            {formatDistanceToNow(new Date(member.createdAt))} ago
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => handleResetPassword(member.familyName)}
-                                disabled={member.familyName === user?.familyName}
-                              >
-                                <RotateCcw className="w-4 h-4" />
-                              </Button>
-                              
-                              {member.familyName !== user?.familyName && (
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <Button variant="outline" size="sm">
-                                      <Trash2 className="w-4 h-4" />
-                                    </Button>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>Remove Family Member</AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        Are you sure you want to remove {member.familyName} from the family?
-                                        This action cannot be undone.
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                      <AlertDialogAction 
-                                        onClick={() => handleRemoveUser(member.familyName)}
-                                        className="bg-destructive text-destructive-foreground"
-                                      >
-                                        Remove
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                              )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
-};
+}

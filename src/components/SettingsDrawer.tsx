@@ -125,18 +125,18 @@ export function SettingsDrawer({ isOpen, onOpenChange }: SettingsDrawerProps) {
         body: JSON.stringify(config),
       });
 
-      if (!response.ok) throw new Error(\`Failed to save \${configType} config\`);
+      if (!response.ok) throw new Error(`Failed to save ${configType} config`);
 
       toast({
         title: "Success",
-        description: \`\${configType.charAt(0).toUpperCase() + configType.slice(1)} settings saved\`,
+        description: `${configType.charAt(0).toUpperCase() + configType.slice(1)} settings saved`,
       });
 
     } catch (error) {
-      console.error(\`Failed to save \${configType} config:\`, error);
+      console.error(`Failed to save ${configType} config:`, error);
       toast({
         title: "Error",
-        description: \`Failed to save \${configType} settings\`,
+        description: `Failed to save ${configType} settings`,
         variant: "destructive",
       });
     } finally {
@@ -151,7 +151,7 @@ export function SettingsDrawer({ isOpen, onOpenChange }: SettingsDrawerProps) {
         method: 'POST',
       });
 
-      if (!response.ok) throw new Error(\`Failed to reset \${configType} config\`);
+      if (!response.ok) throw new Error(`Failed to reset ${configType} config`);
 
       // Reload the specific config
       const configRes = await fetch(`${getApiBase()}/config/${configType}`);
@@ -176,14 +176,14 @@ export function SettingsDrawer({ isOpen, onOpenChange }: SettingsDrawerProps) {
 
       toast({
         title: "Success",
-        description: \`\${configType.charAt(0).toUpperCase() + configType.slice(1)} settings reset to defaults\`,
+        description: `${configType.charAt(0).toUpperCase() + configType.slice(1)} settings reset to defaults`,
       });
 
     } catch (error) {
-      console.error(\`Failed to reset \${configType} config:\`, error);
+      console.error(`Failed to reset ${configType} config:`, error);
       toast({
         title: "Error",
-        description: \`Failed to reset \${configType} settings\`,
+        description: `Failed to reset ${configType} settings`,
         variant: "destructive",
       });
     } finally {

@@ -79,7 +79,7 @@ const ZandaleeHeader = () => {
 
           <SettingsDrawer 
             isOpen={settingsOpen}
-            onClose={() => setSettingsOpen(false)}
+            onOpenChange={setSettingsOpen}
           />
         </div>
       </div>
