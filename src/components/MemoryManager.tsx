@@ -12,6 +12,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import { Search, Plus, Brain, BookOpen, Upload, Image, Heart, HelpCircle } from "lucide-react";
 import { useZandaleeAPI } from "@/hooks/useZandaleeAPI";
 import { useToast } from "@/hooks/use-toast";
+import { getApiBase } from "@/utils/apiConfig";
 
 interface MemoryItem {
   id: string;
@@ -73,11 +74,6 @@ const MemoryManager = () => {
   const { searchMemories, learnMemory } = useZandaleeAPI();
   const { toast } = useToast();
 
-  // -------------------- API BASE --------------------
-  const API_BASE =
-    import.meta.env.VITE_ZANDALEE_API_BASE?.replace(/\/+$/, "") ||
-    "http://127.0.0.1:11500";
-
   useEffect(() => {
     loadMemories();
     loadDiary();
@@ -86,7 +82,7 @@ const MemoryManager = () => {
   const loadMemories = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${API_BASE}/memory/search?limit=20`);
+      const response = await fetch(`${getApiBase()}/memory/search?limit=20`);
       const result = await response.json();
       if (result.ok) {
         setMemories(result.items || []);
@@ -105,7 +101,7 @@ const MemoryManager = () => {
 
   const loadDiary = async () => {
     try {
-      const response = await fetch(`${API_BASE}/diary/list?limit=20`);
+      const response = await fetch(`${getApiBase()}/diary/list?limit=20`);
       const result = await response.json();
       if (result.ok) {
         setDiaryEntries(result.items || []);
@@ -128,7 +124,7 @@ const MemoryManager = () => {
 
     try {
       setIsLoading(true);
-      const response = await fetch(`${API_BASE}/memory/search?q=${encodeURIComponent(searchQuery)}&limit=20`);
+      const response = await fetch(`${getApiBase()}/memory/search?q=${encodeURIComponent(searchQuery)}&limit=20`);
       const result = await response.json();
       if (result.ok) {
         setMemories(result.items || []);
@@ -153,7 +149,7 @@ const MemoryManager = () => {
 
     try {
       setIsLoading(true);
-      const response = await fetch(`${API_BASE}/diary/search?q=${encodeURIComponent(diarySearchQuery)}&limit=20`);
+      const response = await fetch(`${getApiBase()}/diary/search?q=${encodeURIComponent(diarySearchQuery)}&limit=20`);
       const result = await response.json();
       if (result.ok) {
         setDiaryEntries(result.items || []);
@@ -182,7 +178,7 @@ const MemoryManager = () => {
     }
 
     try {
-      const response = await fetch(`${API_BASE}/files/upload`, {
+      const response = await fetch(`${getApiBase()}/files/upload`, {
         method: 'POST',
         body: formData
       });
@@ -231,7 +227,7 @@ const MemoryManager = () => {
       setIsLoading(true);
       const tags = newMemory.tags.split(',').map(tag => tag.trim()).filter(Boolean);
       
-      const response = await fetch(`${API_BASE}/memory/learn`, {
+      const response = await fetch(`${getApiBase()}/memory/learn`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -302,7 +298,7 @@ const MemoryManager = () => {
         formData.append('emotion_tag', newDiary.emotion_tag);
       }
       
-      const response = await fetch(`${API_BASE}/diary/append`, {
+      const response = await fetch(`${getApiBase()}/diary/append`, {
         method: 'POST',
         body: formData
       });

@@ -43,7 +43,6 @@ export const InviteManagerPane = () => {
   const { toast } = useToast();
   const { user } = useSession();
 
-  const API_BASE = import.meta.env.VITE_ZANDALEE_API_BASE || 'http://127.0.0.1:11500';
   const ENABLE_INVITES = import.meta.env.VITE_ENABLE_INVITES !== 'false'; // Default enabled unless explicitly disabled
 
   useEffect(() => {
@@ -61,7 +60,7 @@ export const InviteManagerPane = () => {
     if (!ENABLE_INVITES) return;
     
     try {
-      const response = await fetch(`${API_BASE}/auth/invites`, {
+      const response = await fetch(`${getApiBase()}/auth/invites`, {
         headers: { 'X-User': user?.familyName || '' }
       });
       const data = await response.json();
@@ -77,7 +76,7 @@ export const InviteManagerPane = () => {
     if (!ENABLE_INVITES) return;
     
     try {
-      const response = await fetch(`${API_BASE}/auth/family/members`, {
+      const response = await fetch(`${getApiBase()}/auth/family/members`, {
         headers: { 'X-User': user?.familyName || '' }
       });
       const data = await response.json();
@@ -110,7 +109,7 @@ export const InviteManagerPane = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/auth/invite`, {
+      const response = await fetch(`${getApiBase()}/auth/invite`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -154,7 +153,7 @@ export const InviteManagerPane = () => {
     }
     
     try {
-      const response = await fetch(`${API_BASE}/auth/revoke-invite`, {
+      const response = await fetch(`${getApiBase()}/auth/revoke-invite`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -194,7 +193,7 @@ export const InviteManagerPane = () => {
     }
     
     try {
-      const response = await fetch(`${API_BASE}/auth/update-role`, {
+      const response = await fetch(`${getApiBase()}/auth/update-role`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -234,7 +233,7 @@ export const InviteManagerPane = () => {
     }
     
     try {
-      const response = await fetch(`${API_BASE}/auth/reset-password`, {
+      const response = await fetch(`${getApiBase()}/auth/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -273,7 +272,7 @@ export const InviteManagerPane = () => {
     }
     
     try {
-      const response = await fetch(`${API_BASE}/auth/remove-user`, {
+      const response = await fetch(`${getApiBase()}/auth/remove-user`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

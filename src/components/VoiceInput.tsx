@@ -1,8 +1,8 @@
-
 import { useState } from "react";
 import { Mic, MicOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { getApiBase } from "@/utils/apiConfig";
 
 interface VoiceInputProps {
   onTranscript: (text: string) => void;
@@ -14,11 +14,6 @@ const VoiceInput = ({ onTranscript, disabled }: VoiceInputProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
-  // -------------------- API BASE --------------------
-  const API_BASE =
-    import.meta.env.VITE_ZANDALEE_API_BASE?.replace(/\/+$/, "") ||
-    "http://127.0.0.1:11500";
-
   const handleVoiceInput = async () => {
     if (isListening || isProcessing || disabled) return;
 
@@ -27,7 +22,7 @@ const VoiceInput = ({ onTranscript, disabled }: VoiceInputProps) => {
 
     try {
       // Call the daemon's voice/listen endpoint
-      const response = await fetch(`${API_BASE}/voice/listen`, {
+      const response = await fetch(`${getApiBase()}/voice/listen`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });

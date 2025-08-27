@@ -5,11 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Upload, User, X, Trash2, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useZandaleeAPI } from "@/hooks/useZandaleeAPI";
-
-// -------------------- API BASE --------------------
-const API_BASE =
-  import.meta.env.VITE_ZANDALEE_API_BASE?.replace(/\/+$/, "") ||
-  "http://127.0.0.1:11500";
+import { getApiBase } from "@/utils/apiConfig";
 
 type ViewMode = 'fill' | 'fit';
 
@@ -44,7 +40,7 @@ const AvatarPanel = () => {
 
   const loadAvatars = async () => {
     try {
-      const response = await fetch(`${API_BASE}/avatar/list`);
+      const response = await fetch(`${getApiBase()}/avatar/list`);
       const data = await response.json();
       
       if (data.ok) {
@@ -57,7 +53,7 @@ const AvatarPanel = () => {
 
   const loadActiveAvatar = async () => {
     try {
-      const response = await fetch(`${API_BASE}/avatar/status`);
+      const response = await fetch(`${getApiBase()}/avatar/status`);
       const data = await response.json();
       
       if (data.ok && data.active_avatar_id) {
@@ -115,7 +111,7 @@ const AvatarPanel = () => {
       formData.append('file', file);
       formData.append('name', avatarName.trim());
 
-      const response = await fetch(`${API_BASE}/avatar/upload`, {
+      const response = await fetch(`${getApiBase()}/avatar/upload`, {
         method: 'POST',
         body: formData
       });
@@ -151,7 +147,7 @@ const AvatarPanel = () => {
 
   const selectAvatar = async (avatarId: string) => {
     try {
-      const response = await fetch(`${API_BASE}/avatar/select`, {
+      const response = await fetch(`${getApiBase()}/avatar/select`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: avatarId })
@@ -185,7 +181,7 @@ const AvatarPanel = () => {
     }
 
     try {
-      const response = await fetch(`${API_BASE}/avatar/${avatarId}`, {
+      const response = await fetch(`${getApiBase()}/avatar/${avatarId}`, {
         method: 'DELETE'
       });
 
