@@ -15,51 +15,120 @@
 - `src/hooks/useDirectLLM.ts` - Fixed localhost:11434 → 127.0.0.1:11434
 - `src/components/AvatarPanel.tsx` - Updated API_BASE format
 
-## 2. HOOKS & ENDPOINT COVERAGE ✅
+## 2. BACKEND API INTERFACE SPECIFICATION ✅
 
-### useGateway.ts (Complete Rewrite)
-**Health & Config:**
-- `health()` → GET /health → `{ ok: boolean; msg: string }`
-- `getConfig()` → GET /config → `Record<string, any>`
-- `setConfig(body)` → POST /config → `{ ok: boolean; config: any }`
+### Complete API Endpoint Mapping (useGateway.ts)
 
-**LLM (Ollama via Salad):**
-- `getTags()` → GET /api/tags → `{ models: any[] }`
-- `chat(body)` → POST /api/chat → `any`
+**Health & Configuration:**
+- `health()` → GET `/health` → `{ ok: boolean; msg: string }`
+- `getConfig()` → GET `/config` → `Record<string, any>`
+- `setConfig(body)` → POST `/config` → `{ ok: boolean; config: any }`
 
-**Voice (SAPI):**
-- `voices()` → GET /local/voices → `{ voices: string[] }`
-- `speak(body)` → POST /local/speak → `{ ok: boolean }`
+**LLM Integration (Ollama via Salad):**
+- `getTags()` → GET `/api/tags` → `{ models: any[] }`
+- `chat(body)` → POST `/api/chat` → `any`
 
-**PC Control:**
-- `keys(body)` → POST /local/keys → `any`
-- `mouse(body)` → POST /local/mouse → `any`
-- `openApp(body)` → POST /local/app → `any`
+**Voice & TTS (SAPI):**
+- `voices()` → GET `/local/voices` → `{ voices: string[] }`
+- `speak(body)` → POST `/local/speak` → `{ ok: boolean }`
+- Parameters: `{ text: string; voice?: string; rate?: number; volume?: number }`
 
-**Files:**
-- `upload(files)` → POST /local/upload → `{ ok: boolean; files: any[] }`
-- `listDocs()` → GET /local/docs → `{ docs: any[] }`
+**PC Control & Automation:**
+- `keys(body)` → POST `/local/keys` → `any`
+- `mouse(body)` → POST `/local/mouse` → `any`
+- `openApp(body)` → POST `/local/app` → `any`
 
-**Memory & Diary:**
-- `memoryLearn(body)` → POST /memory/learn → `{ ok: boolean; id: string }`
-- `memorySearch(q, limit)` → GET /memory/search → `{ results: any[] }`
-- `diaryAppend(body)` → POST /diary/append → `{ ok: boolean; id: string; day: string }`
-- `diaryRollup(period)` → POST /diary/rollup → `{ ok: boolean; period: string; text: string }`
+**File Management:**
+- `upload(files)` → POST `/local/upload` → `{ ok: boolean; files: any[] }`
+- `listDocs()` → GET `/local/docs` → `{ docs: any[] }`
 
-**Mic Wizard (with Shape Adapters):**
-- `micList()` → Adapter for max_input_channels → channels mapping
-- `micWizard()` → Adapter for snr_db/voiced_ratio/start_delay_ms/clipping_pct → SNR/voiced/startDelay/clip
-- `micUse(id)` → POST /mic/use → `{ ok: boolean; id?: number }`
+**Memory & Knowledge Base:**
+- `memoryLearn(body)` → POST `/memory/learn` → `{ ok: boolean; id: string }`
+- `memorySearch(q, limit)` → GET `/memory/search?q={q}&limit={limit}` → `{ results: any[] }`
 
-**Internet & Permissions:**
-- `openUrl(body)` → POST /local/open-url → `any`
-- `netFetch(url)` → GET /net/fetch → `any`
-- `netDownload(body)` → POST /net/download → `any`
-- `permExecute(command)` → POST /permissions/execute → `{ allowed: boolean; reason?: string }`
-- `permRequest(kind, payload, requester)` → POST /permissions/request → `any`
-- `permPending()` → GET /permissions/pending → `{ ok: boolean; pending: any[] }`
-- `permApprove(id, approver, note?)` → POST /permissions/approve → `any`
-- `permDeny(id, approver, note?)` → POST /permissions/deny → `any`
+**Diary & Logging:**
+- `diaryAppend(body)` → POST `/diary/append` → `{ ok: boolean; id: string; day: string }`
+- `diaryRollup(period)` → POST `/diary/rollup` → `{ ok: boolean; period: string; text: string }`
+- Supported periods: `"daily" | "weekly" | "monthly"`
+
+**Microphone Management (with Data Shape Adapters):**
+- `micList()` → GET `/mic/list` + Adapter → `{ devices: Device[], chosen?: number }`
+- `micWizard()` → POST `/mic/wizard` + Adapter → `{ ok: boolean; devices: TestResult[]; chosen: any; persisted: boolean }`
+- `micUse(id)` → POST `/mic/use` → `{ ok: boolean; id?: number }`
+
+**Shape Adapters:**
+```typescript
+// micList adapter: max_input_channels → channels
+{ id, name, channels: d.channels ?? d.max_input_channels ?? 1, default: !!d.default }
+
+// micWizard adapter: backend field mapping
+{ id, name, SNR: d.SNR ?? d.snr_db, voiced: d.voiced ?? d.voiced_ratio, 
+  startDelay: d.startDelay ?? d.start_delay_ms, clip: d.clip ?? d.clipping_pct, score: d.score }
+```
+
+**Internet & Network Operations:**
+- `openUrl(body)` → POST `/local/open-url` → `any`
+- `netFetch(url)` → GET `/net/fetch?url={encoded_url}` → `any`
+- `netDownload(body)` → POST `/net/download` → `any`
+
+**Permissions System:**
+- `permExecute(command)` → POST `/permissions/execute` → `{ allowed: boolean; reason?: string }`
+- `permRequest(kind, payload, requester)` → POST `/permissions/request` → `any`
+- `permPending()` → GET `/permissions/pending` → `{ ok: boolean; pending: any[] }`
+- `permApprove(id, approver, note?)` → POST `/permissions/approve` → `any`
+- `permDeny(id, approver, note?)` → POST `/permissions/deny` → `any`
+
+**Unified Helper Functions:**
+- `askAndSpeak(message)` → Combines chat + TTS via `/speak` endpoint
+- `askLLM(message, model?)` → Direct LLM interaction via `/api/chat`
+
+### TypeScript Interface Definitions
+
+**Authentication & User Management (src/types/auth.ts):**
+```typescript
+interface InviteRequest { familyName: string; email: string; role: Role }
+interface InviteResponse { ok: boolean; code?: string; expiresAt?: string; error?: string }
+interface LoginRequest { familyName: string; passwordOrPin: string }
+interface RegisterRequest { code: string; familyName: string; passwordOrPin: string }
+interface AuthResponse { ok: boolean; user?: { familyName: string; role: Role }; error?: string }
+interface FamilyMember { familyName: string; email: string; role: Role; createdAt: string }
+
+type Role = 'superadmin' | 'admin' | 'adult' | 'kid' | 'guest'
+```
+
+**Project & Chat Management (src/types/projects.ts):**
+```typescript
+interface Project { id: string; name: string; archived?: boolean; createdAt: string; lastActivity?: string }
+interface Thread { id: string; title?: string; pinned?: boolean; archived?: boolean; createdAt: string; updatedAt: string; summary?: string }
+interface ChatMessage { id: string; role: "user" | "assistant" | "system"; content: string; ts: string; authorFamilyName?: string }
+interface ProjectsStore { activeProjectId: string; list: Project[] }
+interface ChatStore { activeThreadId: string | null; threads: Thread[]; messages: Record<string, ChatMessage[]>; draftByThread: Record<string, string> }
+```
+
+**Shared Family Resources:**
+```typescript
+interface SharedChatMessage { id: string; authorFamilyName: string; content: string; ts: string }
+interface SharedDocument { name: string; size: number; uploadedAt: string; uploaderFamilyName: string; path: string }
+interface SharedUploadResponse { ok: boolean; files?: { name: string; path: string; size: number }[]; error?: string }
+```
+
+### API Configuration & Base URLs (src/utils/apiConfig.ts)
+
+**Environment Variable Resolution:**
+- `VITE_ZANDALEE_API_BASE` → Defaults to `/api` (relative)
+- `VITE_WS_BASE` → Defaults to `/ws` (relative)
+
+**URL Resolution Functions:**
+```typescript
+getApiBase(): string // Handles relative (/api) vs absolute (http://...) URLs
+getWsBase(): string   // WebSocket URL with protocol detection (ws:// vs wss://)
+getBaseUrl(): string  // Legacy compatibility function
+```
+
+**Relative Path Logic:**
+- Paths starting with `/` → Prepend `window.location.origin`
+- Absolute URLs → Use as-is with trailing slash removal
+- WebSocket protocol auto-detection based on HTTPS/HTTP
 
 ### useGatewayWS.ts (New WebSocket Hook) ✅
 - Handles permission events via WebSocket at `/ws`
