@@ -8,7 +8,7 @@ import VoiceInput from "@/components/VoiceInput";
 import CameraSettings from "@/components/CameraSettings";
 import MicSettings from "@/components/MicSettings";    
 import VoiceMetrics from "@/components/VoiceMetrics";
-import StatusBar from "@/components/StatusBar";
+import StatusBar from "@/components/StatusBar";    
 import AudioControls from "@/components/AudioControls";
 import ScreenSharePanel from "@/components/ScreenSharePanel";
 
